@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jan 03, 2026 at 12:58 PM
+-- Generation Time: Jan 03, 2026 at 01:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -122,8 +122,8 @@ CREATE TABLE `jarmu` (
 
 CREATE TABLE `jarmuberelhetoseg` (
   `jarmu` varchar(17) NOT NULL,
-  `kezdet` int(11) NOT NULL,
-  `veg` int(11) NOT NULL,
+  `kezdet` datetime NOT NULL,
+  `veg` datetime NOT NULL,
   `ismetlodes` enum('nincs','hetente','kethetente','havonta') NOT NULL DEFAULT 'nincs'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
