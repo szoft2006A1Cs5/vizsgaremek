@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jan 03, 2026 at 01:16 PM
+-- Generation Time: Jan 03, 2026 at 01:20 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -47,7 +47,7 @@ CREATE TABLE `berles` (
   `letet` int(11) NOT NULL,
   `kezdet` datetime NOT NULL,
   `veg` datetime NOT NULL,
-  `allapot` enum('javaslat','elfogadva','folyamatban','lezarva') NOT NULL,
+  `allapot` enum('berloJavaslat','berbeadoJavaslat','elfogadva','berloAtvetelElfogadva','berbeadoAtvetelElfogadva','aktiv','berloLezarasElfogadva','berbeadoLezarasElfogadva','lezarva','visszamondva') NOT NULL DEFAULT 'berloJavaslat',
   `atveteliHely` point NOT NULL,
   `uzemanyagszint` float DEFAULT NULL,
   `berloErtekeles` double DEFAULT NULL,
