@@ -1,4 +1,7 @@
 
+using backend.Contexts;
+using Microsoft.EntityFrameworkCore;
+
 namespace backend
 {
     public class Program
@@ -7,7 +10,15 @@ namespace backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var connStr = builder.Configuration.GetConnectionString("comove");
+            if (connStr == null)
+            {
+                Console.WriteLine("Nem található connection string az adatbázis kapcsolathoz!");
+                return;
+            }
+
             // Add services to the container.
+            builder.Services.AddDbContext<Context>(builder => builder.UseMySQL(connStr));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -26,7 +37,6 @@ namespace backend
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

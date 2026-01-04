@@ -1,4 +1,6 @@
-﻿namespace backend.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace backend.Models
 {
     public enum BerelhetosegIsmetlodes
     {
@@ -8,6 +10,7 @@
         Havonta = 3,
     }
 
+    [PrimaryKey(nameof(JarmuId), nameof(Kezdet), nameof(Veg))]
     public class JarmuBerelhetoseg
     {
         public required string JarmuId { get; set; }

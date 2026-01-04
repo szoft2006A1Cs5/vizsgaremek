@@ -1,5 +1,8 @@
-﻿namespace backend.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace backend.Models
 {
+    [PrimaryKey(nameof(JarmuId), nameof(EleresiUt))]
     public class JarmuKep
     {
         public required string JarmuId { get; set; }
