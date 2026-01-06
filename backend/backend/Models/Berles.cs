@@ -45,8 +45,8 @@ namespace backend.Models
         public double? BerbeadoErtekeles { get; set; }
 
         public int BerloId { get; set; }
-        public Felhasznalo Berlo { get; set; }
-        public required string JarmuId { get; set; }
-        public Jarmu Jarmu { get; set; }
+        public required Felhasznalo Berlo { get; set; }
+        public int JarmuId { get; set; }
+        public required Jarmu Jarmu { get; set; }
     }
 }

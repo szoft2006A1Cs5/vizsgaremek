@@ -20,6 +20,18 @@ namespace backend.Contexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Berles>()
+                .Property(x => x.Allapot)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<JarmuBerelhetoseg>()
+                .Property(x => x.Ismetlodes)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Felhasznalo>()
+                .Property(x => x.Jogosultsag)
+                .HasConversion<string>();
         }
     }
 }

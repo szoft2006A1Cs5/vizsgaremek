@@ -7,8 +7,8 @@
         public DateTime KuldesiIdo { get; set; }
         public bool Panasz { get; set; }
         public int KuldoId { get; set; }
-        public Felhasznalo Kuldo { get; set; }
+        public required Felhasznalo Kuldo { get; set; }
         public int BerlesId { get; set; }
-        public Berles Berles { get; set; }
+        public required Berles Berles { get; set; }
     }
 }

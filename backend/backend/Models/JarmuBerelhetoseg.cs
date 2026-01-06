@@ -13,8 +13,8 @@ namespace backend.Models
     [PrimaryKey(nameof(JarmuId), nameof(Kezdet), nameof(Veg))]
     public class JarmuBerelhetoseg
     {
-        public required string JarmuId { get; set; }
-        public Jarmu Jarmu { get; set; }
+        public int JarmuId { get; set; }
+        public required Jarmu Jarmu { get; set; }
         public DateTime Kezdet { get; set; }
         public DateTime Veg { get; set; }
         public BerelhetosegIsmetlodes Ismetlodes { get; set; }
