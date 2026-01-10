@@ -6,14 +6,14 @@ namespace backend.Contexts
 {
     public class Context : DbContext
     {
-        public DbSet<Felhasznalo> Felhasznalok { get; set; }
-        public DbSet<Jarmu> Jarmuvek { get; set; }
-        public DbSet<JarmuKep> JarmuKepek { get; set; }
-        public DbSet<JarmuBerelhetoseg> JarmuBerelhetosegek { get; set; }
-        public DbSet<Berles> Berlesek { get; set; }
-        public DbSet<Ertesites> Ertesitesek { get; set; }
-        public DbSet<Uzenet> Uzenetek { get; set; }
-        public DbSet<UzenetCsatolmany> UzenetCsatolmanyok { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<VehicleImage> VehicleImages { get; set; }
+        public DbSet<VehicleAvailability> VehicleAvailabilities { get; set; }
+        public DbSet<Rental> Rentals { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<MessageAttachment> MessageAttachments { get; set; }
 
         public Context(DbContextOptions<Context> options) : base(options) { }
 
@@ -21,16 +21,16 @@ namespace backend.Contexts
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Berles>()
-                .Property(x => x.Allapot)
+            modelBuilder.Entity<Rental>()
+                .Property(x => x.Status)
                 .HasConversion<string>();
 
-            modelBuilder.Entity<JarmuBerelhetoseg>()
-                .Property(x => x.Ismetlodes)
+            modelBuilder.Entity<VehicleAvailability>()
+                .Property(x => x.Recurrence)
                 .HasConversion<string>();
 
-            modelBuilder.Entity<Felhasznalo>()
-                .Property(x => x.Jogosultsag)
+            modelBuilder.Entity<User>()
+                .Property(x => x.Role)
                 .HasConversion<string>();
         }
     }

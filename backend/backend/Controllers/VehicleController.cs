@@ -9,11 +9,11 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class JarmuController : ControllerBase
+    public class VehicleController : ControllerBase
     {
         private readonly Context _context;
 
-        public JarmuController(Context ctx)
+        public VehicleController(Context ctx)
         {
             _context = ctx;
         }
@@ -22,14 +22,14 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _context.Jarmuvek.ToListAsync());
+            return Ok(await _context.Vehicles.ToListAsync());
         }
 
         // GET api/<JarmuController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var jarmu = await _context.Jarmuvek.FirstOrDefaultAsync(x => x.Id == id);
+            var jarmu = await _context.Vehicles.FirstOrDefaultAsync(x => x.Id == id);
 
             return jarmu != null ? Ok(jarmu) : NotFound();
         }
