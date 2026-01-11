@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jan 12, 2026 at 12:12 AM
+-- Generation Time: Jan 12, 2026 at 12:41 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -113,10 +113,10 @@ CREATE TABLE `users` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `vehicleavailabilies`
+-- Table structure for table `vehicleavailabilities`
 --
 
-CREATE TABLE `vehicleavailabilies` (
+CREATE TABLE `vehicleavailabilities` (
   `vehicleId` int(11) NOT NULL,
   `start` datetime NOT NULL,
   `end` datetime NOT NULL,
@@ -195,9 +195,9 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `vehicleavailabilies`
+-- Indexes for table `vehicleavailabilities`
 --
-ALTER TABLE `vehicleavailabilies`
+ALTER TABLE `vehicleavailabilities`
   ADD PRIMARY KEY (`vehicleId`,`start`,`end`);
 
 --
@@ -278,10 +278,10 @@ ALTER TABLE `rentals`
   ADD CONSTRAINT `rentals_ibfk_2` FOREIGN KEY (`renterId`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `vehicleavailabilies`
+-- Constraints for table `vehicleavailabilities`
 --
-ALTER TABLE `vehicleavailabilies`
-  ADD CONSTRAINT `vehicleavailabilies_ibfk_1` FOREIGN KEY (`vehicleId`) REFERENCES `vehicles` (`id`);
+ALTER TABLE `vehicleavailabilities`
+  ADD CONSTRAINT `vehicleavailabilities_ibfk_1` FOREIGN KEY (`vehicleId`) REFERENCES `vehicles` (`id`);
 
 --
 -- Constraints for table `vehicleimages`
