@@ -1,4 +1,5 @@
 
+using backend.Auth;
 using backend.Contexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,11 +20,14 @@ namespace backend
 
             // Add services to the container.
             builder.Services.AddDbContext<Context>(builder => builder.UseMySQL(connStr));
+            builder.Services.AddSingleton<AuthManager>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddAuthentication();
 
             var app = builder.Build();
 

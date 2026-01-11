@@ -16,7 +16,8 @@ namespace backend.Models
         public DateTime DateOfBirth { get; set; }
         public string? ProfilePicPath { get; set; }
         public required string Email { get; set; }
-        public required string Password { get; set; } // HASH
+        public required byte[] Password { get; set; } // HASH
+        public required byte[] Salt { get; set; }
         public UserRole Role { get; set; }
         public required string DriversLicenseNumber { get; set; }
         public DateTime DriversLicenseDate { get; set; }
