@@ -42,8 +42,11 @@ namespace backend.Auth
             return Tuple.Create(hash, salt);
         }
 
-        public string GenerateJWT(User user)
+        public string? GenerateJWT(User user)
         {
+            if (_config["Jwt:Secret"] == null)
+                return null;
+
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Secret"]));
             var signingCreds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
@@ -52,6 +55,7 @@ namespace backend.Auth
                 Subject = new ClaimsIdentity([
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Sub, $"{user.Id}"),
+                    new Claim(JwtRegisteredClaimNames.Name, $"{user.Id}"),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ]),
                 SigningCredentials = signingCreds,

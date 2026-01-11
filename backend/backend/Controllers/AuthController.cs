@@ -55,7 +55,8 @@ namespace backend.Controllers
             if (!_authMgr.VerifyPassword(credentials.Password, user))
                 return Unauthorized();
 
-            return Ok(_authMgr.GenerateJWT(user));
+            var jwt = _authMgr.GenerateJWT(user);
+            return jwt != null ? Ok(jwt) : StatusCode(500);
         }
 
         [HttpPost("register")]
@@ -89,7 +90,8 @@ namespace backend.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok(_authMgr.GenerateJWT(user));
+            var jwt = _authMgr.GenerateJWT(user);
+            return jwt != null ? Ok(jwt) : StatusCode(500);
         }
     }
 }

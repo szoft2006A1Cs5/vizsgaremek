@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,9 +31,33 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var jarmu = await _context.Vehicles.FirstOrDefaultAsync(x => x.Id == id);
+            var uid = User.FindFirst(ClaimTypes.NameIdentifier);
 
-            return jarmu != null ? Ok(jarmu) : NotFound();
+            var vehicle = await _context.Vehicles.Include(x => x.Owner).FirstOrDefaultAsync(x => x.Id == id);
+
+            if (vehicle == null)
+                return NotFound();
+
+            if (uid != null)
+            {
+                if (!int.TryParse(uid.Value, out var userId))
+                    return BadRequest();
+
+                if (vehicle.OwnerId == userId)
+                    return Ok(vehicle);
+            }
+
+            return Ok(new
+            {
+                vehicle.Id,
+                vehicle.OwnerId,
+                vehicle.Manufacturer,
+                vehicle.Model,
+                vehicle.AvgFuelConsumption,
+                vehicle.Description,
+                vehicle.OdometerReading,
+                vehicle.Year,
+            });
         }
     }
 }
