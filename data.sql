@@ -3,7 +3,7 @@ USE comove;
 -- Teszt Elek - tesztelek@teszt.hu - NagyTesztElek32
 -- Gipsz Jakab - gipszjakab@teszt.hu - KisGipszJakab64
 -- Vincs Eszter - vincseszter@teszt.hu - NagyVincsEszter128
--- Teszt Teréz - tesztterez@teszt.hu - KisTesztTerez256 (Nem ez a jelszva :/)
+-- Teszt Teréz - tesztterez@teszt.hu - KisTesztTerez256 (Nem ez a jelszava :/)
 INSERT INTO `users` (`id`, `idCardNumber`, `name`, `phone`, `dateOfBirth`, `profilePicPath`, `email`, `password`, `salt`, `role`, `driversLicenseNumber`, `driversLicenseDate`, `addressZipcode`, `addressSettlement`, `addressStreetHouse`, `balance`) VALUES
 (1, '123456AA', 'Teszt Elek', '36201234567', '2004-04-18', NULL, 'tesztelek@teszt.hu', 0x5cd79118803c295ee4566a87a59423e7b4b020194520f52e78bddcdbfb36daef43b032e7a122323e5849344ff1fd625a7885c3ff62688a0241b7e4018ed3d9e0, 0x945200f84cef838d8d44e0121415fa53, 'User', 'AA123456', '2024-02-04', '9700', 'Szombathely', 'Zrínyi Ilona utca 12.', 0),
 (2, '123456BB', 'Gipsz Jakab', '36701234567', '1995-07-21', NULL, 'gipszjakab@teszt.hu', 0xd08e0fc7c893f8e40935a39f87be3b90c43d63f563ff851e64469d0cdd468dd0ee73881850bb01a97a084fdaae5b634816dabd10c2b41dcbabef3705adbf16d9, 0x881c6de362d428ab7db9241bbe10d4ac, 'User', 'BB123456', '2017-03-12', '1117', 'Budapest', 'Budafoki út 12.', 0),
