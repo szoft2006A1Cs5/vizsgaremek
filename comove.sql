@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jan 10, 2026 at 11:20 PM
+-- Generation Time: Jan 12, 2026 at 12:12 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -99,7 +99,8 @@ CREATE TABLE `users` (
   `dateOfBirth` date NOT NULL,
   `profilePicPath` varchar(256) DEFAULT NULL,
   `email` varchar(64) NOT NULL,
-  `password` varchar(128) NOT NULL,
+  `password` blob NOT NULL,
+  `salt` blob NOT NULL,
   `role` enum('User','Administrator') NOT NULL DEFAULT 'User',
   `driversLicenseNumber` varchar(10) NOT NULL,
   `driversLicenseDate` date NOT NULL,
@@ -220,7 +221,7 @@ ALTER TABLE `vehicles`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -232,13 +233,13 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `rentals`
 --
 ALTER TABLE `rentals`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `vehicles`
