@@ -21,11 +21,11 @@ namespace backend.Controllers
         public required string IdCardNumber { get; set; }
         public required string Name { get; set; }
         public required string Phone { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public DateOnly DateOfBirth { get; set; }
         public required string Email { get; set; }
         public required string Password { get; set; }
         public required string DriversLicenseNumber { get; set; }
-        public DateTime DriversLicenseDate { get; set; }
+        public DateOnly DriversLicenseDate { get; set; }
         public required string AddressZipcode { get; set; }
         public required string AddressSettlement { get; set; }
         public required string AddressStreetHouse { get; set; }
@@ -56,7 +56,7 @@ namespace backend.Controllers
                 return Unauthorized();
 
             var jwt = _authMgr.GenerateJWT(user);
-            return jwt != null ? Ok(jwt) : StatusCode(500);
+            return jwt != null ? Ok(new { UserId = user.Id, Token = jwt }) : StatusCode(500);
         }
 
         [HttpPost("register")]
@@ -64,16 +64,16 @@ namespace backend.Controllers
         {
             var hashSalt = _authMgr.GeneratePasswordHashSalt(registration.Password);
 
-            User user = new User { 
+            User user = new User {
                 Name = registration.Name,
                 Phone = registration.Phone,
-                DateOfBirth = registration.DateOfBirth,
+                DateOfBirth = registration.DateOfBirth.ToDateTime(new TimeOnly(0)),
                 Email = registration.Email,
                 Password = hashSalt.Item1,
                 Salt = hashSalt.Item2,
                 IdCardNumber = registration.IdCardNumber,
                 DriversLicenseNumber = registration.DriversLicenseNumber,
-                DriversLicenseDate = registration.DriversLicenseDate,
+                DriversLicenseDate = registration.DriversLicenseDate.ToDateTime(new TimeOnly(0)),
                 Role = UserRole.User,
                 ProfilePicPath = null,
                 AddressZipcode = registration.AddressZipcode,
@@ -82,8 +82,9 @@ namespace backend.Controllers
                 Balance = 0,
             };
 
-            if (0 < _context.Users.Count(x => x.Email == user.Email) &&
-                0 < _context.Users.Count(x => x.IdCardNumber == user.IdCardNumber) &&
+            if (0 < _context.Users.Count(x => x.Email == user.Email) ||
+                0 < _context.Users.Count(x => x.Phone == user.Phone) ||
+                0 < _context.Users.Count(x => x.IdCardNumber == user.IdCardNumber) ||
                 0 < _context.Users.Count(x => x.DriversLicenseNumber == user.DriversLicenseNumber))
                 return StatusCode(409);
 
@@ -91,7 +92,7 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             var jwt = _authMgr.GenerateJWT(user);
-            return jwt != null ? Ok(jwt) : StatusCode(500);
+            return jwt != null ? Ok(new { UserId = user.Id, Token = jwt }) : StatusCode(500);
         }
     }
 }
