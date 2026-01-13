@@ -58,26 +58,38 @@ namespace backend
                 });
             });
 
-            if (builder.Configuration["Jwt:Secret"] == null)
+            // Kulon scope, hogy a titkos adatok azonnal droppoljanak
             {
-                Console.WriteLine("Nincs megadva JWT titkosítási kulcs!");
-                return;
-            }
+                var key = builder.Configuration["Auth:Jwt:Secret"];
+                var iss = builder.Configuration["Auth:Issuer"];
+                var aud = builder.Configuration["Auth:Audience"];
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                 {
-                     options.TokenValidationParameters = new TokenValidationParameters
+                if (key == null || iss == null || aud == null)
+                {
+                    Console.WriteLine("Hiányos az azonosítási konfiguráció!");
+                    return;
+                }
+
+                builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
                      {
-                         ValidateIssuer = true,
-                         ValidateAudience = true,
-                         ValidateLifetime = true,
-                         ValidateIssuerSigningKey = true,
-                         ValidIssuer = "comove",
-                         ValidAudience = "comoveUsers",
-                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
-                     };
-                 });
+                         options.TokenValidationParameters = new TokenValidationParameters
+                         {
+                             ValidateIssuer = true,
+                             ValidateAudience = true,
+                             ValidateLifetime = true,
+                             ValidateIssuerSigningKey = true,
+                             ValidIssuer = iss,
+                             ValidAudience = aud,
+                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+                         };
+                     });
+
+                builder.Services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("role", policy => policy.RequireClaim("role"));
+                });
+            }
 
             var app = builder.Build();
 
@@ -90,6 +102,7 @@ namespace backend
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

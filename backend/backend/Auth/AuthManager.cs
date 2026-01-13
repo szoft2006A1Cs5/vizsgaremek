@@ -44,10 +44,14 @@ namespace backend.Auth
 
         public string? GenerateJWT(User user)
         {
-            if (_config["Jwt:Secret"] == null)
+            var key = _config["Auth:Jwt:Secret"];
+            var iss = _config["Auth:Issuer"];
+            var aud = _config["Auth:Audience"];
+
+            if (key == null || iss == null || aud == null)
                 return null;
 
-            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Secret"]));
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var signingCreds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
             var token = new SecurityTokenDescriptor
@@ -56,12 +60,13 @@ namespace backend.Auth
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Sub, $"{user.Id}"),
                     new Claim(JwtRegisteredClaimNames.Name, $"{user.Id}"),
+                    new Claim("role", $"{user.Role}"),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ]),
                 SigningCredentials = signingCreds,
                 IssuedAt = DateTime.UtcNow,
-                Issuer = "comove",
-                Audience = "comoveUsers",
+                Issuer = iss,
+                Audience = aud,
                 Expires = DateTime.UtcNow.AddDays(7),
             };
 

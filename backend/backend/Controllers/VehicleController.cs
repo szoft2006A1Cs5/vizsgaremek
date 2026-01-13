@@ -1,4 +1,5 @@
 ﻿using backend.Contexts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -20,14 +21,14 @@ namespace backend.Controllers
             _context = ctx;
         }
 
-        // GET: api/<JarmuController>
+        // GET: api/<VehicleController>
         [HttpGet]
         public async Task<IActionResult> Get()
         {
             return Ok(await _context.Vehicles.ToListAsync());
         }
 
-        // GET api/<JarmuController>/5
+        // GET api/<VehicleController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
