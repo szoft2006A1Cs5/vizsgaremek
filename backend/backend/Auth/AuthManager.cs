@@ -72,5 +72,15 @@ namespace backend.Auth
 
             return new JsonWebTokenHandler().CreateToken(token);
         }
+
+        public int? GetUID(ClaimsPrincipal claims)
+        {
+            var uidClaim = claims.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (uidClaim == null) return null;
+            if (!int.TryParse(uidClaim.Value, out var uid)) return null;
+
+            return uid;
+        }
     }
 }

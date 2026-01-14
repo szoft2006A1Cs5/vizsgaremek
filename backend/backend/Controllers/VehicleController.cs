@@ -1,4 +1,5 @@
-﻿using backend.Contexts;
+﻿using backend.Auth;
+using backend.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -15,10 +16,13 @@ namespace backend.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly Context _context;
+        private readonly AuthManager _authMgr;
 
-        public VehicleController(Context ctx)
+        public VehicleController(Context ctx, AuthManager authMgr)
         {
             _context = ctx;
+            _authMgr = authMgr;
+
         }
 
         // GET: api/<VehicleController>
@@ -32,21 +36,15 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var uid = User.FindFirst(ClaimTypes.NameIdentifier);
+            var uid = _authMgr.GetUID(User);
 
             var vehicle = await _context.Vehicles.Include(x => x.Owner).FirstOrDefaultAsync(x => x.Id == id);
-
             if (vehicle == null)
                 return NotFound();
 
             if (uid != null)
-            {
-                if (!int.TryParse(uid.Value, out var userId))
-                    return BadRequest();
-
-                if (vehicle.OwnerId == userId)
+                if (vehicle.OwnerId == uid)
                     return Ok(vehicle);
-            }
 
             return Ok(new
             {

@@ -25,5 +25,8 @@ namespace backend.Models
         public required string AddressSettlement { get; set; }
         public required string AddressStreetHouse { get; set; }
         public int Balance { get; set; }
+
+        public ICollection<Rental> Rentals { get; set; } = [];
+        public ICollection<Vehicle> Vehicles { get; set; } = [];
     }
 }
