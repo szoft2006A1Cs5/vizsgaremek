@@ -1,5 +1,6 @@
 ﻿using backend.Auth;
 using backend.Contexts;
+using backend.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,22 +25,23 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var uid = _authMgr.GetUID(User);
+            var authUser = _authMgr.GetUser(User, _context);
 
-            var user = await _context.Users.Include(x => x.Rentals).FirstOrDefaultAsync(x => x.Id == id);
+            var user = await _context.Users
+                .Include(x => x.Rentals)
+                .ThenInclude(x => x.Vehicle)
+                .ThenInclude(x => x.Owner)
+                .Include(x => x.Vehicles)
+                .ThenInclude(x => x.Images)
+                .Include(x => x.Vehicles)
+                .ThenInclude(x => x.Availabilities)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (user == null) return NotFound();
 
-            if (uid == id)
-                return Ok(user);
+            var res = ControllerVisibilityFilterer.VisibilityTo(user, authUser);
 
-            return Ok(new
-            {
-                user.Id,
-                user.Name,
-                user.ProfilePicPath,
-                City = user.AddressSettlement
-            });
+            return res;
         }
     }
 }
