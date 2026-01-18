@@ -35,5 +35,7 @@ namespace backend.Models
 
         public ICollection<VehicleAvailability> Availabilities { get; set; } = [];
         public ICollection<VehicleImage> Images { get; set; } = [];
+        [VisibleTo(VisibilityLevel.OwnerOnly)]
+        public ICollection<Rental> Rentals { get; set; } = [];
     }
 }

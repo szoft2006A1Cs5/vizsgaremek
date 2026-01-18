@@ -9,13 +9,13 @@ namespace backend.Serialization
 {
     public class JsonVisibilityResolver : DefaultJsonTypeInfoResolver
     {
-        private readonly User? _user;
+        private readonly int? _uid;
         private readonly Context _context;
 
-        public JsonVisibilityResolver(User? user, Context ctx)
+        public JsonVisibilityResolver(int? uid, Context ctx)
         {
             _context = ctx;
-            _user = user;
+            _uid = uid;
         }
 
         public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
@@ -39,27 +39,24 @@ namespace backend.Serialization
                     prop.ShouldSerialize = (obj, value) =>
                     {
                         if (attribute.VisibilityLevel == VisibilityLevel.Public) return true;
-                        if (_user != null && _user.Role == UserRole.Administrator) return true;
-
-                        if (visKey == null || _user == null) return false;
-
-                        var visKeyVal = (int?)visKey.GetValue(obj);
+                        if (_uid == null) return false;
 
                         var user = _context.Users
                             .Include(x => x.Rentals)
                             .ThenInclude(x => x.Vehicle)
-                            .FirstOrDefault(x => x.Id == _user.Id);
+                            .FirstOrDefault(x => x.Id == _uid);
 
                         if (user == null) return false;
+                        if (user.Role == UserRole.Administrator) return true;
+                        if (visKey == null) return false;
 
-                        if (user != null &&
-                            visKeyVal != null &&
-                            0 < user.Rentals.Count(x => x.RenterId == visKeyVal || x.Vehicle.OwnerId == visKeyVal) &&
+                        var visKeyVal = (int?)visKey.GetValue(obj);
+                        if (visKeyVal == null) return false;
+
+                        if (0 < user.Rentals.Count(x => x.RenterId == visKeyVal || x.Vehicle.OwnerId == visKeyVal) &&
                             attribute.VisibilityLevel <= VisibilityLevel.InRelation) return true;
 
-                        if (user != null &&
-                            visKeyVal != null &&
-                            user.Id == visKeyVal &&
+                        if (user.Id == visKeyVal &&
                             attribute.VisibilityLevel <= VisibilityLevel.OwnerOnly) return true;
 
                         return false;

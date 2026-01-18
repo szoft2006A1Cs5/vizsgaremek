@@ -1,5 +1,6 @@
 ﻿using backend.Auth;
 using backend.Contexts;
+using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -29,7 +30,20 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _context.Vehicles.ToListAsync());
+            var uid = _authMgr.GetUID(User);
+
+            var vehicles = await _context.Vehicles
+                .Include(x => x.Owner)
+                .ThenInclude(x => x.Vehicles)
+                .Include(x => x.Owner)
+                .ThenInclude(x => x.Rentals)
+                .Include(x => x.Availabilities)
+                .Include(x => x.Rentals)
+                .ThenInclude(x => x.Renter)
+                .Include(x => x.Images)
+                .ToListAsync();
+
+            return ControllerVisibilityFilterer.VisibilityTo(vehicles, uid, _context);
         }
 
         // GET api/<VehicleController>/5
@@ -38,25 +52,20 @@ namespace backend.Controllers
         {
             var uid = _authMgr.GetUID(User);
 
-            var vehicle = await _context.Vehicles.Include(x => x.Owner).FirstOrDefaultAsync(x => x.Id == id);
-            if (vehicle == null)
-                return NotFound();
+            var vehicle = await _context.Vehicles
+                .Include(x => x.Owner)
+                .ThenInclude(x => x.Vehicles)
+                .Include(x => x.Owner)
+                .ThenInclude(x => x.Rentals)
+                .Include(x => x.Availabilities)
+                .Include(x => x.Rentals)
+                .ThenInclude(x => x.Renter)
+                .Include(x => x.Images)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (uid != null)
-                if (vehicle.OwnerId == uid)
-                    return Ok(vehicle);
+            if (vehicle == null) return NotFound();
 
-            return Ok(new
-            {
-                vehicle.Id,
-                vehicle.OwnerId,
-                vehicle.Manufacturer,
-                vehicle.Model,
-                vehicle.AvgFuelConsumption,
-                vehicle.Description,
-                vehicle.OdometerReading,
-                vehicle.Year,
-            });
+            return ControllerVisibilityFilterer.VisibilityTo(vehicle, uid, _context);
         }
     }
 }

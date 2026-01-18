@@ -4,16 +4,17 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using backend.Models;
+using backend.Contexts;
 
 namespace backend.Controllers
 {
     public static class ControllerVisibilityFilterer
     {
-        public static JsonResult VisibilityTo<T>(T data, User? user)
+        public static JsonResult VisibilityTo<T>(T data, int? uid, Context ctx)
         {
             var options = new JsonSerializerOptions
             {
-                TypeInfoResolver = new JsonVisibilityResolver(user),
+                TypeInfoResolver = new JsonVisibilityResolver(uid, ctx),
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 WriteIndented = true,
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
