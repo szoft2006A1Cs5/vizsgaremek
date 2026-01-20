@@ -10,11 +10,11 @@ namespace backend.Controllers
 {
     public static class ControllerVisibilityFilterer
     {
-        public static JsonResult VisibilityTo<T>(T data, int? uid, Context ctx)
+        public static JsonResult VisibilityTo<T>(T data, User? user)
         {
             var options = new JsonSerializerOptions
             {
-                TypeInfoResolver = new JsonVisibilityResolver(uid, ctx),
+                TypeInfoResolver = new JsonVisibilityResolver(user),
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 WriteIndented = true,
                 ReferenceHandler = ReferenceHandler.IgnoreCycles

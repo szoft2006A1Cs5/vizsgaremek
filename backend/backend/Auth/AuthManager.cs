@@ -1,6 +1,7 @@
 ﻿using backend.Contexts;
 using backend.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -83,13 +84,16 @@ namespace backend.Auth
             return uid;
         }
 
-        public User? GetUser(ClaimsPrincipal claims, Context context)
+        public async Task<User?> GetUser(ClaimsPrincipal claims, Context context)
         {
             var uid = GetUID(claims);
 
             if (uid == null) return null;
 
-            return context.Users.FirstOrDefault(x => x.Id == uid);
+            return await context.Users
+                .Include(x => x.Rentals)
+                .ThenInclude(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.Id == uid);
         }
     }
 }

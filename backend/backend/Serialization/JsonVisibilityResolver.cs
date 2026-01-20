@@ -9,13 +9,11 @@ namespace backend.Serialization
 {
     public class JsonVisibilityResolver : DefaultJsonTypeInfoResolver
     {
-        private readonly int? _uid;
-        private readonly Context _context;
+        private readonly User? _user;
 
-        public JsonVisibilityResolver(int? uid, Context ctx)
+        public JsonVisibilityResolver(User? user)
         {
-            _context = ctx;
-            _uid = uid;
+            _user = user;
         }
 
         public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
@@ -39,24 +37,18 @@ namespace backend.Serialization
                     prop.ShouldSerialize = (obj, value) =>
                     {
                         if (attribute.VisibilityLevel == VisibilityLevel.Public) return true;
-                        if (_uid == null) return false;
+                        if (_user == null) return false;
 
-                        var user = _context.Users
-                            .Include(x => x.Rentals)
-                            .ThenInclude(x => x.Vehicle)
-                            .FirstOrDefault(x => x.Id == _uid);
-
-                        if (user == null) return false;
-                        if (user.Role == UserRole.Administrator) return true;
+                        if (_user.Role == UserRole.Administrator) return true;
                         if (visKey == null) return false;
 
                         var visKeyVal = (int?)visKey.GetValue(obj);
                         if (visKeyVal == null) return false;
 
-                        if (0 < user.Rentals.Count(x => x.RenterId == visKeyVal || x.Vehicle.OwnerId == visKeyVal) &&
+                        if (0 < _user.Rentals.Count(x => x.RenterId == visKeyVal || x.Vehicle.OwnerId == visKeyVal) &&
                             attribute.VisibilityLevel <= VisibilityLevel.InRelation) return true;
 
-                        if (user.Id == visKeyVal &&
+                        if (_user.Id == visKeyVal &&
                             attribute.VisibilityLevel <= VisibilityLevel.OwnerOnly) return true;
 
                         return false;

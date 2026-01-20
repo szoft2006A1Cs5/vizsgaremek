@@ -30,7 +30,7 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var uid = _authMgr.GetUID(User);
+            var user = await _authMgr.GetUser(User, _context);
 
             var vehicles = await _context.Vehicles
                 .Include(x => x.Owner)
@@ -43,14 +43,14 @@ namespace backend.Controllers
                 .Include(x => x.Images)
                 .ToListAsync();
 
-            return ControllerVisibilityFilterer.VisibilityTo(vehicles, uid, _context);
+            return ControllerVisibilityFilterer.VisibilityTo(vehicles, user);
         }
 
         // GET api/<VehicleController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var uid = _authMgr.GetUID(User);
+            var user = await _authMgr.GetUser(User, _context);
 
             var vehicle = await _context.Vehicles
                 .Include(x => x.Owner)
@@ -65,7 +65,7 @@ namespace backend.Controllers
 
             if (vehicle == null) return NotFound();
 
-            return ControllerVisibilityFilterer.VisibilityTo(vehicle, uid, _context);
+            return ControllerVisibilityFilterer.VisibilityTo(vehicle, user);
         }
     }
 }

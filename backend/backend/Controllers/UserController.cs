@@ -25,7 +25,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var authUID = _authMgr.GetUID(User);
+            var loggedInUser = await _authMgr.GetUser(User, _context);
 
             var user = await _context.Users
                 .Include(x => x.Rentals)
@@ -39,7 +39,7 @@ namespace backend.Controllers
 
             if (user == null) return NotFound();
 
-            return ControllerVisibilityFilterer.VisibilityTo(user, authUID, _context); ;
+            return ControllerVisibilityFilterer.VisibilityTo(user, loggedInUser);
         }
     }
 }
