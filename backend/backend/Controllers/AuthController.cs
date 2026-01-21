@@ -50,7 +50,7 @@ namespace backend.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == credentials.Email);
 
             if (user == null)
-                return NotFound();
+                return Unauthorized();
 
             if (!_authMgr.VerifyPassword(credentials.Password, user))
                 return Unauthorized();
