@@ -103,7 +103,7 @@ namespace backend
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
@@ -111,6 +111,11 @@ namespace backend
 
             app.MapControllers();
 
+            app.UseCors(x => x
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowAnyOrigin()
+            );
 
             app.Run();
         }
