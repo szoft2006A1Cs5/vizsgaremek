@@ -1,0 +1,161 @@
+:root{
+    --bg:#f6f8fd;
+    --card:#ffffff;
+    --text:#0b1220;
+    --muted:#667085;
+    --shadow: 0 16px 40px rgba(2, 6, 23, 0.274);
+    --navy:#0b1f66;
+}
+
+*{ 
+  box-sizing: border-box;
+}
+
+body{
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color: var(--text);
+  padding: 32px 18px 60px;
+  background: var(--bg);
+}
+
+.wrap{ 
+  max-width: 1200px; 
+  margin: 0 auto; 
+}
+
+h1{
+  margin: 0 0 14px;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.card{
+  background: var(--card);
+  border-radius: 3%;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.card:hover{
+  transform: translateY(-2px);
+}
+
+.img{
+  width: 100%;
+  height: 190px;            
+  overflow: hidden;
+}
+
+.img img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  display: block;
+}
+
+.content{
+  padding: 14px 14px 16px;
+}
+
+.title{
+  margin: 0 0 4px;
+  font-size: 15px;
+  letter-spacing: -0.2px;
+}
+
+.meta{
+  margin: 0 0 6px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 650;
+}
+.owner{
+  color: #000;        
+  font-weight: 400;   
+}
+
+.chip{
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.nextrow{
+  margin-top: 10px;
+}
+
+.pillmain{
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--navy);
+  background: rgba(23, 54, 166, 0.151);
+  border: 1px solid rgba(23,55,166,.14);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.pill{
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(134,134,134,.08);
+  border: 1px solid rgba(78,78,78,.15);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(9, 75, 230, 0.171);
+}
+
+.price strong{
+  letter-spacing: 1px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.price span{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.heart{
+  font-size: 18px;
+  cursor: pointer;
+  color: black;
+}
+
+.heart.active{
+  color: red;
+}
+
+.stars i{
+  color: #f5b301;
+  font-size: 13px;
+}
+.rating-value{
+  font-size: 13px;
+}
+
+@media (max-width:520px){
+  .img{
+    height:170px;
+  }
+
+  .grid{
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  }
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="Stilus/kartyak.css">
+  <title>CoMove</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="kepek/logo/comove_logo6.png">
+  <script src="https://kit.fontawesome.com/3929e16ef5.js"></script>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Találatok</h1>
+      </div>
+    </div>
+
+    <section class="grid" id="grid">
+    <!--Kartyaaak-->
+      
+
+    </section>
+  </div>
+  <script>
+    document.querySelectorAll(".heart").forEach(heart => {
+      heart.addEventListener("click", (e) => {
+        e.stopPropagation()
+        heart.classList.toggle("active")
+        heart.classList.toggle("far")
+        heart.classList.toggle("fas")
+      })
+    })
+</script> 
+</body>
+</html>
