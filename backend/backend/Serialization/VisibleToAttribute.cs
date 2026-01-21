@@ -11,9 +11,7 @@
 
     [AttributeUsage(AttributeTargets.Property)]
     public class VisibilityKey : Attribute
-    {
-
-    }
+    { }
 
     [AttributeUsage(AttributeTargets.Property)]
     public class VisibleToAttribute : Attribute

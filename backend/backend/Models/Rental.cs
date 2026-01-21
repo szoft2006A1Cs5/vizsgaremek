@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace backend.Models
 {
@@ -28,6 +29,7 @@ namespace backend.Models
         public double PickupLatitude { get; set; }
         public double PickupLongtitude { get; set; }
 
+        [JsonIgnore]
         [NotMapped]
         public Tuple<double, double> Pickup
         {

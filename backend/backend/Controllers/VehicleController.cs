@@ -33,10 +33,9 @@ namespace backend.Controllers
             var user = await _authMgr.GetUser(User, _context);
 
             var vehicles = await _context.Vehicles
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
                 .Include(x => x.Owner)
-                .ThenInclude(x => x.Vehicles)
-                .Include(x => x.Owner)
-                .ThenInclude(x => x.Rentals)
                 .Include(x => x.Availabilities)
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Renter)
@@ -53,10 +52,9 @@ namespace backend.Controllers
             var user = await _authMgr.GetUser(User, _context);
 
             var vehicle = await _context.Vehicles
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
                 .Include(x => x.Owner)
-                .ThenInclude(x => x.Vehicles)
-                .Include(x => x.Owner)
-                .ThenInclude(x => x.Rentals)
                 .Include(x => x.Availabilities)
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Renter)
