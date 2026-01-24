@@ -1,4 +1,5 @@
-﻿using backend.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using backend.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models
@@ -12,7 +13,7 @@ namespace backend.Models
 
         public required User Owner { get; set; }
 
-        [VisibleTo(VisibilityLevel.InRelation)]
+        [VisibleTo(VisibilityLevel.InRelation), MaxLength()]
         public required string VIN { get; set; }
 
         [VisibleTo(VisibilityLevel.InRelation)]

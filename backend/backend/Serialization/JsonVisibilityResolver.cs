@@ -9,11 +9,11 @@ namespace backend.Serialization
 {
     public class JsonVisibilityResolver : DefaultJsonTypeInfoResolver
     {
-        private readonly User? _user;
+        private readonly Tuple<int, UserRole, List<int>>? _uidAndRelations;
 
-        public JsonVisibilityResolver(User? user)
+        public JsonVisibilityResolver(Tuple<int, UserRole, List<int>>? uidAndRelations)
         {
-            _user = user;
+            _uidAndRelations = uidAndRelations;
         }
 
         public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
@@ -28,7 +28,8 @@ namespace backend.Serialization
 
                 foreach (var prop in typeInfo.Properties)
                 {
-                    var propInfo = type.GetProperty(prop.Name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var propInfo = type.GetProperty(prop.Name, BindingFlags.IgnoreCase | BindingFlags.Public 
+                        | BindingFlags.Instance);
                     if (propInfo == null) continue;
 
                     var attribute = propInfo.GetCustomAttribute<VisibleToAttribute>(true);
@@ -37,19 +38,19 @@ namespace backend.Serialization
                     prop.ShouldSerialize = (obj, value) =>
                     {
                         if (attribute.VisibilityLevel == VisibilityLevel.Public) return true;
-                        if (_user == null) return false;
+                        if (_uidAndRelations == null) return false;
 
-                        if (_user.Role == UserRole.Administrator) return true;
+                        if (_uidAndRelations.Item2 == UserRole.Administrator) return true;
                         if (visKey == null) return false;
 
                         var visKeyVal = (int?)visKey.GetValue(obj);
                         if (visKeyVal == null) return false;
 
-                        if (0 < _user.Rentals.Count(x => x.RenterId == visKeyVal || x.Vehicle.OwnerId == visKeyVal) &&
-                            attribute.VisibilityLevel <= VisibilityLevel.InRelation) return true;
-
-                        if (_user.Id == visKeyVal &&
+                        if (_uidAndRelations.Item1 == visKeyVal &&
                             attribute.VisibilityLevel <= VisibilityLevel.OwnerOnly) return true;
+                        
+                        if (_uidAndRelations.Item3.Contains((int)visKeyVal) &&
+                            attribute.VisibilityLevel <= VisibilityLevel.InRelation) return true;
 
                         return false;
                     };

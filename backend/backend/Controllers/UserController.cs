@@ -26,7 +26,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var loggedInUser = await _authMgr.GetUser(User, _context);
+            var loggedInUser = await _authMgr.GetUIDAndRelations(User, _context);
 
             var user = await _context.Users
                 .AsNoTracking()

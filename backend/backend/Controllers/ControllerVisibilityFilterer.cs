@@ -10,7 +10,7 @@ namespace backend.Controllers
 {
     public static class ControllerVisibilityFilterer
     {
-        public static JsonResult VisibilityTo<T>(T data, User? user)
+        public static JsonResult VisibilityTo<T>(T data, Tuple<int, UserRole, List<int>>? user)
         {
             var options = new JsonSerializerOptions
             {

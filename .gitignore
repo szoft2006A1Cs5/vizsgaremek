@@ -2,3 +2,6 @@
 /backend/backend/obj/
 /backend/backend/bin/
 /**/__pycache__
+/**/*.DotSettings.*
+/**/.DS_Store
+/**/.idea/

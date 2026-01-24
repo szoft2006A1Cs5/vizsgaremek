@@ -20,12 +20,12 @@ namespace backend
             var connStr = builder.Configuration.GetConnectionString("comove");
             if (connStr == null)
             {
-                Console.WriteLine("Nem tal·lhatÛ connection string az adatb·zis kapcsolathoz!");
+                Console.WriteLine("Nem tal√°lhat√≥ connection string az adatb√°zis kapcsolathoz!");
                 return;
             }
 
             // Add services to the container.
-            builder.Services.AddDbContext<Context>(builder => builder.UseMySQL(connStr));
+            builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr));
             builder.Services.AddSingleton<AuthManager>();
 
             builder.Services.AddControllers()
@@ -70,7 +70,7 @@ namespace backend
 
                 if (key == null || iss == null || aud == null)
                 {
-                    Console.WriteLine("Hi·nyos az azonosÌt·si konfigur·ciÛ!");
+                    Console.WriteLine("Hi√°nyos az azonos√≠t√°si konfigur√°ci√≥!");
                     return;
                 }
 

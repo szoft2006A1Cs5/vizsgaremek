@@ -30,7 +30,7 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var user = await _authMgr.GetUser(User, _context);
+            var user = await _authMgr.GetUIDAndRelations(User, _context);
 
             var vehicles = await _context.Vehicles
                 .AsNoTracking()
@@ -49,7 +49,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var user = await _authMgr.GetUser(User, _context);
+            var user = await _authMgr.GetUIDAndRelations(User, _context);
 
             var vehicle = await _context.Vehicles
                 .AsNoTracking()

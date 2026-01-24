@@ -84,16 +84,24 @@ namespace backend.Auth
             return uid;
         }
 
-        public async Task<User?> GetUser(ClaimsPrincipal claims, Context context)
+        public async Task<Tuple<int, UserRole, List<int>>?> GetUIDAndRelations(ClaimsPrincipal claims, Context context)
         {
             var uid = GetUID(claims);
 
             if (uid == null) return null;
 
-            return await context.Users
+            var user = context.Users
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Vehicle)
-                .FirstOrDefaultAsync(x => x.Id == uid);
+                .Where(x => x.Id == uid);
+
+            var idsInRelation = await user.SelectMany(x => x.Rentals.Select(y => y.RenterId))
+                .Concat(user.SelectMany(x => x.Rentals.Select(y => y.Vehicle.OwnerId)))
+                .ToListAsync();
+
+            var role = await user.Select(x => x.Role).FirstOrDefaultAsync();
+
+            return Tuple.Create((int)uid, role, idsInRelation);
         }
     }
 }
