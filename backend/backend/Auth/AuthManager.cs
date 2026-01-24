@@ -97,6 +97,7 @@ namespace backend.Auth
 
             var idsInRelation = await user.SelectMany(x => x.Rentals.Select(y => y.RenterId))
                 .Concat(user.SelectMany(x => x.Rentals.Select(y => y.Vehicle.OwnerId)))
+                .Distinct()
                 .ToListAsync();
 
             var role = await user.Select(x => x.Role).FirstOrDefaultAsync();
