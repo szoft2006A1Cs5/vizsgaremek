@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36603.0 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backend", "backend\backend.csproj", "{C83BA1B4-CDA6-423B-A853-8BD17C7480B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTOGenerator", "DTOGenerator\DTOGenerator.csproj", "{C780002A-5D21-4028-BE8A-59CF47744712}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C83BA1B4-CDA6-423B-A853-8BD17C7480B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C83BA1B4-CDA6-423B-A853-8BD17C7480B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C83BA1B4-CDA6-423B-A853-8BD17C7480B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C780002A-5D21-4028-BE8A-59CF47744712}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C780002A-5D21-4028-BE8A-59CF47744712}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C780002A-5D21-4028-BE8A-59CF47744712}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C780002A-5D21-4028-BE8A-59CF47744712}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
