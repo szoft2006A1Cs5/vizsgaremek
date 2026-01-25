@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -73,7 +75,7 @@ namespace backend
                     Console.WriteLine("Hiányos az azonosítási konfiguráció!");
                     return;
                 }
-
+                
                 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                      {
@@ -91,7 +93,9 @@ namespace backend
 
                 builder.Services.AddAuthorization(options =>
                 {
-                    options.AddPolicy("role", policy => policy.RequireClaim("role"));
+                    options.AddPolicy("OnlyUser", policy => policy.RequireClaim(ClaimTypes.Role, "User"));
+                    options.AddPolicy("OnlyAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
+                    options.AddPolicy("AllowAll", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator", "User"));
                 });
             }
 

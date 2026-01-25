@@ -65,5 +65,24 @@ namespace backend.Controllers
 
             return ControllerVisibilityFilterer.VisibilityTo(vehicle, user);
         }
+
+        [Authorize(Roles = "User")]
+        [HttpGet("owned")]
+        public async Task<IActionResult> GetOwned()
+        {
+            var user = await _authMgr.GetUIDAndRelations(User, _context);
+
+            if (user == null) return Unauthorized();
+            
+            var vehicles = await _context.Vehicles
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
+                .Include(x => x.Availabilities)
+                .Include(x => x.Images)
+                .Where(x => x.OwnerId == user.Item1)
+                .ToListAsync();
+            
+            return ControllerVisibilityFilterer.VisibilityTo(vehicles, user);
+        }
     }
 }

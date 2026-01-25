@@ -5,18 +5,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace backend.Controllers
 {
-    public class LoginCredentialsObject
+    public class LoginDTO
     {
         public required string Email { get; set; }
         public required string Password { get; set; }
     }
 
-    public class RegistrationObject
+    public class RegistrationDTO
     {
         public required string IdCardNumber { get; set; }
         public required string Name { get; set; }
@@ -45,7 +46,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginCredentialsObject credentials)
+        public async Task<IActionResult> Login(LoginDTO credentials)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == credentials.Email);
 
@@ -60,11 +61,26 @@ namespace backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegistrationObject registration)
+        public async Task<IActionResult> Register(RegistrationDTO registration)
         {
+            if (!Regex.IsMatch(registration.Name, @"^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)+$") ||
+                !Regex.IsMatch(registration.IdCardNumber, @"^\d{6}[A-Z]{2}$") ||
+                !Regex.IsMatch(registration.DriversLicenseNumber, @"^[A-Z]{2}\d{6}$") ||
+                !Regex.IsMatch(registration.Email, @"^[A-z0-9.-]+@([A-z0-9-]+\.)+(com|hu)$") ||
+                !Regex.IsMatch(registration.Phone, @"^(36|06)(94|70|30|20)\d{7}$") ||
+                !Regex.IsMatch(registration.AddressZipcode, @"^\d{4}%") ||
+                !(registration.DateOfBirth.ToDateTime(new TimeOnly(0)).AddYears(18) <= DateTime.Now))
+                return BadRequest(new { Error = "A megadott adatok hibásak!" });
+            
+            if (_context.Users.Any(x => x.Email == registration.Email) ||
+                _context.Users.Any(x => x.Phone == registration.Phone) ||
+                _context.Users.Any(x => x.IdCardNumber == registration.IdCardNumber) ||
+                _context.Users.Any(x => x.DriversLicenseNumber == registration.DriversLicenseNumber))
+                return StatusCode(409);
+            
             var hashSalt = _authMgr.GeneratePasswordHashSalt(registration.Password);
-
-            User user = new User {
+            
+            var user = new User {
                 Name = registration.Name,
                 Phone = registration.Phone,
                 DateOfBirth = registration.DateOfBirth.ToDateTime(new TimeOnly(0)),
@@ -81,13 +97,7 @@ namespace backend.Controllers
                 AddressStreetHouse = registration.AddressStreetHouse,
                 Balance = 0,
             };
-
-            if (0 < _context.Users.Count(x => x.Email == user.Email) ||
-                0 < _context.Users.Count(x => x.Phone == user.Phone) ||
-                0 < _context.Users.Count(x => x.IdCardNumber == user.IdCardNumber) ||
-                0 < _context.Users.Count(x => x.DriversLicenseNumber == user.DriversLicenseNumber))
-                return StatusCode(409);
-
+            
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 

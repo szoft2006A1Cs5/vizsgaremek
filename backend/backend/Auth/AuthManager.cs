@@ -61,7 +61,7 @@ namespace backend.Auth
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Sub, $"{user.Id}"),
                     new Claim(JwtRegisteredClaimNames.Name, $"{user.Id}"),
-                    new Claim("role", $"{user.Role}"),
+                    new Claim(ClaimTypes.Role, $"{user.Role}"),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ]),
                 SigningCredentials = signingCreds,

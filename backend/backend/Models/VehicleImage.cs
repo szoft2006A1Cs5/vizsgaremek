@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models
 {
@@ -7,6 +8,7 @@ namespace backend.Models
     {
         public int VehicleId { get; set; }
         public required Vehicle Vehicle { get; set; }
+        [MaxLength(512)]
         public required string ImagePath { get; set; }
     }
 }
