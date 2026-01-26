@@ -68,7 +68,7 @@ namespace backend.Controllers
                 !Regex.IsMatch(registration.DriversLicenseNumber, @"^[A-Z]{2}\d{6}$") ||
                 !Regex.IsMatch(registration.Email, @"^[A-z0-9.-]+@([A-z0-9-]+\.)+(com|hu)$") ||
                 !Regex.IsMatch(registration.Phone, @"^(36|06)(94|70|30|20)\d{7}$") ||
-                !Regex.IsMatch(registration.AddressZipcode, @"^\d{4}%") ||
+                !Regex.IsMatch(registration.AddressZipcode, @"^\d{4}$") ||
                 !(registration.DateOfBirth.ToDateTime(new TimeOnly(0)).AddYears(18) <= DateTime.Now))
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
