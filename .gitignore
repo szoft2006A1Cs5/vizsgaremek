@@ -1,6 +1,8 @@
 /backend/.vs
 /backend/backend/obj/
 /backend/backend/bin/
+/backend/backend.UnitTests/obj/
+/backend/backend.UnitTests/bin/
 /**/__pycache__
 /**/*.DotSettings.*
 /**/.DS_Store

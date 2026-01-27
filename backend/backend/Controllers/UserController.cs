@@ -31,6 +31,7 @@ namespace backend.Controllers
             var user = await _context.Users
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
+                .AsSplitQuery()
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Vehicle)
                 .ThenInclude(x => x.Owner)

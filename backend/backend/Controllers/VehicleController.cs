@@ -54,6 +54,7 @@ namespace backend.Controllers
             var vehicle = await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
+                .AsSplitQuery()
                 .Include(x => x.Owner)
                 .Include(x => x.Availabilities)
                 .Include(x => x.Rentals)
@@ -77,6 +78,7 @@ namespace backend.Controllers
             var vehicles = await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
+                .AsSplitQuery()
                 .Include(x => x.Availabilities)
                 .Include(x => x.Images)
                 .Where(x => x.OwnerId == user.Item1)
