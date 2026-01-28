@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CoMove</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Stilus/login_reg.css">
+    <script src="Script/script.js" defer></script>
+    <link rel="icon" type="image/png" sizes="16x16" href="kepek/logo/comove_logo6.png">
+</head>
+
+<body>
+    <main class="frame">
+        <section class="card">
+            <header class="hero">
+                <div class="topbar">
+                    <button class="back" type="button" aria-label="Vissza">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M14.5 5l-7 7 7 7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                 <div class="hero-logo" aria-hidden="true">
+                    <img src="kepek/logo/comove_logo4.png" alt="CoMove">
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="title">
+                    <h1 id="headline">Üdvözöljük!</h1>
+                <div class="subtitle" id="subline">Jelentkezzen be fiókjába</div>
+            </div>
+
+            <div class="tabs" role="tablist" aria-label="Belépés / Regisztráció">
+                <button class="tab active" id="tab-login" type="button" role="tab">
+                    Bejelentkezés
+                </button>
+                <button class="tab" id="tab-register" type="button" role="tab">
+                    Regisztráció
+                </button>
+            </div>
+
+
+
+            <!--Bejelentkezos cucc-->
+            <div class="panel active" id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+                <form class="form" action="#" method="post">
+                    <label class="field">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/>
+                        </svg>
+                        <input type="text" name="login_name" placeholder="Teljes név" autocomplete="name" />
+                    </label>
+
+                    <label class="field">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM10 8a2 2 0 0 1 4 0v2h-4V8z"/>
+                        </svg>
+                        <input type="password" name="login_password" placeholder="Jelszó" autocomplete="current-password" />
+
+                        <svg class="end-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/>
+                        </svg>
+                    </label>
+                    <div class="row">
+                        <label class="remember">
+                            <input type="checkbox" name="remember" />
+                            <span>Emlékezzen rám</span>
+                        </label>
+                        <a href="#">Elfelejtetted a jelszót?</a>
+                    </div>
+                    <br>
+                    <button class="btn" type="submit">Belépés</button>
+                </form>
+                <br>
+                <div class="bottom">
+                    Nincs fiókod?&nbsp;&nbsp;&nbsp;<a href="#" id="goto-register">Regisztrálok</a>
+                </div>
+            </div>
+
+
+
+            <!--Regisztralos cucc-->
+            <div class="panel" id="panel-register">
+                <form class="form" action="#">
+                    <label class="field">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/>
+                        </svg>
+                        <input type="text" name="teljes_name" placeholder="Teljes név"/>
+                    </label>
+
+                    <label class="field">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1zm12 8H5v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9zM6 8h14V7a1 1 0 0 0-1-1h-1v1a1 1 0 1 1-2 0V6H8v1a1 1 0 1 1-2 0V6H5a1 1 0 0 0-1 1v1z"/>
+                        </svg>
+                        <input type="date" name="szuletesi_datum" placeholder="Születési dátum"/>
+                    </label>
+
+                    <label class="field">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6.6 10.8c1.5 3 3.9 5.4 6.9 6.9l2.3-2.3c.4-.4 1-.5 1.5-.3 1 .4 2.1.6 3.2.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C11.8 21 3 12.2 3 1.5 3 .9 3.4.5 4 .5H7c.6 0 1 .4 1 1 0 1.1.2 2.2.6 3.2.2.5.1 1.1-.3 1.5L6.6 10.8z"/>
+                        </svg>
+                        <input type="tel" name="telefonszam"  placeholder="Telefonszám" autocomplete="tel" inputmode="tel"/>
+                    </label>
+
+                    <label class="field">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/>
+                        </svg>
+                        <input type="email" name="email" placeholder="user@gmail.com"/>
+                    </label>
+
+                    <label class="field">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM10 8a2 2 0 0 1 4 0v2h-4V8z"/>
+                        </svg>
+                        <input type="password" name="jelszo" placeholder="Jelszó"/>
+                        <svg class="end-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/>
+                        </svg>
+                    </label>
+                    
+                    <label class="field">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM10 8a2 2 0 0 1 4 0v2h-4V8z"/>
+                        </svg>
+                        <input type="password" name="jelszo" placeholder="Jelszó újra"/>
+                    </label>
+
+                    <div class="row terms-row" style="margin-top:6px;">
+                        <label class="remember">
+                            <input type="checkbox" id="feltetelek"/>
+                            <span>Elfogadom a felhasználási feltételeket</span>
+                        </label>
+                        <a href="https://njt.hu/felhasznalasi_feltetelek" id="feltetelek-link" target="_blank">Feltételek</a>
+                    </div>
+
+                    <button class="btn" id="regisztracio-gomb" >Fiók létrehozása</button>
+                <!--<div class="platform">Vagy folytatás ezzel</div>
+
+                    <div class="social" aria-label="Social login">
+                        <button type="button" aria-label="Facebook">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14 8h2V5h-2c-2.2 0-4 1.8-4 4v2H8v3h2v5h3v-5h2.2l.8-3H13V9c0-.6.4-1 1-1z"/>
+                            </svg>
+                        </button>
+                        <button type="button" aria-label="Google">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21.8 12.3c0-.7-.1-1.3-.2-1.9H12v3.6h5.5a4.7 4.7 0 0 1-2 3.1v2.3h3.2c1.9-1.7 3.1-4.3 3.1-7.1z"/>
+                                <path d="M12 22c2.7 0 5-0.9 6.7-2.6l-3.2-2.3c-.9.6-2 1-3.5 1-2.7 0-4.9-1.8-5.7-4.2H3v2.4A10 10 0 0 0 12 22z"/>
+                                <path d="M6.3 13.9a6 6 0 0 1 0-3.8V7.7H3a10 10 0 0 0 0 8.6l3.3-2.4z"/>
+                                <path d="M12 5.9c1.5 0 2.9.5 4 1.5l3-3A10 10 0 0 0 12 2 10 10 0 0 0 3 7.7l3.3 2.4C7.1 7.7 9.3 5.9 12 5.9z"/>
+                            </svg>
+                        </button>
+                        <button type="button" aria-label="Apple">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" class="apple-icon">
+                                <path d="M16.4 13.4c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.4.8-.8 0-1.9-.8-3.2-.8-1.6 0-3.1 1-3.9 2.5-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.5 1.2 0 1.6-.8 3.1-.8s1.9.8 3.1.8c1.3 0 2.1-1.2 2.9-2.4.9-1.4 1.3-2.8 1.3-2.8s-2.8-1.1-2.8-4.5z" fill="currentColor"/>
+                                <path d="M13.9 4.8c.7-.9 1.2-2.1 1.1-3.3-1 .1-2.2.7-2.9 1.6-.7.8-1.3 2.1-1.1 3.3 1.1.1 2.2-.6 2.9-1.6z"fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>-->
+                </form>
+                <br>
+                <div class="bottom">
+                    Van már fiókod?&nbsp;&nbsp;&nbsp;<a href="#" id="goto-login">Bejelentkezem</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script>
+        document.addEventListener("click", function(sz){
+            const szem = sz.target.closest(".end-icon");
+            if(!szem){
+                return
+            }
+
+            const input = szem.closest(".field").querySelector('input[type="password"], input[type="text"]');
+
+            if(input.type === "password"){
+                input.type = "text";
+                szem.classList.add("active");
+            }else{
+                input.type = "password";
+                szem.classList.remove("active");
+            }
+        });
+    </script>
+</body>
+</html>
