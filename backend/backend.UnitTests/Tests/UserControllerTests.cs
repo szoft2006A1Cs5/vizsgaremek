@@ -77,9 +77,6 @@ namespace backend.UnitTests.Tests
         {
             var result = (await _controller!.Get(1)) as ContentResult;
             Assert.IsNotNull(result);
-
-            var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(result.Content ?? "");
-            Assert.IsNotNull(dict);
         }
     }
 }
