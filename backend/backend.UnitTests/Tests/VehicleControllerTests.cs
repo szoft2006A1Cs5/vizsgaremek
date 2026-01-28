@@ -1,4 +1,4 @@
-namespace backend.UnitTests;
+namespace backend.UnitTests.Tests;
 
 [TestClass]
 public class VehicleControllerTests
