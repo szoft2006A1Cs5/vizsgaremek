@@ -43,10 +43,7 @@ namespace backend.Controllers
 
             if (user == null) return NotFound();
 
-            Stopwatch sw = Stopwatch.StartNew();
             var res = ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
-            sw.Stop();
-            Console.WriteLine($"Serialization took: {sw.ElapsedMilliseconds} ms");
 
             return res;
         }
