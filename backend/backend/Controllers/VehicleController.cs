@@ -42,7 +42,7 @@ namespace backend.Controllers
                 .Include(x => x.Images)
                 .ToListAsync();
 
-            return ControllerVisibilityFilterer.VisibilityTo(vehicles, user);
+            return ControllerVisibilityFilterer.VisibilityTo(vehicles, user, 200);
         }
 
         // GET api/<VehicleController>/5
@@ -64,7 +64,7 @@ namespace backend.Controllers
 
             if (vehicle == null) return NotFound();
 
-            return ControllerVisibilityFilterer.VisibilityTo(vehicle, user);
+            return ControllerVisibilityFilterer.VisibilityTo(vehicle, user, 200);
         }
 
         [Authorize(Roles = "User")]
@@ -84,7 +84,7 @@ namespace backend.Controllers
                 .Where(x => x.OwnerId == user.Item1)
                 .ToListAsync();
             
-            return ControllerVisibilityFilterer.VisibilityTo(vehicles, user);
+            return ControllerVisibilityFilterer.VisibilityTo(vehicles, user, 200);
         }
     }
 }

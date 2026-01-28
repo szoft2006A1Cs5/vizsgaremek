@@ -5,8 +5,11 @@ using backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using NuGet.ContentModel;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace backend.UnitTests.Tests
@@ -26,21 +29,28 @@ namespace backend.UnitTests.Tests
             AuthManager authMgr = new AuthManager(config);
             Context context = new Context(DbContextMock.Create());
 
-            var claims = new Claim[]
-            {
-            };
+            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim(JwtRegisteredClaimNames.Email, "tesztelek@teszt.hu"),
+                        new Claim(JwtRegisteredClaimNames.Sub, "1"),
+                        new Claim(JwtRegisteredClaimNames.Name, "1"),
+                        new Claim(ClaimTypes.Role, "User"),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    ]
+                )
+            );
 
             _controller = new UserController(context, authMgr);
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = 
+                    User = claimsPrincipal
                 }
             };
 
-            context.Users.AddRange(new User[]
-            {
+            context.Users.AddRange([
                 new User
                 {
                     Id = 1,
@@ -57,15 +67,19 @@ namespace backend.UnitTests.Tests
                     AddressStreetHouse = "Utca utca 1.",
                     Balance = 0,
                 }
-            });
+            ]);
+
+            context.SaveChanges();
         }
         
         [TestMethod]
         public async Task GetUser1_Ok()
         {
-            var result = (await _controller!.Get(1)) as OkObjectResult;
-            Assert.AreEqual("a", "a");
+            var result = (await _controller!.Get(1)) as ContentResult;
             Assert.IsNotNull(result);
+
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(result.Content ?? "");
+            Assert.IsNotNull(dict);
         }
     }
 }

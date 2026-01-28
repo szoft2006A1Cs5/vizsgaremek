@@ -5,12 +5,13 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using backend.Models;
 using backend.Contexts;
+using System.Net;
 
 namespace backend.Controllers
 {
     public static class ControllerVisibilityFilterer
     {
-        public static JsonResult VisibilityTo<T>(T data, Tuple<int, UserRole, List<int>>? user)
+        public static ContentResult VisibilityTo<T>(T data, Tuple<int, UserRole, List<int>>? user, int statusCode)
         {
             var options = new JsonSerializerOptions
             {
@@ -20,10 +21,14 @@ namespace backend.Controllers
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
 
-            var result = new JsonResult(data, options);
-            result.StatusCode = 200;
+            var content = JsonSerializer.Serialize(data, options);
 
-            return result;
+            return new ContentResult
+            {
+                StatusCode = statusCode,
+                Content = content,
+                ContentType = "application/json"
+            };
         }
     }
 }

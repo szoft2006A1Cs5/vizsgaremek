@@ -26,7 +26,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var loggedInUser = await _authMgr.GetUIDAndRelations(User, _context);
+            var authUser = await _authMgr.GetUIDAndRelations(User, _context);
 
             var user = await _context.Users
                 .AsNoTracking()
@@ -43,7 +43,12 @@ namespace backend.Controllers
 
             if (user == null) return NotFound();
 
-            return ControllerVisibilityFilterer.VisibilityTo(user, loggedInUser);
+            Stopwatch sw = Stopwatch.StartNew();
+            var res = ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
+            sw.Stop();
+            Console.WriteLine($"Serialization took: {sw.ElapsedMilliseconds} ms");
+
+            return res;
         }
     }
 }
