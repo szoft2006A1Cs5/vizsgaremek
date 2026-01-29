@@ -17,67 +17,43 @@ namespace backend.UnitTests.Tests
     [TestClass]
     public sealed class UserControllerTests
     {
+        TestingEnvironment _environment;
         UserController? _controller;
 
         [TestInitialize]
         public void Initialize()
         {
-            IConfigurationRoot config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
+            _environment = MockContext.CreateContext();
 
-            AuthManager authMgr = new AuthManager(config);
-            Context context = new Context(DbContextMock.Create());
-
-            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(
-                new ClaimsIdentity(
-                    [
-                        new Claim(JwtRegisteredClaimNames.Email, "tesztelek@teszt.hu"),
-                        new Claim(JwtRegisteredClaimNames.Sub, "1"),
-                        new Claim(ClaimTypes.NameIdentifier, "1"),
-                        new Claim(ClaimTypes.Role, "User"),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                    ],
-                    "Custom"
-                )
-            );
-
-            _controller = new UserController(context, authMgr);
+            _controller = new UserController(_environment.Context, _environment.AuthManager);
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = claimsPrincipal
+                    User = MockContext.GetClaimsPrincipalFor(1, UserRole.User)
                 }
             };
+        }
 
-            context.Users.AddRange([
-                new User
-                {
-                    Id = 1,
-                    IdCardNumber = "123456AA",
-                    Name = "Teszt Elek",
-                    Email = "tesztelek@teszt.hu",
-                    Phone = "36701234567",
-                    Password = [],
-                    Salt = [],
-                    DriversLicenseNumber = "AA123456",
-                    DriversLicenseDate = new DateTime(),
-                    AddressZipcode = "1000",
-                    AddressSettlement = "Budapest",
-                    AddressStreetHouse = "Utca utca 1.",
-                    Balance = 0,
-                }
-            ]);
-
-            context.SaveChanges();
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _environment.Context.Dispose();
         }
         
         [TestMethod]
-        public async Task GetUser1_Ok()
+        public async Task GetUser_Ok()
         {
             var result = (await _controller!.Get(1)) as ContentResult;
             Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetUser_NotFound()
+        {
+            var result = (await _controller!.Get(2)) as ContentResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(404, result.StatusCode);
         }
     }
 }

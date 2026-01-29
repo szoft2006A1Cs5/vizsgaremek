@@ -41,11 +41,13 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Availabilities)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (user == null) return NotFound();
+            if (user == null) return new ContentResult
+            {
+                StatusCode = 404,
+                ContentType = "application/json"
+            };
 
-            var res = ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
-
-            return res;
+            return ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
         }
     }
 }
