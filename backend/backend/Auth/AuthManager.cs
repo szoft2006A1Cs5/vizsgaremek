@@ -61,6 +61,7 @@ namespace backend.Auth
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Sub, $"{user.Id}"),
                     new Claim(JwtRegisteredClaimNames.Name, $"{user.Id}"),
+                    new Claim(ClaimTypes.NameIdentifier, $"{user.Id}"),
                     new Claim(ClaimTypes.Role, $"{user.Role}"),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ]),
@@ -76,7 +77,7 @@ namespace backend.Auth
 
         public int? GetUID(ClaimsPrincipal claims)
         {
-            var uidClaim = claims.FindFirst(ClaimTypes.NameIdentifier);
+            var uidClaim = claims.FindFirst(JwtRegisteredClaimNames.Sub);
 
             if (uidClaim == null) return null;
             if (!int.TryParse(uidClaim.Value, out var uid)) return null;

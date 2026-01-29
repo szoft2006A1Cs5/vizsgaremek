@@ -34,10 +34,11 @@ namespace backend.UnitTests.Tests
                     [
                         new Claim(JwtRegisteredClaimNames.Email, "tesztelek@teszt.hu"),
                         new Claim(JwtRegisteredClaimNames.Sub, "1"),
-                        new Claim(JwtRegisteredClaimNames.Name, "1"),
+                        new Claim(ClaimTypes.NameIdentifier, "1"),
                         new Claim(ClaimTypes.Role, "User"),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                    ]
+                    ],
+                    "Custom"
                 )
             );
 
