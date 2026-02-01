@@ -77,7 +77,7 @@ namespace backend.Auth
 
         public int? GetUID(ClaimsPrincipal claims)
         {
-            var uidClaim = claims.FindFirst(JwtRegisteredClaimNames.Sub);
+            var uidClaim = claims.FindFirst(ClaimTypes.NameIdentifier);
 
             if (uidClaim == null) return null;
             if (!int.TryParse(uidClaim.Value, out var uid)) return null;

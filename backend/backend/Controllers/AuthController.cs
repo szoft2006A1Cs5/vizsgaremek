@@ -6,32 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using backend.DTOs.Auth;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace backend.Controllers
 {
-    public class LoginDTO
-    {
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-    }
-
-    public class RegistrationDTO
-    {
-        public required string IdCardNumber { get; set; }
-        public required string Name { get; set; }
-        public required string Phone { get; set; }
-        public DateOnly DateOfBirth { get; set; }
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-        public required string DriversLicenseNumber { get; set; }
-        public DateOnly DriversLicenseDate { get; set; }
-        public required string AddressZipcode { get; set; }
-        public required string AddressSettlement { get; set; }
-        public required string AddressStreetHouse { get; set; }
-    }
-
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase

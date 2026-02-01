@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using backend.DTOs.Vehicle;
+using Microsoft.AspNetCore.Http.Extensions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -85,6 +87,35 @@ namespace backend.Controllers
                 .ToListAsync();
             
             return ControllerVisibilityFilterer.VisibilityTo(vehicles, user, 200);
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] VehicleDTO vehicledata)
+        {
+            var authUser = await _authMgr.GetUIDAndRelations(User, _context);
+
+            if (authUser == null) return Unauthorized();
+
+            Vehicle vehicle = new Vehicle
+            {
+                Id = vehicledata.Id,
+                OwnerId = authUser.Item1,
+                VIN = vehicledata.VIN,
+                LicensePlate = vehicledata.LicensePlate,
+                Manufacturer = vehicledata.Manufacturer,
+                Model = vehicledata.Model,
+                Year = vehicledata.Year,
+                Description = vehicledata.Description,
+                OdometerReading = vehicledata.OdometerReading,
+                AvgFuelConsumption = vehicledata.AvgFuelConsumption,
+                InsuranceNumber = vehicledata.InsuranceNumber,
+            };
+            
+            await _context.Vehicles.AddAsync(vehicle);
+            await _context.SaveChangesAsync();
+
+            return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", vehicle);
         }
     }
 }

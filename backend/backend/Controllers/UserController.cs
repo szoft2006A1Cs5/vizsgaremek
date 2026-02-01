@@ -4,6 +4,7 @@ using backend.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using backend.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -31,7 +32,6 @@ namespace backend.Controllers
             var user = await _context.Users
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
-                .AsSplitQuery()
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Vehicle)
                 .ThenInclude(x => x.Owner)
@@ -39,7 +39,10 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Images)
                 .Include(x => x.Vehicles)
                 .ThenInclude(x => x.Availabilities)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .AsSplitQuery()
+                .Where(x => x.Id == id)
+                //.Select(FilteredExpressionBuilder.BuildFilteredExpression<User>(_context, VisibilityLevel.InRelation))
+                .FirstOrDefaultAsync();
 
             if (user == null) return new ContentResult
             {
@@ -47,6 +50,7 @@ namespace backend.Controllers
                 ContentType = "application/json"
             };
 
+            // return Ok(user);
             return ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
         }
     }

@@ -11,7 +11,7 @@ namespace backend.Models
         [VisibilityKey]
         public int OwnerId { get; set; }
 
-        public required User Owner { get; set; }
+        public User? Owner { get; set; }
 
         [VisibleTo(VisibilityLevel.InRelation), MaxLength(17)]
         public required string VIN { get; set; }
