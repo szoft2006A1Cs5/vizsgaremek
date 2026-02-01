@@ -42,7 +42,7 @@ namespace backend.UnitTests.Tests
         }
         
         [TestMethod]
-        public async Task GetUser_Ok()
+        public async Task GetUserPublic_Ok()
         {
             var result = (await _controller!.Get(1)) as ContentResult;
             Assert.IsNotNull(result);
@@ -55,5 +55,35 @@ namespace backend.UnitTests.Tests
             Assert.IsNotNull(result);
             Assert.AreEqual(404, result.StatusCode);
         }
+        
+        [TestMethod]
+        public async Task GetUserOwner_Ok() {}
+        
+        [TestMethod]
+        public async Task GetUserInRelation_Ok() {}
+        
+        [TestMethod]
+        public async Task GetUserAdmin_Ok() {}
+        
+        [TestMethod]
+        public async Task PutUser_Ok() {}
+        
+        [TestMethod]
+        public async Task PutUser_NotFound() {}
+        
+        [TestMethod]
+        public async Task PutUser_Forbidden() {}
+        
+        [TestMethod]
+        public async Task PutUser_Conflict() {}
+        
+        [TestMethod]
+        public async Task DeleteUser_Ok() {}
+        
+        [TestMethod]
+        public async Task DeleteUser_NotFound() {}
+        
+        [TestMethod]
+        public async Task DeleteUser_Forbidden() {}
     }
 }
