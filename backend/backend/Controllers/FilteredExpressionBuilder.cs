@@ -7,12 +7,16 @@ namespace backend.Controllers;
 
 public static class FilteredExpressionBuilder
 {
-    public static Expression<Func<T, object>> BuildFilteredExpression<T>(Context ctx, VisibilityLevel level)
+    public static Expression<Func<T, object>>? BuildFilteredExpression<T>(Context ctx, VisibilityLevel level)
     {
         var model = Expression.Parameter(typeof(T), "model");
         var bindings = new List<MemberBinding>();
 
-        foreach (var prop in ctx.Model.FindEntityType(typeof(T)).GetProperties())
+        var modelProps = ctx.Model.FindEntityType(typeof(T));
+
+        if (modelProps == null) return null;
+
+        foreach (var prop in modelProps.GetProperties())
         {
             var propVisibility = prop.PropertyInfo?.GetCustomAttribute<VisibleToAttribute>()?
                                 .VisibilityLevel ?? VisibilityLevel.Public;
@@ -20,7 +24,6 @@ public static class FilteredExpressionBuilder
             if (level < propVisibility || prop.PropertyInfo == null) continue;
 
             var expNode = Expression.Property(model, prop.PropertyInfo);
-
             bindings.Add(Expression.Bind(prop.PropertyInfo, expNode));
         }
 

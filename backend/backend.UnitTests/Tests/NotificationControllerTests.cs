@@ -10,13 +10,13 @@ public class NotificationControllerTests
     public async Task GetNotifications_Unauthorized() {}
     
     [TestMethod]
-    public async Task GetNotification_Ok() {}
+    public async Task GetNotificationById_Ok() {}
     
     [TestMethod]
-    public async Task GetNotification_Unauthorized() {}
+    public async Task GetNotificationById_Unauthorized() {}
     
     [TestMethod]
-    public async Task GetNotification_NotFound() {}
+    public async Task GetNotificationById_NotFound() {}
     
     [TestMethod]
     public async Task PostNotification_Ok() {}

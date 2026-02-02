@@ -50,7 +50,7 @@ namespace backend.Controllers
                 ContentType = "application/json"
             };
 
-            // return Ok(user);
+            //return Ok(user);
             return ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
         }
     }
