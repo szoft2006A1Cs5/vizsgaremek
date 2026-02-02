@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using backend.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
+using backend.VisibilityFiltering;
 
 namespace backend.Models
 {
-    public class Vehicle
+    public class Vehicle : IFilterable<Vehicle>
     {
         public int Id { get; set; }
 
@@ -41,5 +43,10 @@ namespace backend.Models
         public ICollection<VehicleImage> Images { get; set; } = [];
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
+
+        public static Expression<Func<Vehicle, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

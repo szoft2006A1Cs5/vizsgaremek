@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
 using backend.Serialization;
+using backend.VisibilityFiltering;
 
 namespace backend.Models
 {
@@ -9,7 +11,7 @@ namespace backend.Models
         Administrator = 1
     };
 
-    public class User
+    public class User : IFilterable<User>
     {
         [VisibilityKey]
         public int Id { get; set; }
@@ -65,6 +67,10 @@ namespace backend.Models
         
         [VisibleTo(VisibilityLevel.OwnerOnly)]
         public ICollection<Notification> Notifications { get; set; } = [];
-        
+
+        public static Expression<Func<User, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

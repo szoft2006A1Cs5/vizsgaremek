@@ -3,7 +3,7 @@ using System.Reflection;
 using backend.Contexts;
 using backend.Serialization;
 
-namespace backend.Controllers;
+namespace backend.VisibilityFiltering;
 
 public static class FilteredExpressionBuilder
 {
