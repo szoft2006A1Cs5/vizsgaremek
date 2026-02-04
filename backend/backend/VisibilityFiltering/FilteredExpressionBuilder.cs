@@ -9,6 +9,13 @@ namespace backend.VisibilityFiltering;
 
 public static class FilteredExpressionBuilder
 {
+    // TODO: Ez most konkretan csak az IFilterable-os osztalyokat szuri meg,
+    //       nekunk meg kellene a lehetoseg, hogy ICollectionokre, sot meg
+    //       nem IFilterable-os osztalyokra is rarakhassuk a FilterVisibility-t,
+    //       hogy amennyiben azoknak lenne IFilterable-os gyermekobjektumuk/kollekciojuk,
+    //       akkor azok filterolodjenek.
+    //       + nyilvan a nestelodes (sidenote: asszem ezzel kinyirjuk majd a .Include()-okat).
+    
     public static IQueryable<object>? FilterVisibility<T>(this IQueryable<T> model, DbContext context, User? authUser) where T : class, IFilterable<T>
     {
         var filteringExp = BuildFilteredExpression<T>(context, authUser);
@@ -55,7 +62,7 @@ public static class FilteredExpressionBuilder
             Expression.New(typeof(T)),
             bindings
         );
-
+        
         return Expression.Lambda<Func<T, object>>(body, param);
     }
 }

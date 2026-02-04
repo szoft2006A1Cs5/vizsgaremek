@@ -70,7 +70,20 @@ namespace backend.Models
 
         public static Expression<Func<User, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel, User? authUser)
         {
-            return x => true;
+            switch (visLevel)
+            {
+                case VisibilityLevel.Public:
+                case VisibilityLevel.AdminOnly when authUser != null && authUser.Role == UserRole.Administrator:
+                    return x => true;
+                case VisibilityLevel.InRelation when authUser != null:
+                    return x => x.Rentals.Any(y => y.RenterId == authUser.Id ||
+                                                   y.Vehicle.OwnerId == authUser.Id) ||
+                                x.Id == authUser.Id;
+                case VisibilityLevel.OwnerOnly when authUser != null:
+                    return x => x.Id == authUser.Id;
+                default:
+                    return x => false;
+            }
         }
     }
 }
