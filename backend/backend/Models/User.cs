@@ -68,7 +68,7 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly)]
         public ICollection<Notification> Notifications { get; set; } = [];
 
-        public static Expression<Func<User, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel)
+        public static Expression<Func<User, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel, int? authUserId)
         {
             throw new NotImplementedException();
         }

@@ -7,7 +7,7 @@ namespace backend.VisibilityFiltering;
 
 public static class FilteredExpressionBuilder
 {
-    public static Expression<Func<T, object>>? BuildFilteredExpression<T>(Context ctx, VisibilityLevel level)
+    public static Expression<Func<T, object>>? BuildFilteredExpression<T>(Context ctx, int authUser) where T : IFilterable<T>
     {
         var model = Expression.Parameter(typeof(T), "model");
         var bindings = new List<MemberBinding>();
@@ -21,10 +21,15 @@ public static class FilteredExpressionBuilder
             var propVisibility = prop.PropertyInfo?.GetCustomAttribute<VisibleToAttribute>()?
                                 .VisibilityLevel ?? VisibilityLevel.Public;
 
-            if (level < propVisibility || prop.PropertyInfo == null) continue;
+            if (prop.PropertyInfo == null) continue;
 
-            var expNode = Expression.Property(model, prop.PropertyInfo);
-            bindings.Add(Expression.Bind(prop.PropertyInfo, expNode));
+            var valueAssigned = Expression.IfThenElse(
+                T.GetVisibilityConditionExpression(propVisibility, authUser),
+                Expression.Property(model, prop.PropertyInfo),
+                Expression.Constant(null)
+            );
+
+            bindings.Add(Expression.Bind(prop.PropertyInfo, valueAssigned));
         }
 
         var body = Expression.MemberInit(

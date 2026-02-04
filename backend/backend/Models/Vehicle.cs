@@ -41,10 +41,11 @@ namespace backend.Models
 
         public ICollection<VehicleAvailability> Availabilities { get; set; } = [];
         public ICollection<VehicleImage> Images { get; set; } = [];
+
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
 
-        public static Expression<Func<Vehicle, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel)
+        public static Expression<Func<Vehicle, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel, int? authUserId)
         {
             throw new NotImplementedException();
         }

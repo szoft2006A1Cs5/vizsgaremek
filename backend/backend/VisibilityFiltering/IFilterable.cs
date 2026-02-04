@@ -5,5 +5,5 @@ namespace backend.VisibilityFiltering;
 
 public interface IFilterable<T> where T : IFilterable<T>
 {
-    static abstract Expression<Func<T, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel);
+    static abstract Expression<Func<T, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel, int? authUserId);
 }
