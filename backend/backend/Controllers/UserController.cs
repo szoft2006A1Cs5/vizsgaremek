@@ -28,7 +28,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var authUser = await _authMgr.GetUIDAndRelations(User, _context);
+            var authUser = await _authMgr.GetUser(User, _context);
 
             var user = await _context.Users
                 .AsNoTracking()
@@ -42,7 +42,7 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Availabilities)
                 .AsSplitQuery()
                 .Where(x => x.Id == id)
-                .FilterVisibility(_context, authUser?.Item1 ?? null)!
+                .FilterVisibility(_context, authUser)!
                 .FirstOrDefaultAsync();
 
             if (user == null) return NotFound();

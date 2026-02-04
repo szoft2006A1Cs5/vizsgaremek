@@ -85,6 +85,18 @@ namespace backend.Auth
             return uid;
         }
 
+        public async Task<User?> GetUser(ClaimsPrincipal claims, Context context)
+        {
+            var uid = GetUID(claims);
+
+            if (uid == null) return null;
+
+            return await context.Users
+                .Include(x => x.Rentals)
+                .Include(x => x.Vehicles)
+                .FirstOrDefaultAsync(x => x.Id == uid);
+        }
+        
         public async Task<Tuple<int, UserRole, List<int>>?> GetUIDAndRelations(ClaimsPrincipal claims, Context context)
         {
             var uid = GetUID(claims);

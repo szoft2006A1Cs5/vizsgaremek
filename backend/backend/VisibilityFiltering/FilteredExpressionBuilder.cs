@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using backend.Contexts;
+using backend.Models;
 using backend.Serialization;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,13 +9,13 @@ namespace backend.VisibilityFiltering;
 
 public static class FilteredExpressionBuilder
 {
-    public static IQueryable<object>? FilterVisibility<T>(this IQueryable<T> model, DbContext context, int? authUser) where T : class, IFilterable<T>
+    public static IQueryable<object>? FilterVisibility<T>(this IQueryable<T> model, DbContext context, User? authUser) where T : class, IFilterable<T>
     {
         var filteringExp = BuildFilteredExpression<T>(context, authUser);
         return filteringExp != null ? model.Select(filteringExp) : null;
     }
 
-    public static Expression<Func<T, object>>? BuildFilteredExpression<T>(DbContext ctx, int? authUser) where T : class, IFilterable<T>
+    private static Expression<Func<T, object>>? BuildFilteredExpression<T>(DbContext ctx, User? authUser) where T : class, IFilterable<T>
     {
         var param = Expression.Parameter(typeof(T), "model");
         var bindings = new List<MemberBinding>();
@@ -30,7 +31,7 @@ public static class FilteredExpressionBuilder
 
             if (prop.PropertyInfo == null) continue;
 
-            var valueAssigned = Expression.IfThenElse(
+            var valueAssigned = Expression.Condition(
                 Expression.Invoke(T.GetVisibilityConditionExpression(propVisibility, authUser), param),
                 Expression.Property(param, prop.PropertyInfo),
                 Expression.Default(prop.PropertyInfo.PropertyType)

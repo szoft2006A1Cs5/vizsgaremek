@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using backend.DTOs.Vehicle;
+using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -51,22 +52,24 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var user = await _authMgr.GetUIDAndRelations(User, _context);
+            var authUser = await _authMgr.GetUser(User, _context);
 
             var vehicle = await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
-                .AsSplitQuery()
                 .Include(x => x.Owner)
                 .Include(x => x.Availabilities)
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .Where(x => x.Id == id)
+                .FilterVisibility(_context, authUser)!
+                .FirstOrDefaultAsync();
 
             if (vehicle == null) return NotFound();
 
-            return ControllerVisibilityFilterer.VisibilityTo(vehicle, user, 200);
+            return Ok(vehicle);
+            //return ControllerVisibilityFilterer.VisibilityTo(vehicle, user, 200);
         }
 
         [Authorize(Roles = "User")]
