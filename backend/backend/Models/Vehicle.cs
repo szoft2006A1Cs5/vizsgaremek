@@ -45,9 +45,9 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
 
-        public static Expression<Func<Vehicle, bool>>? GetVisibilityConditionExpression(VisibilityLevel visLevel, int? authUserId)
+        public static Expression<Func<Vehicle, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel, int? authUserId)
         {
-            throw new NotImplementedException();
+            return x => true;
         }
     }
 }

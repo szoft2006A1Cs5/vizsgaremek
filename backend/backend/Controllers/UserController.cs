@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using backend.Models;
+using backend.VisibilityFiltering;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -41,17 +42,19 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Availabilities)
                 .AsSplitQuery()
                 .Where(x => x.Id == id)
-                //.Select(FilteredExpressionBuilder.BuildFilteredExpression<User>(_context, VisibilityLevel.InRelation))
+                .FilterVisibility(_context, authUser?.Item1 ?? null)!
                 .FirstOrDefaultAsync();
 
-            if (user == null) return new ContentResult
-            {
-                StatusCode = 404,
-                ContentType = "application/json"
-            };
+            if (user == null) return NotFound();
 
-            //return Ok(user);
-            return ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
+            /*   return new ContentResult
+           {
+               StatusCode = 404,
+               ContentType = "application/json"
+           };*/
+
+            //return ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
+            return Ok(user);
         }
     }
 }
