@@ -4,7 +4,7 @@ using backend.Models;
 
 namespace backend.VisibilityFiltering;
 
-public interface IFilterable<T> where T : IFilterable<T>
+public interface IFilterable<T> where T : class, IFilterable<T>
 {
     static abstract Expression<Func<T, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel, User? authUser);
 }

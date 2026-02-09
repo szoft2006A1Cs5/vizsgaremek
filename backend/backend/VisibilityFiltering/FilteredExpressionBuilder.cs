@@ -4,6 +4,7 @@ using backend.Contexts;
 using backend.Models;
 using backend.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace backend.VisibilityFiltering;
 
@@ -30,19 +31,40 @@ public static class FilteredExpressionBuilder
         var modelProps = ctx.Model.FindEntityType(typeof(T));
 
         if (modelProps == null) return null;
-
-        foreach (var prop in modelProps.GetProperties())
+        
+        foreach (var prop in modelProps.GetProperties().Concat<IPropertyBase>(modelProps.GetNavigations()))
         {
             var propVisibility = prop.PropertyInfo?.GetCustomAttribute<VisibleToAttribute>()?
                                 .VisibilityLevel ?? VisibilityLevel.Public;
 
             if (prop.PropertyInfo == null) continue;
 
-            var valueAssigned = Expression.Condition(
-                Expression.Invoke(T.GetVisibilityConditionExpression(propVisibility, authUser), param),
-                Expression.Property(param, prop.PropertyInfo),
-                Expression.Default(prop.PropertyInfo.PropertyType)
-            );
+            Expression valueAssigned;
+
+            // TODO: Tok mindegy mit csinalok ez itt igy nem lesz jo, mert habar ez a type
+            //       nem IFilterable, lehet egy benne nestelt az. Ugyhogy minden nav propnak vegig kell
+            //       majd mennie a filterelesen. Ez eddig igy nem tul szep. Esetleges megoldas, hogy valahogy
+            //       az IQueryable Expression Tree-jeben kutyulok ossze valamit, hogy a filtereles megtortenjen,
+            //       de abba meg nem nagyon neztem bele, ez inkabb csak egy otlet.
+            if (prop is INavigation navProp &&
+                navProp.TargetEntityType.ClrType
+                    .GetInterfaces()
+                    .Any(x => x.IsGenericType &&
+                              x.GetGenericTypeDefinition() == typeof(IFilterable<>))
+                )
+            {
+                // TODO: Hogyan tartom fent az include nestelest, ha itt egy uj select jon letre a filtereles miatt?
+                //       Kovetkezo kerdes, egyaltalan peldaul hogyan selectelek egy IEnumerablebe?
+                valueAssigned = Expression.Default(prop.PropertyInfo.PropertyType);
+            }
+            else
+            {
+                valueAssigned = Expression.Condition(
+                    Expression.Invoke(T.GetVisibilityConditionExpression(propVisibility, authUser), param),
+                    Expression.Property(param, prop.PropertyInfo),
+                    Expression.Default(prop.PropertyInfo.PropertyType)
+                );
+            }
 
             bindings.Add(Expression.Bind(prop.PropertyInfo, valueAssigned));
         }
