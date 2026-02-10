@@ -16,15 +16,25 @@ public static class FilteredExpressionBuilder
     //       hogy amennyiben azoknak lenne IFilterable-os gyermekobjektumuk/kollekciojuk,
     //       akkor azok filterolodjenek.
     //       + nyilvan a nestelodes (sidenote: asszem ezzel kinyirjuk majd a .Include()-okat).
+    private static Dictionary<Type, Expression?> expressionCache = new();
     
     public static IQueryable<object>? FilterVisibility<T>(this IQueryable<T> model, DbContext context, User? authUser) where T : class
     {
-        var filteringExp = BuildFilteredExpression<T>(context, authUser);
+        if (!expressionCache.TryGetValue(typeof(T), out var expression) || expression == null)
+        {
+            expression = BuildFilteredExpression<T>(context, authUser, []);
+            expressionCache.Add(typeof(T), expression);
+        }
+
+        var filteringExp = expression as Expression<Func<T, object>>;
+        
         return filteringExp != null ? model.Select(filteringExp) : null;
     }
 
-    private static Expression<Func<T, object>>? BuildFilteredExpression<T>(DbContext ctx, User? authUser) where T : class
+    private static Expression<Func<T, object>>? BuildFilteredExpression<T>(DbContext ctx, User? authUser, Type[] exploredTypes) where T : class
     {
+        if (exploredTypes.Contains(typeof(T))) return null;
+        
         var param = Expression.Parameter(typeof(T), "model");
         var bindings = new List<MemberBinding>();
 
@@ -59,15 +69,16 @@ public static class FilteredExpressionBuilder
 
                 if (prop is INavigation navProp)
                 {
+                    /*
                     var buildFilteredExp = typeof(FilteredExpressionBuilder).GetMethod("BuildFilteredExpression");
                     if (buildFilteredExp == null) continue; // Ez igy amugy tulajdonkeppen lehetetlen kell hogy legyen
 
                     // Megkene oldani, hogy ne legyen vegtelen rekurzio (IQueryable ExpTree include scanning? (U.i.: Miert utalom magam?))
                     // (Vagy csak szimplan a mar beincludeolt typeokat nem includeolja be tobbet, mondjuk?)
                     var buildFilteredExpForType = buildFilteredExp.MakeGenericMethod(navProp.TargetEntityType.ClrType);
-                    var filteredExp = buildFilteredExpForType.Invoke(null, [ctx, authUser]) as Expression;
+                    var filteredExp = buildFilteredExpForType.Invoke(null, [ctx, authUser, exploredTypes.Append(typeof(T))]) as Expression;
                     if (filteredExp == null) continue;
-
+                    */
                     if (navProp.IsCollection)
                     {
                         valueAssigned = Expression.Property(param, prop.PropertyInfo);

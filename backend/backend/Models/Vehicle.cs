@@ -45,17 +45,17 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
 
-        public static Expression<Func<Vehicle, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel, User? authUser)
+        public static Expression<Func<Vehicle?, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel, User? authUser)
         {
             switch (visLevel)
             {
                 case VisibilityLevel.Public:
                 case VisibilityLevel.AdminOnly when authUser != null && authUser.Role == UserRole.Administrator:
-                    return x => true;
+                    return x => x != null;
                 case VisibilityLevel.InRelation when authUser != null:
-                    return x => x.Rentals.Any(y => y.RenterId == authUser.Id) || x.OwnerId == authUser.Id;
+                    return x => x != null && (x.Rentals.Any(y => y.RenterId == authUser.Id) || x.OwnerId == authUser.Id);
                 case VisibilityLevel.OwnerOnly when authUser != null:
-                    return x => x.OwnerId == authUser.Id;
+                    return x => x != null && x.OwnerId == authUser.Id;
                 default:
                     return x => false;
             }
