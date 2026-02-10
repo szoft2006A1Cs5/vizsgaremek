@@ -39,44 +39,69 @@ public static class FilteredExpressionBuilder
 
             if (prop.PropertyInfo == null) continue;
 
-            Expression valueAssigned;
+            Expression assignmentExpression;
+
+            var filterable = typeof(T)
+                    .GetInterfaces()
+                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IFilterable<>));
+
+            if (filterable != null)
+            {
+                // Az IFilterable lete elmeletileg garantalja, hogy a metodus ilyen formaban
+                // (return value, parameterek) letezik.
+                var getVisConExpMethod = typeof(T).GetMethod("GetVisibilityConditionExpression");
+                if (getVisConExpMethod == null) continue;
+
+                var visibilityConditionExpression = getVisConExpMethod.Invoke(null, [propVisibility, authUser]) as Expression;
+                if (visibilityConditionExpression == null) continue; // Hat ha ez osszejonne itt valami nagyon rossz.
+
+                MemberExpression valueAssigned;
+
+                if (prop is INavigation navProp)
+                {
+                    var buildFilteredExp = typeof(FilteredExpressionBuilder).GetMethod("BuildFilteredExpression");
+                    if (buildFilteredExp == null) continue; // Ez igy amugy tulajdonkeppen lehetetlen kell hogy legyen
+
+                    // Megkene oldani, hogy ne legyen vegtelen rekurzio (IQueryable ExpTree include scanning? (U.i.: Miert utalom magam?))
+                    // (Vagy csak szimplan a mar beincludeolt typeokat nem includeolja be tobbet, mondjuk?)
+                    var buildFilteredExpForType = buildFilteredExp.MakeGenericMethod(navProp.TargetEntityType.ClrType);
+                    var filteredExp = buildFilteredExpForType.Invoke(null, [ctx, authUser]) as Expression;
+                    if (filteredExp == null) continue;
+
+                    if (navProp.IsCollection)
+                    {
+                        valueAssigned = Expression.Property(param, prop.PropertyInfo);
+                    }
+                    else
+                    {
+                        valueAssigned = Expression.Property(param, prop.PropertyInfo);
+                    }
+                } else
+                {
+                    valueAssigned = Expression.Property(param, prop.PropertyInfo);
+                }
+
+                assignmentExpression = Expression.Condition(
+                    Expression.Invoke(visibilityConditionExpression, param),
+                    valueAssigned,
+                    Expression.Default(prop.PropertyInfo.PropertyType)
+                );
+            }
+            else
+            {
+                assignmentExpression = Expression.Property(param, prop.PropertyInfo);
+            }
 
             // TODO: Tok mindegy mit csinalok ez itt igy nem lesz jo, mert habar ez a type
             //       nem IFilterable, lehet egy benne nestelt az. Ugyhogy minden nav propnak vegig kell
             //       majd mennie a filterelesen. Ez eddig igy nem tul szep. Esetleges megoldas, hogy valahogy
             //       az IQueryable Expression Tree-jeben kutyulok ossze valamit, hogy a filtereles megtortenjen,
             //       de abba meg nem nagyon neztem bele, ez inkabb csak egy otlet.
-            if (prop is INavigation navProp &&
-                navProp.TargetEntityType.ClrType
-                    .GetInterfaces()
-                    .Any(x => x.IsGenericType &&
-                              x.GetGenericTypeDefinition() == typeof(IFilterable<>))
-                )
-            {
-                // TODO: Hogyan tartom fent az include nestelest, ha itt egy uj select jon letre a filtereles miatt?
-                //       Kovetkezo kerdes, egyaltalan peldaul hogyan selectelek egy IEnumerablebe?
-                valueAssigned = Expression.Default(prop.PropertyInfo.PropertyType);
-            }
-            else
-            {
-                var filterable = typeof(T)
-                    .GetInterfaces()
-                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IFilterable<>));
 
-                if (filterable != null)
-                {
-                    valueAssigned = Expression.Condition(
-                        Expression.Invoke((Expression<Func<T, bool>>)typeof(T).GetMethod("GetVisibilityConditionExpression")!.Invoke(null, [propVisibility, authUser])!, param),
-                        Expression.Property(param, prop.PropertyInfo),
-                        Expression.Default(prop.PropertyInfo.PropertyType)
-                    );
-                } else
-                {
-                    valueAssigned = Expression.Property(param, prop.PropertyInfo);
-                }
-            }
+            // TODO: Hogyan tartom fent az include nestelest, ha itt egy uj select jon letre a filtereles miatt?
+            //       Kovetkezo kerdes, egyaltalan peldaul hogyan selectelek egy IEnumerablebe?
 
-            bindings.Add(Expression.Bind(prop.PropertyInfo, valueAssigned));
+            bindings.Add(Expression.Bind(prop.PropertyInfo, assignmentExpression));
         }
 
         /*
