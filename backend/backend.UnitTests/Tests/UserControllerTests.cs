@@ -46,6 +46,8 @@ namespace backend.UnitTests.Tests
         {
             var result = (await _controller!.Get(1)) as ContentResult;
             Assert.IsNotNull(result);
+            var user = JsonConvert.DeserializeObject<User>(result.Content);
+            Assert.IsNotNull(user);
         }
 
         [TestMethod]

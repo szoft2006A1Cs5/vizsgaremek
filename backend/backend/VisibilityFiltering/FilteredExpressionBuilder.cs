@@ -17,13 +17,13 @@ public static class FilteredExpressionBuilder
     //       akkor azok filterolodjenek.
     //       + nyilvan a nestelodes (sidenote: asszem ezzel kinyirjuk majd a .Include()-okat).
     
-    public static IQueryable<object>? FilterVisibility<T>(this IQueryable<T> model, DbContext context, User? authUser) where T : class, IFilterable<T>
+    public static IQueryable<object>? FilterVisibility<T>(this IQueryable<T> model, DbContext context, User? authUser) where T : class
     {
         var filteringExp = BuildFilteredExpression<T>(context, authUser);
         return filteringExp != null ? model.Select(filteringExp) : null;
     }
 
-    private static Expression<Func<T, object>>? BuildFilteredExpression<T>(DbContext ctx, User? authUser) where T : class, IFilterable<T>
+    private static Expression<Func<T, object>>? BuildFilteredExpression<T>(DbContext ctx, User? authUser) where T : class
     {
         var param = Expression.Parameter(typeof(T), "model");
         var bindings = new List<MemberBinding>();
@@ -59,11 +59,21 @@ public static class FilteredExpressionBuilder
             }
             else
             {
-                valueAssigned = Expression.Condition(
-                    Expression.Invoke(T.GetVisibilityConditionExpression(propVisibility, authUser), param),
-                    Expression.Property(param, prop.PropertyInfo),
-                    Expression.Default(prop.PropertyInfo.PropertyType)
-                );
+                var filterable = typeof(T)
+                    .GetInterfaces()
+                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IFilterable<>));
+
+                if (filterable != null)
+                {
+                    valueAssigned = Expression.Condition(
+                        Expression.Invoke((Expression<Func<T, bool>>)typeof(T).GetMethod("GetVisibilityConditionExpression")!.Invoke(null, [propVisibility, authUser])!, param),
+                        Expression.Property(param, prop.PropertyInfo),
+                        Expression.Default(prop.PropertyInfo.PropertyType)
+                    );
+                } else
+                {
+                    valueAssigned = Expression.Property(param, prop.PropertyInfo);
+                }
             }
 
             bindings.Add(Expression.Bind(prop.PropertyInfo, valueAssigned));
