@@ -23,7 +23,7 @@ public static class FilteredExpressionBuilder
         if (!expressionCache.TryGetValue(typeof(T), out var expression) || expression == null)
         {
             expression = BuildFilteredExpression<T>(context, authUser, []);
-            expressionCache.Add(typeof(T), expression);
+            expressionCache[typeof(T)] = expression;
         }
 
         var filteringExp = expression as Expression<Func<T, object>>;
@@ -69,7 +69,6 @@ public static class FilteredExpressionBuilder
 
                 if (prop is INavigation navProp)
                 {
-                    /*
                     var buildFilteredExp = typeof(FilteredExpressionBuilder).GetMethod("BuildFilteredExpression");
                     if (buildFilteredExp == null) continue; // Ez igy amugy tulajdonkeppen lehetetlen kell hogy legyen
 
@@ -78,7 +77,7 @@ public static class FilteredExpressionBuilder
                     var buildFilteredExpForType = buildFilteredExp.MakeGenericMethod(navProp.TargetEntityType.ClrType);
                     var filteredExp = buildFilteredExpForType.Invoke(null, [ctx, authUser, exploredTypes.Append(typeof(T))]) as Expression;
                     if (filteredExp == null) continue;
-                    */
+
                     if (navProp.IsCollection)
                     {
                         valueAssigned = Expression.Property(param, prop.PropertyInfo);

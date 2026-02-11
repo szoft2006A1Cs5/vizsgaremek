@@ -31,7 +31,7 @@ class ComoveAPILoadTest(HttpUser):
 
     @task
     def getNotifications(self):
-        self.client.get("/api/Notifications", verify=False)
+        self.client.get("/api/Notification", verify=False)
 
     @task
     def postLogin(self):

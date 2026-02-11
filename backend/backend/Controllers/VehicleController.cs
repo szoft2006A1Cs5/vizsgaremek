@@ -33,8 +33,8 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var user = await _authMgr.GetUIDAndRelations(User, _context);
-            //var authUser = await _authMgr.GetUser(User, _context);
+            //var user = await _authMgr.GetUIDAndRelations(User, _context);
+            var authUser = await _authMgr.GetUser(User, _context);
             
             var vehicles = await _context.Vehicles
                 .AsNoTracking()
@@ -44,19 +44,19 @@ namespace backend.Controllers
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
-                //.FilterVisibility(_context, authUser)!
+                .FilterVisibility(_context, authUser)!
                 .ToListAsync();
 
-            return ControllerVisibilityFilterer.VisibilityTo(vehicles, user, 200);
-            //return Ok(vehicles);
+            //return ControllerVisibilityFilterer.VisibilityTo(vehicles, user, 200);
+            return Ok(vehicles);
         }
 
         // GET api/<VehicleController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            //var authUser = await _authMgr.GetUser(User, _context);
-            var user = await _authMgr.GetUIDAndRelations(User, _context);
+            var authUser = await _authMgr.GetUser(User, _context);
+            //var user = await _authMgr.GetUIDAndRelations(User, _context);
             
             var vehicle = await _context.Vehicles
                 .AsNoTracking()
@@ -67,32 +67,36 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
                 .Where(x => x.Id == id)
+                .FilterVisibility(_context, authUser)!
                 .FirstOrDefaultAsync();
 
             if (vehicle == null) return NotFound();
 
-            //return Ok(vehicle);
-            return ControllerVisibilityFilterer.VisibilityTo(vehicle, user, 200);
+            return Ok(vehicle);
+            //return ControllerVisibilityFilterer.VisibilityTo(vehicle, user, 200);
         }
 
         [Authorize(Roles = "User")]
         [HttpGet("owned")]
         public async Task<IActionResult> GetOwned()
         {
-            var user = await _authMgr.GetUIDAndRelations(User, _context);
+            //var user = await _authMgr.GetUIDAndRelations(User, _context);
+            var user = await _authMgr.GetUser(User, _context);
 
             if (user == null) return Unauthorized();
-            
+
             var vehicles = await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .AsSplitQuery()
                 .Include(x => x.Availabilities)
                 .Include(x => x.Images)
-                .Where(x => x.OwnerId == user.Item1)
+                .Where(x => x.OwnerId == user.Id)
+                .FilterVisibility(_context, user)!
                 .ToListAsync();
-            
-            return ControllerVisibilityFilterer.VisibilityTo(vehicles, user, 200);
+
+            //return ControllerVisibilityFilterer.VisibilityTo(vehicles, user, 200);
+            return Ok(vehicles);
         }
 
         [Authorize(Roles = "User")]

@@ -29,6 +29,7 @@ namespace backend.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var authUser = await _authMgr.GetUIDAndRelations(User, _context);
+            var authUserUser = await _authMgr.GetUser(User, _context);
 
             var user = await _context.Users
                 .AsNoTracking()
@@ -42,6 +43,7 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Availabilities)
                 .AsSplitQuery()
                 .Where(x => x.Id == id)
+                .FilterVisibility(_context, authUserUser)!
                 .FirstOrDefaultAsync();
 
             if (user == null) return NotFound();
@@ -52,7 +54,8 @@ namespace backend.Controllers
                ContentType = "application/json"
            };*/
 
-            return ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
+            //return ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
+            return Ok(user);
         }
     }
 }
