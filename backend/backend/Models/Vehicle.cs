@@ -45,19 +45,20 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
 
-        public static Expression<Func<Vehicle?, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel, User? authUser)
+        public static Expression<Func<Vehicle?, User?, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel)
         {
             switch (visLevel)
             {
                 case VisibilityLevel.Public:
-                case VisibilityLevel.AdminOnly when authUser != null && authUser.Role == UserRole.Administrator:
-                    return x => x != null;
-                case VisibilityLevel.InRelation when authUser != null:
-                    return x => x != null && (x.Rentals.Any(y => y.RenterId == authUser.Id) || x.OwnerId == authUser.Id);
-                case VisibilityLevel.OwnerOnly when authUser != null:
-                    return x => x != null && x.OwnerId == authUser.Id;
+                    return (model, _) => model != null;
+                case VisibilityLevel.AdminOnly:
+                    return (model, auth) => model != null && auth != null && auth.Role == UserRole.Administrator;
+                case VisibilityLevel.InRelation:
+                    return (model, auth) => model != null && auth != null && (model.Rentals.Any(x => x.RenterId == auth.Id) || model.OwnerId == auth.Id);
+                case VisibilityLevel.OwnerOnly:
+                    return (model, auth) => model != null && auth != null && model.OwnerId == auth.Id;
                 default:
-                    return x => false;
+                    return (_, _) => false;
             }
         }
     }

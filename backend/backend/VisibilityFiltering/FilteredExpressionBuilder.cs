@@ -26,16 +26,20 @@ public static class FilteredExpressionBuilder
             expressionCache[typeof(T)] = expression;
         }
 
-        var filteringExp = expression as Expression<Func<T, object>>;
+        var filteringExpNoAuth = expression as Expression<Func<T, User?, object>>;
+        if (filteringExpNoAuth == null) return null;
+
+        var filteringExp = ExpressionNodeReplacer.ReplaceAuthUserParam(filteringExpNoAuth, authUser);
         
         return filteringExp != null ? model.Select(filteringExp) : null;
     }
 
-    private static Expression<Func<T, object>>? BuildFilteredExpression<T>(DbContext ctx, User? authUser, Type[] exploredTypes) where T : class
+    private static Expression<Func<T, User?, object>>? BuildFilteredExpression<T>(DbContext ctx, User? authUser, Type[] exploredTypes) where T : class
     {
         if (exploredTypes.Contains(typeof(T))) return null;
-        
-        var param = Expression.Parameter(typeof(T), "model");
+
+        var authUserParam = Expression.Parameter(typeof(User), "auth");
+        var modelParam = Expression.Parameter(typeof(T), "model");
         var bindings = new List<MemberBinding>();
 
         var modelProps = ctx.Model.FindEntityType(typeof(T));
@@ -62,7 +66,7 @@ public static class FilteredExpressionBuilder
                 var getVisConExpMethod = typeof(T).GetMethod("GetVisibilityConditionExpression");
                 if (getVisConExpMethod == null) continue;
 
-                var visibilityConditionExpression = getVisConExpMethod.Invoke(null, [propVisibility, authUser]) as Expression;
+                var visibilityConditionExpression = getVisConExpMethod.Invoke(null, [propVisibility]) as Expression;
                 if (visibilityConditionExpression == null) continue; // Hat ha ez osszejonne itt valami nagyon rossz.
 
                 MemberExpression valueAssigned;
@@ -80,26 +84,26 @@ public static class FilteredExpressionBuilder
 
                     if (navProp.IsCollection)
                     {
-                        valueAssigned = Expression.Property(param, prop.PropertyInfo);
+                        valueAssigned = Expression.Property(modelParam, prop.PropertyInfo);
                     }
                     else
                     {
-                        valueAssigned = Expression.Property(param, prop.PropertyInfo);
+                        valueAssigned = Expression.Property(modelParam, prop.PropertyInfo);
                     }
                 } else
                 {
-                    valueAssigned = Expression.Property(param, prop.PropertyInfo);
+                    valueAssigned = Expression.Property(modelParam, prop.PropertyInfo);
                 }
 
                 assignmentExpression = Expression.Condition(
-                    Expression.Invoke(visibilityConditionExpression, param),
+                    Expression.Invoke(visibilityConditionExpression, modelParam, authUserParam),
                     valueAssigned,
                     Expression.Default(prop.PropertyInfo.PropertyType)
                 );
             }
             else
             {
-                assignmentExpression = Expression.Property(param, prop.PropertyInfo);
+                assignmentExpression = Expression.Property(modelParam, prop.PropertyInfo);
             }
 
             // TODO: Tok mindegy mit csinalok ez itt igy nem lesz jo, mert habar ez a type
@@ -130,6 +134,6 @@ public static class FilteredExpressionBuilder
             bindings
         );
         
-        return Expression.Lambda<Func<T, object>>(body, param);
+        return Expression.Lambda<Func<T, User?, object>>(body, modelParam, authUserParam);
     }
 }
