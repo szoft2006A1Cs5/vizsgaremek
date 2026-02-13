@@ -29,7 +29,7 @@ public static class FilteredExpressionBuilder
         var filteringExpNoAuth = expression as Expression<Func<T, User?, object>>;
         if (filteringExpNoAuth == null) return null;
 
-        var filteringExp = ExpressionNodeReplacer.ReplaceAuthUserParam(filteringExpNoAuth, authUser);
+        var filteringExp = ExpressionParameterReplacer.ReplaceAuthUserParam(filteringExpNoAuth, authUser);
         
         return filteringExp != null ? model.Select(filteringExp) : null;
     }
@@ -95,8 +95,15 @@ public static class FilteredExpressionBuilder
                     valueAssigned = Expression.Property(modelParam, prop.PropertyInfo);
                 }
 
+                var lambdaVisCond = (LambdaExpression)visibilityConditionExpression;
+                var replacer = new ExpressionParameterReplacer(new Dictionary<ParameterExpression, Expression>
+                {
+                    { lambdaVisCond.Parameters[0], modelParam },
+                    { lambdaVisCond.Parameters[1], authUserParam },
+                });
+                
                 assignmentExpression = Expression.Condition(
-                    Expression.Invoke(visibilityConditionExpression, modelParam, authUserParam),
+                    replacer.Visit(lambdaVisCond.Body) ?? Expression.Lambda<Func<bool>>(() => false),
                     valueAssigned,
                     Expression.Default(prop.PropertyInfo.PropertyType)
                 );
