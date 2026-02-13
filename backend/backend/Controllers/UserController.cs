@@ -28,10 +28,9 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var authUser = await _authMgr.GetUIDAndRelations(User, _context);
-            var authUserUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authMgr.GetUser(User, _context);
 
-            var user = await _context.Users
+            var userQuery = _context.Users
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .Include(x => x.Rentals)
@@ -43,9 +42,11 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Availabilities)
                 .AsSplitQuery()
                 .Where(x => x.Id == id)
-                .FilterVisibility(_context, authUserUser)!
-                .FirstOrDefaultAsync();
-
+                .FilterVisibility(_context, authUser);
+                
+            if (userQuery == null) return StatusCode(500);
+            
+            var user = await userQuery.FirstOrDefaultAsync();
             if (user == null) return NotFound();
 
             /*   return new ContentResult

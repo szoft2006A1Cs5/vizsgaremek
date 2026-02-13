@@ -16,19 +16,26 @@ public static class FilteredExpressionBuilder
     //       hogy amennyiben azoknak lenne IFilterable-os gyermekobjektumuk/kollekciojuk,
     //       akkor azok filterolodjenek.
     //       + nyilvan a nestelodes (sidenote: asszem ezzel kinyirjuk majd a .Include()-okat).
-    private static Dictionary<Type, Expression?> expressionCache = new();
+    private static Dictionary<Type, Expression?> _expressionCache = new();
     
-    public static IQueryable<object>? FilterVisibility<T>(this IQueryable<T> model, DbContext context, User? authUser) where T : class
+    public static IQueryable<object>? FilterVisibility<T>(this IQueryable<T> model, DbContext context, User? authUser)
+        where T : class
     {
-        if (!expressionCache.TryGetValue(typeof(T), out var expression) || expression == null)
+        if (!_expressionCache.TryGetValue(typeof(T), out var expression) || expression == null)
         {
             expression = BuildFilteredExpression<T>(context, authUser, []);
-            expressionCache[typeof(T)] = expression;
+            _expressionCache[typeof(T)] = expression;
         }
 
         var filteringExpNoAuth = expression as Expression<Func<T, User?, object>>;
         if (filteringExpNoAuth == null) return null;
-
+        
+        // Eddig, mint kiderult, a megadott authUsert, mindig belehardcodeoltuk az expressionbe, igy
+        // nyilvan nem lehetett cachelni. Most az authUseres felteteleket beleraktuk a condition lambdaexpressionokbe,
+        // igy azok most minden egyes alkalommal az SQL query reszekent futnak le, fuggetlenul attol, hogy mi van a
+        // cacheben, mivel a cachelt LambdaExpressionnek, most ketto parametere van, egyik a model/entity, amit az SQL
+        // meg is ad, a masik pedig a jelenleg bejelentkezett user, ezt csereljuk le mindig az alabbi
+        // metodussal/objektummal, meg A BACKEND OLDALON.
         var filteringExp = ExpressionParameterReplacer.ReplaceAuthUserParam(filteringExpNoAuth, authUser);
         
         return filteringExp != null ? model.Select(filteringExp) : null;
@@ -73,13 +80,14 @@ public static class FilteredExpressionBuilder
 
                 if (prop is INavigation navProp)
                 {
-                    var buildFilteredExp = typeof(FilteredExpressionBuilder).GetMethod("BuildFilteredExpression");
+                    var buildFilteredExp = typeof(FilteredExpressionBuilder).GetMethod("BuildFilteredExpression", 
+                        BindingFlags.NonPublic | BindingFlags.Static);
                     if (buildFilteredExp == null) continue; // Ez igy amugy tulajdonkeppen lehetetlen kell hogy legyen
 
                     // Megkene oldani, hogy ne legyen vegtelen rekurzio (IQueryable ExpTree include scanning? (U.i.: Miert utalom magam?))
                     // (Vagy csak szimplan a mar beincludeolt typeokat nem includeolja be tobbet, mondjuk?)
                     var buildFilteredExpForType = buildFilteredExp.MakeGenericMethod(navProp.TargetEntityType.ClrType);
-                    var filteredExp = buildFilteredExpForType.Invoke(null, [ctx, authUser, exploredTypes.Append(typeof(T))]) as Expression;
+                    var filteredExp = buildFilteredExpForType.Invoke(null, [ctx, authUser, exploredTypes.Append(typeof(T)).ToArray()]) as Expression;
                     if (filteredExp == null) continue;
 
                     if (navProp.IsCollection)
@@ -95,15 +103,18 @@ public static class FilteredExpressionBuilder
                     valueAssigned = Expression.Property(modelParam, prop.PropertyInfo);
                 }
 
-                var lambdaVisCond = (LambdaExpression)visibilityConditionExpression;
+                // C# a nem hardcodeolt lambdaexpressionok meghivasat nem tudja lekepezni SQL-be
+                // ezert az egesz fuggvenyt igazabol csak be kell illeszteni a treebe, es a parametereket
+                // kicserelni ennek az expressionnek a parametereire.
+                var lambdaVisCondExp = (LambdaExpression)visibilityConditionExpression;
                 var replacer = new ExpressionParameterReplacer(new Dictionary<ParameterExpression, Expression>
                 {
-                    { lambdaVisCond.Parameters[0], modelParam },
-                    { lambdaVisCond.Parameters[1], authUserParam },
+                    { lambdaVisCondExp.Parameters[0], modelParam },
+                    { lambdaVisCondExp.Parameters[1], authUserParam },
                 });
                 
                 assignmentExpression = Expression.Condition(
-                    replacer.Visit(lambdaVisCond.Body) ?? Expression.Lambda<Func<bool>>(() => false),
+                    replacer.Visit(lambdaVisCondExp.Body) ?? Expression.Lambda<Func<bool>>(() => false),
                     valueAssigned,
                     Expression.Default(prop.PropertyInfo.PropertyType)
                 );
