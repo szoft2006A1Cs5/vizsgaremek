@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models
 {
-    [PrimaryKey(nameof(VehicleId), nameof(ImagePath))]
+    [PrimaryKey(nameof(Id), nameof(VehicleId), nameof(ImagePath))]
     public class VehicleImage
     {
+        public int Id { get; set; }
         public int VehicleId { get; set; }
         public required Vehicle Vehicle { get; set; }
         [MaxLength(512)]

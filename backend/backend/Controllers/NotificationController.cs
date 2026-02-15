@@ -23,7 +23,7 @@ namespace backend.Controllers
         // GET: api/<NotificationController>
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
             var uid = _authMgr.GetUID(User);
 
@@ -32,6 +32,8 @@ namespace backend.Controllers
             return Ok(
                 await _context.Notifications
                 .Where(x => x.UserId == uid)
+                .Skip(offset)
+                .Take(limit)
                 .ToListAsync()
             );
         }

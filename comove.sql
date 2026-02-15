@@ -117,6 +117,7 @@ CREATE TABLE `users` (
 --
 
 CREATE TABLE `vehicleavailabilities` (
+  `id` int(11) NOT NULL,
   `vehicleId` int(11) NOT NULL,
   `start` datetime NOT NULL,
   `end` datetime NOT NULL,
@@ -131,6 +132,7 @@ CREATE TABLE `vehicleavailabilities` (
 --
 
 CREATE TABLE `vehicleimages` (
+  `id` int(11) NOT NULL,
   `vehicleId` int(11) NOT NULL,
   `imagePath` varchar(256) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
@@ -198,13 +200,13 @@ ALTER TABLE `users`
 -- Indexes for table `vehicleavailabilities`
 --
 ALTER TABLE `vehicleavailabilities`
-  ADD PRIMARY KEY (`vehicleId`,`start`,`end`);
+  ADD PRIMARY KEY (`vehicleId`,`id`,`start`,`end`);
 
 --
 -- Indexes for table `vehicleimages`
 --
 ALTER TABLE `vehicleimages`
-  ADD PRIMARY KEY (`vehicleId`,`imagePath`);
+  ADD PRIMARY KEY (`vehicleId`,`id`,`imagePath`);
 
 --
 -- Indexes for table `vehicles`

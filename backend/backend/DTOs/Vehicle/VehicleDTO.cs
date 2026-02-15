@@ -4,8 +4,6 @@ namespace backend.DTOs.Vehicle;
 
 public class VehicleDTO
 {
-    public int Id { get; set; }
-    public int OwnerId { get; set; }
     public required string VIN { get; set; }
     public required string LicensePlate { get; set; }
     public required string Manufacturer { get; set; }

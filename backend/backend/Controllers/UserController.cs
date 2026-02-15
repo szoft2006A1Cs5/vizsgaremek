@@ -3,8 +3,10 @@ using backend.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using backend.DTOs.User;
 using backend.Models;
 using backend.VisibilityFiltering;
+using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -46,6 +48,50 @@ namespace backend.Controllers
             if (user == null) return NotFound();
 
             return Ok(user.FilterVisibility(authUser));
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] UserModificationDTO dto)
+        {
+            if (!Regex.IsMatch(dto.Name,
+                    @"^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)+$") ||
+                !Regex.IsMatch(dto.IdCardNumber, @"^\d{6}[A-Z]{2}$") ||
+                !Regex.IsMatch(dto.DriversLicenseNumber, @"^[A-Z]{2}\d{6}$") ||
+                !Regex.IsMatch(dto.Email, @"^[A-z0-9.-]+@([A-z0-9-]+\.)+(com|hu)$") ||
+                !Regex.IsMatch(dto.Phone, @"^(36|06)(94|70|30|20)\d{7}$") ||
+                !Regex.IsMatch(dto.AddressZipcode, @"^\d{4}$") ||
+                !(dto.DateOfBirth.ToDateTime(new TimeOnly(0)).AddYears(18) <= DateTime.Now))
+                return BadRequest(new { Error = "A megadott adatok hibásak!" });
+            
+            if (_context.Users.Any(x => x.Email == dto.Email) ||
+                _context.Users.Any(x => x.Phone == dto.Phone) ||
+                _context.Users.Any(x => x.IdCardNumber == dto.IdCardNumber) ||
+                _context.Users.Any(x => x.DriversLicenseNumber == dto.DriversLicenseNumber))
+                return StatusCode(409);
+            
+            var authUser = await _authMgr.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+            if (!_authMgr.VerifyPassword(dto.PreviousPassword, authUser)) return Forbid();
+
+            var userProps = typeof(User).GetProperties();
+            foreach (var dtoProp in typeof(UserModificationDTO).GetProperties())
+            {
+                var userProp =
+                    userProps.FirstOrDefault(x => x.Name == dtoProp.Name &&
+                                                  x.PropertyType == dtoProp.PropertyType);
+                
+                if (userProp != null)
+                    userProp.SetValue(authUser, dtoProp.GetValue(dto));
+            }
+            
+            var pwdSalt = _authMgr.GeneratePasswordHashSalt(dto.Password);
+            authUser.Password = pwdSalt.Item1;
+            authUser.Salt = pwdSalt.Item2;
+
+            await _context.SaveChangesAsync();
+            
+            return Ok(authUser.FilterVisibility(authUser));
         }
     }
 }

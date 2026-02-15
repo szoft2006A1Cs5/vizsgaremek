@@ -10,9 +10,10 @@ namespace backend.Models
         Monthly = 3,
     }
 
-    [PrimaryKey(nameof(VehicleId), nameof(Start), nameof(End))]
+    [PrimaryKey(nameof(VehicleId), nameof(Id), nameof(Start), nameof(End))]
     public class VehicleAvailability
     {
+        public int Id { get; set; }
         public int VehicleId { get; set; }
         public required Vehicle Vehicle { get; set; }
         public DateTime Start { get; set; }

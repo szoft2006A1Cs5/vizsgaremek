@@ -12,6 +12,8 @@ namespace backend.Models
 
     public class User : IFilterable
     {
+        public User() {}
+        
         public int Id { get; set; }
 
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(8)]

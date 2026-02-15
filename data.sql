@@ -15,15 +15,15 @@ INSERT INTO `vehicles` (`id`, `ownerId`, `vin`, `licensePlate`, `manufacturer`, 
 (2, 2, 'WBA41234567890123', 'SKY-789', 'BMW', '320d', 2015, 'Kényelmes utazóautó hosszabb távra.', 210000, 6.2, 'KGFB-112233'),
 (3, 3, 'TMB51234567890123', 'RNL-456', 'Skoda', 'Octavia', 2020, 'Hatalmas csomagtartó, tiszta belső.', 45000, 5.5, 'KGFB-445566');
 
-INSERT INTO `vehicleavailabilities` (`vehicleId`, `start`, `end`, `recurrence`, `hourlyRate`) VALUES
-(1, '2026-01-01 08:00:00', '2026-12-31 20:00:00', 'None', 1800),
-(2, '2026-01-10 00:00:00', '2026-02-10 00:00:00', 'None', 2500),
-(3, '2026-01-12 08:00:00', '2026-01-20 20:00:00', 'Weekly', 2000);
+INSERT INTO `vehicleavailabilities` (`id`, `vehicleId`, `start`, `end`, `recurrence`, `hourlyRate`) VALUES
+(1, 1, '2026-01-01 08:00:00', '2026-12-31 20:00:00', 'None', 1800),
+(1, 2, '2026-01-10 00:00:00', '2026-02-10 00:00:00', 'None', 2500),
+(1, 3, '2026-01-12 08:00:00', '2026-01-20 20:00:00', 'Weekly', 2000);
 
-INSERT INTO `vehicleimages` (`vehicleId`, `imagePath`) VALUES
-(1, 'uploads/vehicles/toyota_corolla_front.jpg'),
-(2, 'uploads/vehicles/bmw_320d_side.png'),
-(3, 'uploads/vehicles/skoda_octavia.jpg');
+INSERT INTO `vehicleimages` (`id`, `vehicleId`, `imagePath`) VALUES
+(1, 1, 'uploads/vehicles/toyota_corolla_front.jpg'),
+(1, 2, 'uploads/vehicles/bmw_320d_side.png'),
+(1, 3, 'uploads/vehicles/skoda_octavia.jpg');
 
 INSERT INTO `rentals` (`id`, `fullPrice`, `downpayment`, `start`, `end`, `status`, `pickupLatitude`, `pickupLongtitude`, `fuelLevel`, `renterRating`, `ownerRating`, `renterId`, `vehicleId`) VALUES
 (1, 15000, 3000, '2026-01-05 10:00:00', '2026-01-05 18:00:00', 'Finished', 47.1234, 18.4567, 100, 5.0, 4.5, 3, 1),

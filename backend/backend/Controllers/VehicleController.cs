@@ -31,7 +31,7 @@ namespace backend.Controllers
 
         // GET: api/<VehicleController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] int limit = 30, [FromQuery] int offset = 0)
         {
             var authUser = await _authMgr.GetUser(User, _context);
 
@@ -43,6 +43,8 @@ namespace backend.Controllers
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
+                .Skip(offset)
+                .Take(limit)
                 .ToListAsync();
             
             return Ok(vehicles.FilterVisibility(authUser));
@@ -72,7 +74,7 @@ namespace backend.Controllers
 
         [Authorize(Roles = "User")]
         [HttpGet("owned")]
-        public async Task<IActionResult> GetOwned()
+        public async Task<IActionResult> GetOwned([FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
             var authUser = await _authMgr.GetUser(User, _context);
 
@@ -85,6 +87,8 @@ namespace backend.Controllers
                 .Include(x => x.Availabilities)
                 .Include(x => x.Images)
                 .Where(x => x.OwnerId == authUser.Id)
+                .Skip(offset)
+                .Take(limit)
                 .ToListAsync();
 
             return Ok(vehicles.FilterVisibility(authUser));
@@ -94,14 +98,13 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] VehicleDTO vehicledata)
         {
-            var authUser = await _authMgr.GetUIDAndRelations(User, _context);
+            var authUser = await _authMgr.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
 
             Vehicle vehicle = new Vehicle
             {
-                Id = vehicledata.Id,
-                OwnerId = authUser.Item1,
+                OwnerId = authUser.Id,
                 VIN = vehicledata.VIN,
                 LicensePlate = vehicledata.LicensePlate,
                 Manufacturer = vehicledata.Manufacturer,
@@ -116,7 +119,75 @@ namespace backend.Controllers
             await _context.Vehicles.AddAsync(vehicle);
             await _context.SaveChangesAsync();
 
-            return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", vehicle);
+            return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", vehicle.FilterVisibility(authUser));
+        }
+        
+        [HttpGet("{id}/availability")]
+        public async Task<IActionResult> GetAvailabilities(int id, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        {
+            return Ok(
+                await _context.VehicleAvailabilities
+                .Where(x => x.VehicleId == id)
+                .Skip(offset)
+                .Take(limit)
+                .ToListAsync()
+            );
+        }
+
+        [HttpPost("{vehicleId}/availability")]
+        public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
+        {
+            throw new NotImplementedException();
+            return Ok();
+        }
+
+        [HttpGet("{vehicleId}/availability/{availabilityId}")]
+        public async Task<IActionResult> GetAvailability(int vehicleId, int availabilityId)
+        {
+            throw new NotImplementedException();
+            return Ok();
+        }
+        
+        [HttpPut("{vehicleId}/availability/{availabilityId}")]
+        public async Task<IActionResult> EditAvailability(
+            int vehicleId, 
+            int availabilityId, 
+            [FromBody] VehicleAvailability availability
+        )
+        {
+            throw new NotImplementedException();
+            return Ok();
+        }
+
+        [HttpDelete("{vehicleId}/availability/{availabilityId}")]
+        public async Task<IActionResult> DeleteAvailability(
+            int vehicleId,
+            int availabilityId,
+            [FromBody] VehicleAvailability availability
+        )
+        {
+            throw new NotImplementedException();
+            return Ok();
+        }
+
+        [HttpGet("{vehicleId}/image")]
+        public async Task<IActionResult> GetImages(int vehicleId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        {
+            throw new NotImplementedException();
+            return Ok();
+        }
+
+        [HttpPost("{vehicleId}/image")]
+        public async Task<IActionResult> AddImage(int vehicleId, [FromBody] string imageUrl)
+        {
+            throw new NotImplementedException();
+            return Ok();
+        }
+
+        [HttpDelete("{vehicleId}/image/{imageId}")]
+        public async Task<IActionResult> DeleteImage(int vehicleId, int imageId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -44,18 +44,17 @@ namespace backend.UnitTests.Tests
         [TestMethod]
         public async Task GetUserPublic_Ok()
         {
-            var result = (await _controller!.Get(1)) as ContentResult;
+            var result = (await _controller!.Get(1)) as OkObjectResult;
             Assert.IsNotNull(result);
-            var user = JsonConvert.DeserializeObject<User>(result.Content);
+            var user = JsonConvert.DeserializeObject<User>((string)result.Value);
             Assert.IsNotNull(user);
         }
 
         [TestMethod]
         public async Task GetUser_NotFound()
         {
-            var result = (await _controller!.Get(2)) as ContentResult;
+            var result = (await _controller!.Get(2)) as NotFoundResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(404, result.StatusCode);
         }
         
         [TestMethod]
