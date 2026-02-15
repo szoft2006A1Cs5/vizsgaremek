@@ -1,16 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using backend.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using backend.VisibilityFiltering;
 
 namespace backend.Models
 {
-    public class Vehicle : IFilterable<Vehicle>
+    public class Vehicle : IFilterable
     {
         public int Id { get; set; }
 
-        [VisibilityKey]
         public int OwnerId { get; set; }
 
         public User? Owner { get; set; }
@@ -45,18 +43,23 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
 
-        public static Expression<Func<Vehicle?, User?, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel)
+        public static Func<object?, User?, bool> GetVisibilityConditionLambda(VisibilityLevel visLevel)
         {
             switch (visLevel)
             {
                 case VisibilityLevel.Public:
-                    return (model, _) => model != null;
+                    return (_, _) => true;
                 case VisibilityLevel.AdminOnly:
-                    return (model, auth) => model != null && auth != null && auth.Role == UserRole.Administrator;
+                    return (_, auth) => auth != null && auth.Role == UserRole.Administrator;
                 case VisibilityLevel.InRelation:
-                    return (model, auth) => model != null && auth != null && (model.Rentals.Any(x => x.RenterId == auth.Id) || model.OwnerId == auth.Id);
+                    return (obj, auth) => obj is Vehicle model &&
+                                          auth != null &&
+                                          (model.Rentals.Any(x => x.RenterId == auth.Id) ||
+                                           model.OwnerId == auth.Id);
                 case VisibilityLevel.OwnerOnly:
-                    return (model, auth) => model != null && auth != null && model.OwnerId == auth.Id;
+                    return (obj, auth) => obj is Vehicle model &&
+                                          auth != null &&
+                                          model.OwnerId == auth.Id;
                 default:
                     return (_, _) => false;
             }

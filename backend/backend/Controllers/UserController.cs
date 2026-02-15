@@ -1,6 +1,5 @@
 ﻿using backend.Auth;
 using backend.Contexts;
-using backend.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -30,7 +29,7 @@ namespace backend.Controllers
         {
             var authUser = await _authMgr.GetUser(User, _context);
 
-            var userQuery = _context.Users
+            var user = await _context.Users
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .Include(x => x.Rentals)
@@ -42,21 +41,11 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Availabilities)
                 .AsSplitQuery()
                 .Where(x => x.Id == id)
-                .FilterVisibility(_context, authUser);
-                
-            if (userQuery == null) return StatusCode(500);
+                .FirstOrDefaultAsync();
             
-            var user = await userQuery.FirstOrDefaultAsync();
             if (user == null) return NotFound();
 
-            /*   return new ContentResult
-           {
-               StatusCode = 404,
-               ContentType = "application/json"
-           };*/
-
-            //return ControllerVisibilityFilterer.VisibilityTo(user, authUser, 200);
-            return Ok(user);
+            return Ok(user.FilterVisibility(authUser));
         }
     }
 }

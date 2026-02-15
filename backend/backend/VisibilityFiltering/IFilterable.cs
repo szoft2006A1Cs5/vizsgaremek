@@ -1,10 +1,9 @@
 using System.Linq.Expressions;
-using backend.Serialization;
 using backend.Models;
 
 namespace backend.VisibilityFiltering;
 
-public interface IFilterable<T> where T : class, IFilterable<T>
+public interface IFilterable
 {
-    static abstract Expression<Func<T?, User?, bool>> GetVisibilityConditionExpression(VisibilityLevel visLevel);
+    static abstract Func<object?, User?, bool> GetVisibilityConditionLambda(VisibilityLevel visLevel);
 }

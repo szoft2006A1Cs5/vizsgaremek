@@ -1,4 +1,4 @@
-﻿namespace backend.Serialization
+﻿namespace backend.VisibilityFiltering
 {
     [Flags]
     public enum VisibilityLevel
@@ -9,9 +9,7 @@
         AdminOnly = 3
     }
 
-    [AttributeUsage(AttributeTargets.Property)]
-    public class VisibilityKey : Attribute
-    { }
+
 
     [AttributeUsage(AttributeTargets.Property)]
     public class VisibleToAttribute : Attribute
