@@ -41,7 +41,11 @@ public static class FilteredExpressionBuilder
         return filteringExp != null ? model.Select(filteringExp) : null;
     }
 
-    private static Expression<Func<T, User?, object>>? BuildFilteredExpression<T>(DbContext ctx, User? authUser, Type[] exploredTypes) where T : class
+    private static Expression<Func<T, User?, object>>? BuildFilteredExpression<T>(
+        DbContext ctx,
+        User? authUser,
+        Type[] exploredTypes
+    ) where T : class
     {
         if (exploredTypes.Contains(typeof(T))) return null;
 
@@ -76,7 +80,7 @@ public static class FilteredExpressionBuilder
                 var visibilityConditionExpression = getVisConExpMethod.Invoke(null, [propVisibility]) as Expression;
                 if (visibilityConditionExpression == null) continue; // Hat ha ez osszejonne itt valami nagyon rossz.
 
-                MemberExpression valueAssigned;
+                Expression valueAssigned;
 
                 if (prop is INavigation navProp)
                 {
@@ -84,28 +88,51 @@ public static class FilteredExpressionBuilder
                         BindingFlags.NonPublic | BindingFlags.Static);
                     if (buildFilteredExp == null) continue; // Ez igy amugy tulajdonkeppen lehetetlen kell hogy legyen
 
-                    // Megkene oldani, hogy ne legyen vegtelen rekurzio (IQueryable ExpTree include scanning? (U.i.: Miert utalom magam?))
+                    // Megkene oldani, hogy ne legyen vegtelen rekurzio (IQueryable ExpTree include scanning?
+                    // (U.i.: Miert utalom magam?))
                     // (Vagy csak szimplan a mar beincludeolt typeokat nem includeolja be tobbet, mondjuk?)
                     var buildFilteredExpForType = buildFilteredExp.MakeGenericMethod(navProp.TargetEntityType.ClrType);
-                    var filteredExp = buildFilteredExpForType.Invoke(null, [ctx, authUser, exploredTypes.Append(typeof(T)).ToArray()]) as Expression;
+                    var filteredExp = buildFilteredExpForType.Invoke(
+                        null,
+                        [ctx, authUser, exploredTypes.Append(typeof(T)).ToArray()]
+                    ) as LambdaExpression;
+                    
                     if (filteredExp == null) continue;
 
                     if (navProp.IsCollection)
                     {
                         valueAssigned = Expression.Property(modelParam, prop.PropertyInfo);
+
+                        /*Expression.Call(
+                            typeof(Enumerable),
+                            "Select",
+                            [navProp.TargetEntityType.ClrType, navProp.TargetEntityType.ClrType],
+                            [Expression.Property(modelParam, prop.PropertyInfo)]
+                        );
+                        */
                     }
                     else
                     {
-                        valueAssigned = Expression.Property(modelParam, prop.PropertyInfo);
+                        // Megintcsak az Invokeot nem szereti, inlineolnunk kell ezt a lambda hivast is.
+                        // (Update: ez a komment a kovetkezo komment utan irodott, de elotte van a kodban)
+                        var childReplacer = new ExpressionParameterReplacer(
+                            new Dictionary<ParameterExpression, Expression>
+                            {
+                                { filteredExp.Parameters[0], Expression.Property(modelParam, prop.PropertyInfo) },
+                                { filteredExp.Parameters[1], authUserParam }
+                            }
+                        );
+
+                        valueAssigned = childReplacer.Visit(filteredExp.Body);
                     }
                 } else
                 {
                     valueAssigned = Expression.Property(modelParam, prop.PropertyInfo);
                 }
 
-                // C# a nem hardcodeolt lambdaexpressionok meghivasat nem tudja lekepezni SQL-be
-                // ezert az egesz fuggvenyt igazabol csak be kell illeszteni a treebe, es a parametereket
-                // kicserelni ennek az expressionnek a parametereire.
+                // C# a nem hardcodeolt lambdaexpressionok meghivasat nem tudja lekepezni SQL-be,
+                // ugy hogy a param egy kulso konstans, ezert az egesz fuggvenyt igazabol csak be
+                // kell illeszteni a treebe, es a parametereket kicserelni ennek az expressionnek a parametereire.
                 var lambdaVisCondExp = (LambdaExpression)visibilityConditionExpression;
                 var replacer = new ExpressionParameterReplacer(new Dictionary<ParameterExpression, Expression>
                 {

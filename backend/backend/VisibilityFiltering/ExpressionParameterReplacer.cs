@@ -20,7 +20,9 @@ namespace backend.VisibilityFiltering
         }
 
         public static Expression<Func<T, object>>? ReplaceAuthUserParam<T>(
-            Expression<Func<T, User?, object>> expression, User? authUser)
+            Expression<Func<T, User?, object>> expression,
+            User? authUser
+        )
         {
             var replacedBody = new ExpressionParameterReplacer(new Dictionary<ParameterExpression, Expression> {
                 { expression.Parameters[1], Expression.Constant(authUser, typeof(User)) }
