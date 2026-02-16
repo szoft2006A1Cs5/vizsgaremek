@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using backend.Common;
 using backend.DTOs.Vehicle;
 using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -137,28 +138,98 @@ namespace backend.Controllers
         [HttpPost("{vehicleId}/availability")]
         public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
         {
-            var authUser = _authMgr.GetUser(User, _context);
+            var authUser = await _authMgr.GetUser(User, _context);
             
+            if (authUser == null) return Unauthorized();
+            
+            var vehicle = await _context.Vehicles
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
+                .AsSplitQuery()
+                .Include(x => x.Availabilities)
+                .FirstOrDefaultAsync(x => x.Id == vehicleId);
+            
+            if (vehicle == null) return NotFound();
+            if (vehicle.OwnerId != authUser.Id) return Forbid();
 
-            return Ok();
+            if (availability.End < availability.Start || availability.HourlyRate < 0)
+                return BadRequest(new
+                {
+                    Error = "A bérelhetőség kezdete nem lehet később a végénél," +
+                            " és a beállított ár nem lehet kevesebb 0-nál!"
+                });
+                
+            if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(availability.DateInterval)))
+                return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
+
+            availability.Id = vehicle.Availabilities.Max(x => x.Id) + 1;
+            availability.VehicleId = vehicle.Id;
+            
+            await _context.VehicleAvailabilities.AddAsync(availability);
+            await _context.SaveChangesAsync();
+            
+            return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", availability.FilterSerialize(authUser));
         }
 
         [HttpGet("{vehicleId}/availability/{availabilityId}")]
         public async Task<IActionResult> GetAvailability(int vehicleId, int availabilityId)
         {
-            throw new NotImplementedException();
-            return Ok();
+            var availability = await _context.VehicleAvailabilities
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == vehicleId);
+            
+            if (availability == null) return NotFound();
+            
+            return Ok(availability);
         }
         
         [HttpPut("{vehicleId}/availability/{availabilityId}")]
         public async Task<IActionResult> EditAvailability(
             int vehicleId, 
             int availabilityId, 
-            [FromBody] VehicleAvailability availability
+            [FromBody] VehicleAvailability replacement
         )
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authMgr.GetUser(User, _context);
+            
+            if (authUser == null) return Unauthorized();
+
+            var vehicle = await _context.Vehicles
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
+                .AsSplitQuery()
+                .Include(x => x.Availabilities)
+                .FirstOrDefaultAsync(x => x.Id == vehicleId);
+            
+            if (vehicle == null) return NotFound();
+            
+            var availability = vehicle.Availabilities
+                .FirstOrDefault(x => x.Id == availabilityId);
+            
+            if (availability == null) return NotFound();
+            if (vehicle.OwnerId != authUser.Id) return Forbid();
+
+            if (availability.End < availability.Start || availability.HourlyRate < 0)
+                return BadRequest(new
+                {
+                    Error = "A bérelhetőség kezdete nem lehet később a végénél," +
+                            " és a beállított ár nem lehet kevesebb 0-nál!"
+                });
+            
+            if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(replacement.DateInterval) &&
+                                                x.Id != availabilityId))
+                return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
+
+            availability.Start = replacement.Start;
+            availability.End = replacement.End;
+            availability.Recurrence = replacement.Recurrence;
+            availability.HourlyRate = replacement.HourlyRate;
+            
+            await _context.SaveChangesAsync();
+            
+            // TODO: Nem menti a valtoztatasokat, eselyes, hogy azert, mert nincs egyertelmu primary key,
+            //       csak composite.
+            
+            return Ok(availability.FilterSerialize(authUser));
         }
 
         [HttpDelete("{vehicleId}/availability/{availabilityId}")]

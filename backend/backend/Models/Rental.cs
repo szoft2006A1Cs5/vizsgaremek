@@ -30,9 +30,7 @@ namespace backend.Models
         [JsonIgnore]
         [NotMapped]
         public DateInterval DateInterval { 
-            get {
-                return new DateInterval(Start, End);
-            } 
+            get => new DateInterval(Start, End);
         }
 
         public RentalStatus Status { get; set; }

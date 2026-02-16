@@ -10,10 +10,5 @@
             this.Start = start;
             this.End = end;
         }
-
-        public static bool DoesCollide(this DateInterval lhs, DateInterval rhs)
-        {
-            return false;
-        }
     }
 }
