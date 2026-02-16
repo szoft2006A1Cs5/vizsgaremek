@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using backend.Common;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace backend.Models
@@ -25,6 +26,15 @@ namespace backend.Models
         public int Downpayment { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
+        
+        [JsonIgnore]
+        [NotMapped]
+        public DateInterval DateInterval { 
+            get {
+                return new DateInterval(Start, End);
+            } 
+        }
+
         public RentalStatus Status { get; set; }
         public double PickupLatitude { get; set; }
         public double PickupLongtitude { get; set; }

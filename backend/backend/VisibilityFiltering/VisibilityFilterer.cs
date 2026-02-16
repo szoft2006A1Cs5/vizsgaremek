@@ -23,7 +23,7 @@ namespace backend.VisibilityFiltering
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
         
-        public static string FilterVisibility<T>(this T data, User? authUser)
+        public static string FilterSerialize<T>(this T data, User? authUser)
         {
             AuthUser.Value = authUser;
             return JsonSerializer.Serialize(data, SerializerOptions);

@@ -47,7 +47,7 @@ namespace backend.Controllers
                 .Take(limit)
                 .ToListAsync();
             
-            return Ok(vehicles.FilterVisibility(authUser));
+            return Ok(vehicles.FilterSerialize(authUser));
         }
 
         // GET api/<VehicleController>/5
@@ -69,7 +69,7 @@ namespace backend.Controllers
                 
             if (vehicle == null) return NotFound();
 
-            return Ok(vehicle.FilterVisibility(authUser));
+            return Ok(vehicle.FilterSerialize(authUser));
         }
 
         [Authorize(Roles = "User")]
@@ -91,7 +91,7 @@ namespace backend.Controllers
                 .Take(limit)
                 .ToListAsync();
 
-            return Ok(vehicles.FilterVisibility(authUser));
+            return Ok(vehicles.FilterSerialize(authUser));
         }
 
         [Authorize(Roles = "User")]
@@ -119,7 +119,7 @@ namespace backend.Controllers
             await _context.Vehicles.AddAsync(vehicle);
             await _context.SaveChangesAsync();
 
-            return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", vehicle.FilterVisibility(authUser));
+            return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", vehicle.FilterSerialize(authUser));
         }
         
         [HttpGet("{id}/availability")]
@@ -137,7 +137,9 @@ namespace backend.Controllers
         [HttpPost("{vehicleId}/availability")]
         public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
         {
-            throw new NotImplementedException();
+            var authUser = _authMgr.GetUser(User, _context);
+            
+
             return Ok();
         }
 

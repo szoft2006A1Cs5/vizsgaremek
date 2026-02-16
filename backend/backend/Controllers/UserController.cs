@@ -47,7 +47,7 @@ namespace backend.Controllers
             
             if (user == null) return NotFound();
 
-            return Ok(user.FilterVisibility(authUser));
+            return Ok(user.FilterSerialize(authUser));
         }
 
         [HttpPut]
@@ -91,7 +91,7 @@ namespace backend.Controllers
 
             await _context.SaveChangesAsync();
             
-            return Ok(authUser.FilterVisibility(authUser));
+            return Ok(authUser.FilterSerialize(authUser));
         }
     }
 }
