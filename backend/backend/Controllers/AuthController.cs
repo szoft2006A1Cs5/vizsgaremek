@@ -26,7 +26,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDTO credentials)
+        public async Task<IActionResult> Login([FromBody] LoginDTO credentials)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == credentials.Email);
 
@@ -41,7 +41,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegistrationDTO registration)
+        public async Task<IActionResult> Register([FromBody] RegistrationDTO registration)
         {
             if (!Regex.IsMatch(registration.Name, @"^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)+$") ||
                 !Regex.IsMatch(registration.IdCardNumber, @"^\d{6}[A-Z]{2}$") ||

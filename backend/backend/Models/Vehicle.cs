@@ -65,5 +65,16 @@ namespace backend.Models
                     return (_, _) => false;
             }
         }
+        
+        
+        public bool CheckAvailable(DateInterval interval)
+        {
+            // Ha van mar berles amit elfogadtak es utkozik a megadott datummal,
+            // akkor nyilvan nem elerheto az idoszakra, emellett a jarmu tulajdonosa
+            // altal meghatarozott berelhetosegi idoszakban van-e a megadott intervallum.
+            return !this.Rentals.Any(x => RentalStatus.OfferAccepted <= x.Status &&
+                                             x.DateInterval.DoesCollide(interval)) &&
+                   this.Availabilities.Any(x => x.DateInterval.DoesContain(interval));
+        }
     }
 }

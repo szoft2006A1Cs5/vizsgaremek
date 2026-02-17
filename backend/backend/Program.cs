@@ -25,7 +25,7 @@ namespace backend
                 Console.WriteLine("Nem található connection string az adatbázis kapcsolathoz!");
                 return;
             }
-
+            
             // Add services to the container.
             builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr));
             builder.Services.AddSingleton<AuthManager>();
@@ -100,6 +100,20 @@ namespace backend
                 });
             }
 
+            /*
+            builder.Services.AddCors(o =>
+            {
+                o.AddPolicy("AllowFrontend", x =>
+                {
+                    x
+                        .WithOrigins("https://localhost:5173")
+                        .WithOrigins("https://127.0.0.1:5173")
+                        .WithOrigins("http://localhost:5173")
+                        .WithOrigins("http://127.0.0.1:5173");
+                });
+            });
+            */
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -116,10 +130,11 @@ namespace backend
 
             app.MapControllers();
 
-            app.UseCors(x => x
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowAnyOrigin()
+            app.UseCors(policy => 
+                policy
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
             );
 
             app.Run();
