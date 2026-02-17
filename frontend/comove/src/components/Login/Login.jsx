@@ -187,6 +187,12 @@ function Login() {
                                 <h3 style={{color: "red", textAlign: "center"}}>{error}</h3>
                             : <></> }
 
+                            <div className="log_row">
+                                <label className="log_remember">
+                                    <a href="#">Elfelejtetted a jelszót?</a>
+                                </label>
+                            </div>
+
                             <button className="log_btn" type="button" onClick={checkLogin}>Belépés</button>
                         </form>
                     </div>

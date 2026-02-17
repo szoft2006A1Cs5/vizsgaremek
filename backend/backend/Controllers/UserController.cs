@@ -50,6 +50,16 @@ namespace backend.Controllers
             return Ok(user.FilterSerialize(authUser));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAuthUser()
+        {
+            var authUser = await _authMgr.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+
+            return await Get(authUser.Id);
+        }
+
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] UserModificationDTO dto)
         {
