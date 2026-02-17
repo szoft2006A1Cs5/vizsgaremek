@@ -32,7 +32,17 @@ namespace backend.Controllers
 
         // GET: api/<VehicleController>
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] int limit = 30, [FromQuery] int offset = 0)
+        public async Task<IActionResult> Get(
+            [FromQuery] int limit = 30,
+            [FromQuery] int offset = 0,
+            [FromQuery] DateTime? rentalStart = null,
+            [FromQuery] DateTime? rentalEnd = null,
+            [FromQuery] string? manufacturer = null,
+            [FromQuery] string? model = null,
+            [FromQuery] int? year = null,
+            [FromQuery] string? settlement = null,
+            [FromQuery] int? minRate = null,
+            [FromQuery] int? maxRate = null)
         {
             var authUser = await _authMgr.GetUser(User, _context);
 
@@ -44,6 +54,13 @@ namespace backend.Controllers
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
+                .Where(x => 
+                    (rentalStart != null && rentalEnd != null ? x.CheckAvailable(new DateInterval(rentalStart.Value, rentalEnd.Value)) : true) && // TODO: nem tudja SQL-be forditani
+                    (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
+                    (model != null ? x.Model == model : true) &&
+                    (year != null ? x.Year == year : true) &&
+                    (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true)
+                )
                 .Skip(offset)
                 .Take(limit)
                 .ToListAsync();
@@ -218,21 +235,30 @@ namespace backend.Controllers
             
             await _context.SaveChangesAsync();
             
-            // TODO: Nem menti a valtoztatasokat, eselyes, hogy azert, mert nincs egyertelmu primary key,
-            //       csak composite.
-            
             return Ok(availability.FilterSerialize(authUser));
         }
 
         [HttpDelete("{vehicleId}/availability/{availabilityId}")]
         public async Task<IActionResult> DeleteAvailability(
             int vehicleId,
-            int availabilityId,
-            [FromBody] VehicleAvailability availability
+            int availabilityId
         )
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authMgr.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+
+            var availability = await _context.VehicleAvailabilities
+                .Include(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == availabilityId);
+
+            if (availability == null || availability.Vehicle == null) return NotFound();
+            if (availability.Vehicle.OwnerId != authUser.Id) return Forbid();
+
+            _context.VehicleAvailabilities.Remove(availability);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         [HttpGet("{vehicleId}/image")]

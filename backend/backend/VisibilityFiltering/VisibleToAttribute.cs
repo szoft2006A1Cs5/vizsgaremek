@@ -9,8 +9,6 @@
         AdminOnly = 3
     }
 
-
-
     [AttributeUsage(AttributeTargets.Property)]
     public class VisibleToAttribute : Attribute
     {
