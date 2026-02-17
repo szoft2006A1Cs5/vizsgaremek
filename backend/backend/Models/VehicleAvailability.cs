@@ -14,7 +14,7 @@ namespace backend.Models
         Monthly = 3,
     }
 
-    [PrimaryKey(nameof(VehicleId), nameof(Id), nameof(Start), nameof(End))]
+    [PrimaryKey(nameof(VehicleId), nameof(Id))]
     public class VehicleAvailability
     {
         [SwaggerIgnore]

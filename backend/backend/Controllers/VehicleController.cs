@@ -158,7 +158,7 @@ namespace backend.Controllers
                     Error = "A bérelhetőség kezdete nem lehet később a végénél," +
                             " és a beállított ár nem lehet kevesebb 0-nál!"
                 });
-                
+            
             if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(availability.DateInterval)))
                 return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
 
@@ -193,20 +193,12 @@ namespace backend.Controllers
             
             if (authUser == null) return Unauthorized();
 
-            var vehicle = await _context.Vehicles
-                .AsNoTracking()
-                .IgnoreAutoIncludes()
-                .AsSplitQuery()
-                .Include(x => x.Availabilities)
-                .FirstOrDefaultAsync(x => x.Id == vehicleId);
+            var availability = await _context.VehicleAvailabilities
+                .Include(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == availabilityId);
             
-            if (vehicle == null) return NotFound();
-            
-            var availability = vehicle.Availabilities
-                .FirstOrDefault(x => x.Id == availabilityId);
-            
-            if (availability == null) return NotFound();
-            if (vehicle.OwnerId != authUser.Id) return Forbid();
+            if (availability == null || availability.Vehicle == null) return NotFound();
+            if (availability.Vehicle.OwnerId != authUser.Id) return Forbid();
 
             if (availability.End < availability.Start || availability.HourlyRate < 0)
                 return BadRequest(new
@@ -215,8 +207,8 @@ namespace backend.Controllers
                             " és a beállított ár nem lehet kevesebb 0-nál!"
                 });
             
-            if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(replacement.DateInterval) &&
-                                                x.Id != availabilityId))
+            if (availability.Vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(replacement.DateInterval) &&
+                                                             x.Id != availabilityId))
                 return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
 
             availability.Start = replacement.Start;

@@ -200,7 +200,7 @@ ALTER TABLE `users`
 -- Indexes for table `vehicleavailabilities`
 --
 ALTER TABLE `vehicleavailabilities`
-  ADD PRIMARY KEY (`vehicleId`,`id`,`start`,`end`);
+  ADD PRIMARY KEY (`vehicleId`,`id`);
 
 --
 -- Indexes for table `vehicleimages`
