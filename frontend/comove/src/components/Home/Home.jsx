@@ -34,9 +34,6 @@ function Home(){
     return(
         <>
             <section className="hero">
-                <div className="dots">
-                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                </div>
                 <div className="container">
                     <header className="nav">
                         <img className="logo" src={logo} alt="CoMove"/>
@@ -49,22 +46,25 @@ function Home(){
                                 <Group gap={5} visibleFrom="sm">
                                     <Menu shadow="md" width={200}>
                                         <Menu.Target>
-                                            <Avatar />
+                                            <Avatar className="avatar" src={authUser.profilePicPath ? authUser.profilePicPath : ""} />
                                         </Menu.Target>
             
                                         <Menu.Dropdown>
-                                            <Menu.Label>{authUser.name}</Menu.Label>
-                                            <Menu.Item>Beállítások</Menu.Item>
+                                            <Menu.Label>Üdv {authUser.name}!</Menu.Label>
+                                            <Menu.Item onClick={() => {
+                                                localStorage.removeItem("token")
+                                                setAuthUser(null);
+                                            }}>Kijelentkezés</Menu.Item>
                                         </Menu.Dropdown>
                                     </Menu>
                                 </Group>
-                            : <Link to="/">Bejelentkezés</Link> }
+                            : <Link to="/login">Bejelentkezés</Link> }
                         </nav>
                             
                     </header>
                     <div className="content">
                         <div className="left">
-                            <h1>Bérelj olcsón, biztonságosan!</h1>
+                            <h1 style={{color: "white"}}>Bérelj olcsón, biztonságosan!</h1>
                             <p>
                                 Találd meg az igényeidnek megfelelő autót, mellyel élvezet lesz a vezetés minden perce.
                             </p>

@@ -37,7 +37,9 @@ function Registration() {
     });
 
     function registerCheck() {
+        console.log(regData.birthdate)
         let birthdate = new Date(regData.birthdate);
+        console.log(`${birthdate.getFullYear()}-${birthdate.getMonth() + 1}-${birthdate.getDate()}`);
 
         if (!showPage2) {
             if (!regData.name.match(/^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)$/)) {
@@ -112,6 +114,12 @@ function Registration() {
 
         setError("");
 
+        let birthmonth = birthdate.getMonth() + 1;
+        birthmonth = (birthmonth < 10 ? "0" + `${birthmonth}` : `${birthmonth}`)
+        let birthday = birthdate.getDate();
+        birthday = (birthday < 10 ? "0" + `${birthday}` : `${birthday}`)
+        console.log(`${birthdate.getFullYear()}-${birthmonth}-${birthday}`);
+
         fetch("https://localhost:7245/api/Auth/register", {
             method: "POST",
             headers: {
@@ -121,7 +129,7 @@ function Registration() {
                 "idCardNumber": regData.idNumber,
                 "name": regData.name,
                 "phone": regData.phone,
-                "dateOfBirth": `${birthdate.getFullYear()}-${birthdate.getMonth()}-${birthdate.getDate()}`,
+                "dateOfBirth": `${birthdate.getFullYear()}-${birthmonth}-${birthday}`,
                 "email": regData.email,
                 "password": regData.pass,
                 "driversLicenseNumber": regData.driverNumber,

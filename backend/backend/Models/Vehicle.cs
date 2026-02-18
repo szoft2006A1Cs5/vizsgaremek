@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using backend.Common;
 using backend.VisibilityFiltering;
+using Humanizer.DateTimeHumanizeStrategy;
 
 namespace backend.Models
 {
@@ -43,6 +44,11 @@ namespace backend.Models
 
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
+
+        public double? Rating
+        {
+            get => this.Rentals.Average(x => x.OwnerRating);
+        }
 
         public static Func<object?, User?, bool> GetVisibilityConditionLambda(VisibilityLevel visLevel)
         {

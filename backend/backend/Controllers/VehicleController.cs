@@ -192,7 +192,7 @@ namespace backend.Controllers
         public async Task<IActionResult> GetAvailability(int vehicleId, int availabilityId)
         {
             var availability = await _context.VehicleAvailabilities
-                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == vehicleId);
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == availabilityId);
             
             if (availability == null) return NotFound();
             
