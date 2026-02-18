@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import CarCard from '../CarCard/CarCard'
+import CarCard from '../../components/CarCard/CarCard'
 import { Flex } from '@mantine/core';
 
 function Search() {

@@ -35,33 +35,6 @@ function Home(){
         <>
             <section className="hero">
                 <div className="container">
-                    <header className="nav">
-                        <img className="logo" src={logo} alt="CoMove"/>
-
-                        <nav className="menu">
-                            <a href="#">Főoldal</a>
-                            <a href="#">Rólunk</a>
-                            <a href="#">Foglalások</a>
-                            {authUser ? 
-                                <Group gap={5} visibleFrom="sm">
-                                    <Menu shadow="md" width={200}>
-                                        <Menu.Target>
-                                            <Avatar className="avatar" src={authUser.profilePicPath ? authUser.profilePicPath : ""} />
-                                        </Menu.Target>
-            
-                                        <Menu.Dropdown>
-                                            <Menu.Label>Üdv {authUser.name}!</Menu.Label>
-                                            <Menu.Item onClick={() => {
-                                                localStorage.removeItem("token")
-                                                setAuthUser(null);
-                                            }}>Kijelentkezés</Menu.Item>
-                                        </Menu.Dropdown>
-                                    </Menu>
-                                </Group>
-                            : <Link to="/login">Bejelentkezés</Link> }
-                        </nav>
-                            
-                    </header>
                     <div className="content">
                         <div className="left">
                             <h1 style={{color: "white"}}>Bérelj olcsón, biztonságosan!</h1>
