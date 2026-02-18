@@ -6,6 +6,7 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Navbar from 'react-bootstrap/Navbar';
 import { useNavigate, useLocation, Link, Route } from "react-router-dom";
+import { Avatar } from '@mantine/core';
 
 function Home(){
     const [authUser, setAuthUser] = useState(null);
@@ -47,6 +48,7 @@ function Home(){
                             <a href="#">Főoldal</a>
                             <a href="#">Rólunk</a>
                             <a href="#">Foglalások</a>
+                            <Avatar radius="xl" />
                             {authUser ?
                             <Navbar.Collapse>
                                 <Nav>

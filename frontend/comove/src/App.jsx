@@ -4,15 +4,19 @@ import Registration from "./components/Registration/Registration";
 import Cards from './components/Cards/Cards';
 import Home from './components/Home/Home'
 
+import { MantineProvider } from '@mantine/core'
+
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Registration />} />
-        <Route path="/cards" element={<Cards />} />
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </BrowserRouter>
+    <MantineProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Registration />} />
+          <Route path="/cards" element={<Cards />} />
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </BrowserRouter>
+    </MantineProvider>
   );
 }
