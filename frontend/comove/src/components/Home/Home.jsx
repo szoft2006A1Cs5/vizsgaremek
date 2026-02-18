@@ -2,11 +2,8 @@ import { useState, useEffect } from "react";
 import "./Home.css";
 import logo from '../../assets/kepek/logo/comove_logo4.png';
 import profilepic from '../../assets/kepek/profilepicture.jpg'
-import Nav from 'react-bootstrap/Nav';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import Navbar from 'react-bootstrap/Navbar';
 import { useNavigate, useLocation, Link, Route } from "react-router-dom";
-import { Avatar } from '@mantine/core';
+import { Avatar, Anchor, Group, Menu } from '@mantine/core';
 
 function Home(){
     const [authUser, setAuthUser] = useState(null);
@@ -44,26 +41,26 @@ function Home(){
                     <header className="nav">
                         <img className="logo" src={logo} alt="CoMove"/>
 
-                        <Navbar className="menu">
+                        <nav className="menu">
                             <a href="#">Főoldal</a>
                             <a href="#">Rólunk</a>
                             <a href="#">Foglalások</a>
-                            <Avatar radius="xl" />
-                            {authUser ?
-                            <Navbar.Collapse>
-                                <Nav>
-                                    <NavDropdown title={authUser.name} menuVariant="dark">
-                                        <NavDropdown.Item>Beállítások</NavDropdown.Item>
-                                        <NavDropdown.Item onClick={() => {
-                                            localStorage.removeItem("token");
-
-                                            setAuthUser(null);
-                                        }}>Kijelentkezés</NavDropdown.Item>
-                                    </NavDropdown>
-                                </Nav>
-                            </Navbar.Collapse>
-                            : <Link to='/login'>Bejelentkezés</Link> }
-                        </Navbar>
+                            {authUser ? 
+                                <Group gap={5} visibleFrom="sm">
+                                    <Menu shadow="md" width={200}>
+                                        <Menu.Target>
+                                            <Avatar />
+                                        </Menu.Target>
+            
+                                        <Menu.Dropdown>
+                                            <Menu.Label>{authUser.name}</Menu.Label>
+                                            <Menu.Item>Beállítások</Menu.Item>
+                                        </Menu.Dropdown>
+                                    </Menu>
+                                </Group>
+                            : <Link to="/">Bejelentkezés</Link> }
+                        </nav>
+                            
                     </header>
                     <div className="content">
                         <div className="left">

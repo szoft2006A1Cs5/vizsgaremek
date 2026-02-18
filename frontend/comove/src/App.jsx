@@ -3,8 +3,10 @@ import Login from "./components/Login/Login";
 import Registration from "./components/Registration/Registration";
 import Cards from './components/Cards/Cards';
 import Home from './components/Home/Home'
+import '@mantine/core/styles.css';
 
 import { MantineProvider } from '@mantine/core'
+import Index from "./components/Index/Index";
 
 export default function App() {
   return (
