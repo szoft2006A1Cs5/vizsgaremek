@@ -37,9 +37,7 @@ function Registration() {
     });
 
     function registerCheck() {
-        console.log(regData.birthdate)
         let birthdate = new Date(regData.birthdate);
-        console.log(`${birthdate.getFullYear()}-${birthdate.getMonth() + 1}-${birthdate.getDate()}`);
 
         if (!showPage2) {
             if (!regData.name.match(/^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)$/)) {
@@ -48,7 +46,7 @@ function Registration() {
             }
 
             birthdate.setHours(0, 0, 0, 0);
-            birthdate.setFullYear(birthdate.getFullYear() + 18)
+            birthdate.setUTCFullYear(birthdate.getUTCFullYear() + 18)
             let now = new Date();
             now.setHours(0, 0, 0, 0)
             console.log(now < birthdate)
@@ -114,11 +112,10 @@ function Registration() {
 
         setError("");
 
-        let birthmonth = birthdate.getMonth() + 1;
-        birthmonth = (birthmonth < 10 ? "0" + `${birthmonth}` : `${birthmonth}`)
-        let birthday = birthdate.getDate();
-        birthday = (birthday < 10 ? "0" + `${birthday}` : `${birthday}`)
-        console.log(`${birthdate.getFullYear()}-${birthmonth}-${birthday}`);
+        let birthmonth = birthdate.getUTCMonth() + 1;
+        birthmonth = (birthmonth < 10 ? "0" + `${birthmonth}` : `${birthmonth}`);
+        let birthday = birthdate.getUTCDate();
+        birthday = (birthday < 10 ? "0" + `${birthday}` : `${birthday}`);
 
         fetch("https://localhost:7245/api/Auth/register", {
             method: "POST",
@@ -129,7 +126,7 @@ function Registration() {
                 "idCardNumber": regData.idNumber,
                 "name": regData.name,
                 "phone": regData.phone,
-                "dateOfBirth": `${birthdate.getFullYear()}-${birthmonth}-${birthday}`,
+                "dateOfBirth": `${birthdate.getUTCFullYear()}-${birthmonth}-${birthday}`,
                 "email": regData.email,
                 "password": regData.pass,
                 "driversLicenseNumber": regData.driverNumber,

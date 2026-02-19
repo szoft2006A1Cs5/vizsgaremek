@@ -3,6 +3,7 @@
     background-color: rgba(0, 0, 0, 0.5) !important;
     border: 1px solid var(--line) !important;
     backdrop-filter: blur(10px);
+    height: 100%;
 }
 
 .navbarPopout {

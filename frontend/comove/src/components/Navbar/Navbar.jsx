@@ -50,7 +50,7 @@ function Navbar({ children }) {
     return (<>
         <AppShell
             header={{
-                height: 80
+                height: 80,
             }}
             navbar={{
                 breakpoint: 'sm',
@@ -88,38 +88,6 @@ function Navbar({ children }) {
                             if (sideNavOpen) sideNavToggle();
                             authBarToggle();
                         }} className={style.account} w={50} h={50} color='white' />
-
-                        {/*
-                        <Menu>
-                            <Menu.Target>
-                                <Avatar className={style.account} w={50} h={50} color='white' />
-                            </Menu.Target>
-
-                            <Menu.Dropdown>
-                                <LoadingOverlay visible={ authUser && !authUser.name } zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-                                {
-                                    !authUser ?
-                                    <>
-                                        <Menu.Item><Link to="/login">Bejelentkezés</Link></Menu.Item>
-                                        <Menu.Item><Link to="/register">Regiszráció</Link></Menu.Item>
-                                    </> :
-                                    <>
-                                        <Menu.Label>Üdv {authUser.name}!</Menu.Label>
-                                        <Menu.Item>Beállítások</Menu.Item>
-                                        <Menu.Divider></Menu.Divider>
-                                        <Menu.Item>Járműveim</Menu.Item>
-                                        <Menu.Item>Bérléseim</Menu.Item>
-                                        <Menu.Divider></Menu.Divider>
-                                        <Menu.Item onClick={() => {
-                                            setAuthUser(null);
-                                            localStorage.removeItem("token");
-                                        }}>Kijelentkezés</Menu.Item>
-                                    </>
-                                }
-                               
-                            </Menu.Dropdown>
-                        </Menu>
-                        */}
                     </Group>
                 </Flex>
             </AppShell.Header>
@@ -132,8 +100,8 @@ function Navbar({ children }) {
                 </div>
             </AppShell.Navbar>
 
-            <AppShell.Aside bg='transparent' bd={0}>
-                <div className={`${style.glass} ${style.navbarPopout}`} style={{height: "100%"}} >
+            <AppShell.Aside bg='transparent' bd={0} zIndex={500}>
+                <div className={`${style.glass} ${style.navbarPopout}`} >
                     <LoadingOverlay visible={ authUser && !authUser.name } zIndex={1000} overlayProps={{ radius: "sm", blur: 5 }} bdrs={50} />
                     <Stack className={style.authBarItem}>
                         { !authUser || (authUser && !authUser.name) ?
