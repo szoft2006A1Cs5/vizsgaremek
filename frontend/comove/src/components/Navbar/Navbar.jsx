@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react'
 import style from './Navbar.module.css'
-import { Anchor, AppShell, Flex, Group, Stack, Image, Burger, Avatar, Menu, LoadingOverlay } from '@mantine/core';
+import { Anchor, AppShell, Flex, Group, Stack, Image, Burger, Avatar, Menu, LoadingOverlay, Title, Divider, NavLink } from '@mantine/core';
 import logo from '../../assets/kepek/logo/comove_logo4.png';
 import { useDisclosure } from "@mantine/hooks";
 import { Link, useLocation } from 'react-router-dom';
 
 function Navbar({ children }) {
-    const [sideNavOpen, { toggle }] = useDisclosure();
+    const [sideNavOpen, { toggle: sideNavToggle }] = useDisclosure();
+    const [authBarOpen, { toggle: authBarToggle }] = useDisclosure();
     const location = useLocation();
 
     const links = [
         { to: "/", name: "Főoldal" },
         { to: "/search", name: "Autók keresése" }
     ];
+
     const [authUser, setAuthUser] = useState({});
 
     useEffect(() => {
@@ -57,11 +59,22 @@ function Navbar({ children }) {
                     mobile: !sideNavOpen
                 }
             }}
+            aside={{
+                width: 300,
+                breakpoint: 'sm',
+                collapsed: {
+                    desktop: !authBarOpen,
+                    mobile: !authBarOpen
+                }
+            }}
         >
             <AppShell.Header className={style.glass} bdrs={999} p={15} m={15} bd={0} >
                 <Flex direction="row" gap={5} align="center" justify='space-between'>
                     <Group>
-                        <Burger hiddenFrom='sm' opened={sideNavOpen} onClick={toggle} color='white' />
+                        <Burger hiddenFrom='sm' opened={sideNavOpen} onClick={() => {
+                            if (authBarOpen) authBarToggle();
+                            sideNavToggle();
+                        }} color='white' />
                         <Link to="/"><Image src={logo} w={50} h={50} /></Link>
                     </Group>
 
@@ -70,6 +83,13 @@ function Navbar({ children }) {
                             {links.map(x => <Link to={x.to}><span>{x.name}</span></Link>)}
                         </Group>
 
+
+                        <Avatar onClick={() => {
+                            if (sideNavOpen) sideNavToggle();
+                            authBarToggle();
+                        }} className={style.account} w={50} h={50} color='white' />
+
+                        {/*
                         <Menu>
                             <Menu.Target>
                                 <Avatar className={style.account} w={50} h={50} color='white' />
@@ -99,6 +119,7 @@ function Navbar({ children }) {
                                
                             </Menu.Dropdown>
                         </Menu>
+                        */}
                     </Group>
                 </Flex>
             </AppShell.Header>
@@ -110,6 +131,33 @@ function Navbar({ children }) {
                     </Stack>
                 </div>
             </AppShell.Navbar>
+
+            <AppShell.Aside bg='transparent' bd={0}>
+                <div className={`${style.glass} ${style.navbarPopout}`} style={{height: "100%"}} >
+                    <LoadingOverlay visible={ authUser && !authUser.name } zIndex={1000} overlayProps={{ radius: "sm", blur: 5 }} bdrs={50} />
+                    <Stack className={style.authBarItem}>
+                        { !authUser || (authUser && !authUser.name) ?
+                            <>
+                                <Link to='/login'><NavLink label="Bejelentkezés" /></Link>
+                                <Link to='/register'><NavLink label="Regiszráció" /></Link>
+                            </> :
+                            <>
+                                <Title size={20} color='white'>Üdv {authUser.name}!</Title>
+                                <Divider />
+                                <Link to='/settings'><NavLink label="Beállítások" /></Link>
+                                <Divider />
+                                <Link to='/rentals'><NavLink label="Bérléseim" /></Link>
+                                <Link to='/vehicles'><NavLink label="Járműveim" /></Link>
+                                <Divider />
+                                <NavLink label="Kijelentkezés" onClick={() => {
+                                    setAuthUser(null);
+                                    localStorage.removeItem("token");
+                                }} />
+                            </>
+                        }
+                    </Stack>
+                </div>
+            </AppShell.Aside>
 
             <AppShell.Main>
                 {children}

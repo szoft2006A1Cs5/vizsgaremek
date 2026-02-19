@@ -19,3 +19,16 @@
 .account {
     cursor: pointer;
 }
+
+.authBarItem {
+    color: white;
+}
+
+.authBarItem a:hover {
+    border-radius: 25px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.authBarLink {
+    color: white;
+}
