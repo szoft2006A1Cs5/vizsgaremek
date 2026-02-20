@@ -55,7 +55,11 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
                 .Where(x => 
-                    (rentalStart != null && rentalEnd != null ? x.CheckAvailable(new DateInterval(rentalStart.Value, rentalEnd.Value)) : true) && // TODO: nem tudja SQL-be forditani
+                    (rentalStart != null && rentalEnd != null ? 
+                        ((!x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                             !(r.End < rentalStart.Value || rentalEnd.Value < r.Start))) &&
+                        x.Availabilities.Any(a => a.Start <= rentalStart.Value && a.End <= rentalEnd.Value))
+                    : true) &&
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&

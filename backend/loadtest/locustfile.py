@@ -1,3 +1,4 @@
+from enum import verify
 from locust import HttpUser, task
 import random
 
@@ -32,6 +33,14 @@ class ComoveAPILoadTest(HttpUser):
     @task
     def getNotifications(self):
         self.client.get("/api/Notification", verify=False)
+
+    @task
+    def getAvailabilities(self):
+        self.client.get(f"/api/Vehicle/{random.randint(1, 3)}/availability", verify=False)
+
+    @task
+    def getAvailability(self):
+        self.client.get(f"/api/Vehicle/{random.randint(1, 3)}/availability/1", verify=False)
 
     @task
     def postLogin(self):
