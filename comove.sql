@@ -75,7 +75,7 @@ CREATE TABLE `rentals` (
   `downpayment` int(11) NOT NULL,
   `start` datetime NOT NULL,
   `end` datetime NOT NULL,
-  `status` enum('RenterOffer','OwnerOffer','OfferAccepted','RenterPickupAccepted','OwnerPickupAccepted','Active','RenterFinishAccepted','OwnerFinishAccepted','Finished','RenterCancelled','OwnerCancelled') NOT NULL DEFAULT 'RenterOffer',
+  `status` int(11) NOT NULL DEFAULT 0,
   `pickupLatitude` double NOT NULL,
   `pickupLongtitude` double NOT NULL,
   `fuelLevel` float DEFAULT NULL,

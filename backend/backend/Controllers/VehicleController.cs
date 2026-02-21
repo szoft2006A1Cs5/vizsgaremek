@@ -44,6 +44,9 @@ namespace backend.Controllers
             [FromQuery] int? minRate = null,
             [FromQuery] int? maxRate = null)
         {
+            if (rentalStart != null && rentalEnd != null && rentalEnd < rentalStart)
+                return BadRequest();
+            
             var authUser = await _authMgr.GetUser(User, _context);
 
             var vehicles = await _context.Vehicles
@@ -56,9 +59,9 @@ namespace backend.Controllers
                 .Include(x => x.Images)
                 .Where(x => 
                     (rentalStart != null && rentalEnd != null ? 
-                        ((!x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
-                                             !(r.End < rentalStart.Value || rentalEnd.Value < r.Start))) &&
-                        x.Availabilities.Any(a => a.Start <= rentalStart.Value && a.End <= rentalEnd.Value))
+                        !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                            !(r.End < rentalStart.Value || rentalEnd.Value < r.Start)) &&
+                        x.Availabilities.Any(a => a.Start <= rentalStart && rentalEnd <= a.End)
                     : true) &&
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&

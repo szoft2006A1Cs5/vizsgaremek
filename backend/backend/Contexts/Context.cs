@@ -21,10 +21,6 @@ namespace backend.Contexts
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Rental>()
-                .Property(x => x.Status)
-                .HasConversion<string>();
-
             modelBuilder.Entity<VehicleAvailability>()
                 .Property(x => x.Recurrence)
                 .HasConversion<string>();
