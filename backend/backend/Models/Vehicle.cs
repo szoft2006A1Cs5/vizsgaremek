@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using backend.Common;
 using backend.VisibilityFiltering;
 using Humanizer.DateTimeHumanizeStrategy;
@@ -45,11 +46,21 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
 
+        [NotMapped]
         public double? Rating
         {
             get => this.Rentals.Average(x => x.OwnerRating);
         }
 
+        [NotMapped]
+        public int MinRate { get; set; }
+        [NotMapped]
+        public int MaxRate { get; set; }
+        
+        [NotMapped] 
+        [JsonExtensionData] 
+        public Dictionary<string, object> ExtensionData { get; } = new();
+        
         public static Func<object?, User?, bool> GetVisibilityConditionLambda(VisibilityLevel visLevel)
         {
             switch (visLevel)

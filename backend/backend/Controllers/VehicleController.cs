@@ -49,7 +49,9 @@ namespace backend.Controllers
             
             var authUser = await _authMgr.GetUser(User, _context);
 
-            var vehicles = await _context.Vehicles
+            // TODO: Lehet, hogy egy berles ativelne tobb elerhetosegen is, es igazabol csak arbeli elteres lenne,
+            //       igy at kell neznunk azt hogy esetleg atlog-e tobb elerhetosegen.
+            var vehicles = (await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .Include(x => x.Owner)
@@ -66,11 +68,24 @@ namespace backend.Controllers
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&
-                    (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true)
+                    (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true) &&
+                    (authUser != null ? x.OwnerId != authUser.Id : true)
                 )
                 .Skip(offset)
                 .Take(limit)
-                .ToListAsync();
+                .Select(v => new
+                {
+                     v,
+                     MinRate = v.Availabilities.Min(x => x.HourlyRate),
+                     MaxRate = v.Availabilities.Max(x => x.HourlyRate),
+                })
+                .ToListAsync())
+                .Select(x =>
+                {
+                    x.v.ExtensionData.Add("minRate", x.MinRate);
+                    x.v.ExtensionData.Add("maxRate", x.MaxRate);
+                    return x.v;
+                });
             
             return Ok(vehicles.FilterSerialize(authUser));
         }
