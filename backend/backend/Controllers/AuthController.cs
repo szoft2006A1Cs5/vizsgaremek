@@ -1,4 +1,4 @@
-﻿using backend.Auth;
+﻿using backend.Services;
 using backend.Contexts;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -16,15 +16,20 @@ namespace backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly AuthManager _authMgr;
+        private readonly AuthService _authSrv;
         private readonly Context _context;
 
-        public AuthController(Context ctx, AuthManager authManager)
+        public AuthController(Context ctx, AuthService authSrv)
         {
             _context = ctx;
-            _authMgr = authManager;
+            _authSrv = authSrv;
         }
 
+        /// <summary>
+        /// Bejelentkezés e-maillel és jelszóval
+        /// </summary>
+        /// <param name="credentials">E-mail cím és jelszó</param>
+        /// <returns>JWT ha sikeres, másképpen 401-es HTTP kód</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO credentials)
         {
@@ -33,10 +38,10 @@ namespace backend.Controllers
             if (user == null)
                 return Unauthorized();
 
-            if (!_authMgr.VerifyPassword(credentials.Password, user))
+            if (!_authSrv.VerifyPassword(credentials.Password, user))
                 return Unauthorized();
 
-            var jwt = _authMgr.GenerateJWT(user);
+            var jwt = _authSrv.GenerateJWT(user);
             return jwt != null ? Ok(new { UserId = user.Id, Token = jwt }) : StatusCode(500);
         }
 
@@ -58,7 +63,7 @@ namespace backend.Controllers
                 _context.Users.Any(x => x.DriversLicenseNumber == registration.DriversLicenseNumber))
                 return Conflict();
             
-            var hashSalt = _authMgr.GeneratePasswordHashSalt(registration.Password);
+            var hashSalt = _authSrv.GeneratePasswordHashSalt(registration.Password);
             
             var user = new User {
                 Name = registration.Name,
@@ -81,7 +86,7 @@ namespace backend.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            var jwt = _authMgr.GenerateJWT(user);
+            var jwt = _authSrv.GenerateJWT(user);
             return jwt != null ? Ok(new { UserId = user.Id, Token = jwt }) : StatusCode(500);
         }
     }

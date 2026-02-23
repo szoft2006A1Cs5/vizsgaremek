@@ -8,13 +8,13 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace backend.Auth
+namespace backend.Services
 {
-    public class AuthManager
+    public class AuthService
     {
         private readonly IConfiguration _config;
 
-        public AuthManager(IConfiguration configuration)
+        public AuthService(IConfiguration configuration)
         {
             _config = configuration;
         }

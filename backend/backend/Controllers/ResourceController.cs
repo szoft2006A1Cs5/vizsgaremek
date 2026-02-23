@@ -1,6 +1,7 @@
-﻿using backend.Auth;
+﻿using backend.Services;
 using backend.Contexts;
 using backend.Models;
+using backend.Services.ResourceService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,21 +13,38 @@ namespace backend.Controllers
     public class ResourceController : ControllerBase
     {
         private readonly Context _context;
-        private readonly AuthManager _authMgr;
-        public ResourceController(Context context, AuthManager authMgr)
+        private readonly AuthService _authSrv;
+        private readonly IResourceService _resSrv;
+        
+        public ResourceController(Context context, AuthService authSrv, IResourceService resSrv)
         {
             _context = context;
-            _authMgr = authMgr;
+            _authSrv = authSrv;
+            _resSrv = resSrv;
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddResource(IFormFile file)
+        public async Task<IActionResult> AddResources([FromForm(Name = "file")] List<IFormFile> files)
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
 
-            return Ok();
+            List<Resource> addedResources = new();
+            
+            Console.WriteLine($"{files.Count}");
+            foreach (var file in files)
+            {
+                var res = await _resSrv.Upload(file);
+                if (res == null) continue;
+                
+                await _context.Resources.AddAsync(res);
+                await _context.SaveChangesAsync();
+                
+                addedResources.Add(res);
+            }
+
+            return Ok(addedResources);
         }
     }
 }

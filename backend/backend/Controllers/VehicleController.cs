@@ -1,4 +1,4 @@
-﻿using backend.Auth;
+﻿using backend.Services;
 using backend.Contexts;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -22,12 +22,12 @@ namespace backend.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly Context _context;
-        private readonly AuthManager _authMgr;
+        private readonly AuthService _authSrv;
 
-        public VehicleController(Context ctx, AuthManager authMgr)
+        public VehicleController(Context ctx, AuthService authSrv)
         {
             _context = ctx;
-            _authMgr = authMgr;
+            _authSrv = authSrv;
         }
 
         // GET: api/<VehicleController>
@@ -47,7 +47,7 @@ namespace backend.Controllers
             if (rentalStart != null && rentalEnd != null && rentalEnd < rentalStart)
                 return BadRequest();
             
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             // TODO: Lehet, hogy egy berles ativelne tobb elerhetosegen is, es igazabol csak arbeli elteres lenne,
             //       igy at kell neznunk azt hogy esetleg atlog-e tobb elerhetosegen.
@@ -94,7 +94,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             var vehicle = await _context.Vehicles
                 .AsNoTracking()
@@ -116,7 +116,7 @@ namespace backend.Controllers
         [HttpGet("owned")]
         public async Task<IActionResult> GetOwned([FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
 
@@ -138,7 +138,7 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] VehicleDTO vehicledata)
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
 
@@ -177,7 +177,7 @@ namespace backend.Controllers
         [HttpPost("{vehicleId}/availability")]
         public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
             
             if (authUser == null) return Unauthorized();
             
@@ -228,7 +228,7 @@ namespace backend.Controllers
             [FromBody] VehicleAvailability replacement
         )
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
             
             if (authUser == null) return Unauthorized();
 
@@ -266,7 +266,7 @@ namespace backend.Controllers
             int availabilityId
         )
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
 

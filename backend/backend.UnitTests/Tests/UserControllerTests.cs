@@ -1,4 +1,4 @@
-﻿using backend.Auth;
+﻿using backend.Services;
 using backend.Contexts;
 using backend.Controllers;
 using backend.Models;
@@ -25,7 +25,7 @@ namespace backend.UnitTests.Tests
         {
             _environment = MockContext.CreateContext();
 
-            _controller = new UserController(_environment.Context, _environment.AuthManager);
+            _controller = new UserController(_environment.Context, _environment.AuthService);
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext

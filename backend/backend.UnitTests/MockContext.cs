@@ -1,4 +1,4 @@
-﻿using backend.Auth;
+﻿using backend.Services;
 using backend.Contexts;
 using backend.Controllers;
 using backend.Models;
@@ -21,7 +21,7 @@ namespace backend.UnitTests
     {
         public IConfiguration Configuration { get; set; }
         public Context Context { get; set; }
-        public AuthManager AuthManager { get; set; }
+        public AuthService AuthService { get; set; }
     };
 
     internal static class MockContext
@@ -32,7 +32,7 @@ namespace backend.UnitTests
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            AuthManager authMgr = new AuthManager(config);
+            AuthService authMgr = new AuthService(config);
             Context context = new Context(GetOptions());
 
             AddData(context);
@@ -40,7 +40,7 @@ namespace backend.UnitTests
             return new TestingEnvironment { 
                 Configuration = config,
                 Context = context,
-                AuthManager = authMgr,
+                AuthService = authMgr,
             };
         }
 

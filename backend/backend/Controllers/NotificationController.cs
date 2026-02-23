@@ -1,4 +1,4 @@
-using backend.Auth;
+using backend.Services;
 using backend.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,12 +12,12 @@ namespace backend.Controllers
     public class NotificationController : ControllerBase
     {
         private readonly Context _context;
-        private readonly AuthManager _authMgr;
+        private readonly AuthService _authSrv;
 
-        public NotificationController(Context context, AuthManager authMgr)
+        public NotificationController(Context context, AuthService authSrv)
         {
             _context = context;
-            _authMgr = authMgr;
+            _authSrv = authSrv;
         }
         
         // GET: api/<NotificationController>
@@ -25,7 +25,7 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
-            var uid = _authMgr.GetUID(User);
+            var uid = _authSrv.GetUID(User);
 
             if (uid == null) return Unauthorized();
 
@@ -43,7 +43,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var uid = _authMgr.GetUID(User);
+            var uid = _authSrv.GetUID(User);
             if (uid == null) return Unauthorized();
 
             var message = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == uid && x.Id == id);
@@ -57,7 +57,7 @@ namespace backend.Controllers
         [HttpPost("{id}")]
         public async Task<IActionResult> Post(int id)
         {
-            var uid = _authMgr.GetUID(User);
+            var uid = _authSrv.GetUID(User);
             if (uid == null) return Unauthorized();
             
             var notification = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == uid && x.Id == id);
@@ -74,7 +74,7 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var uid = _authMgr.GetUID(User);
+            var uid = _authSrv.GetUID(User);
             if (uid == null) return Unauthorized();
             
             var notification = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == uid && x.Id == id);

@@ -1,4 +1,4 @@
-﻿using backend.Auth;
+﻿using backend.Services;
 using backend.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,19 +17,19 @@ namespace backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly Context _context;
-        private readonly AuthManager _authMgr;
+        private readonly AuthService _authSrv;
 
-        public UserController(Context ctx, AuthManager authMgr)
+        public UserController(Context ctx, AuthService authSrv)
         {
             _context = ctx;
-            _authMgr = authMgr;
+            _authSrv = authSrv;
         }
 
         // GET api/<UserController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             var user = await _context.Users
                 .AsNoTracking()
@@ -53,7 +53,7 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAuthUser()
         {
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
 
@@ -79,10 +79,10 @@ namespace backend.Controllers
                 _context.Users.Any(x => x.DriversLicenseNumber == dto.DriversLicenseNumber))
                 return StatusCode(409);
             
-            var authUser = await _authMgr.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
-            if (!_authMgr.VerifyPassword(dto.PreviousPassword, authUser)) return Forbid();
+            if (!_authSrv.VerifyPassword(dto.PreviousPassword, authUser)) return Forbid();
 
             var userProps = typeof(User).GetProperties();
             foreach (var dtoProp in typeof(UserModificationDTO).GetProperties())
@@ -95,7 +95,7 @@ namespace backend.Controllers
                     userProp.SetValue(authUser, dtoProp.GetValue(dto));
             }
             
-            var pwdSalt = _authMgr.GeneratePasswordHashSalt(dto.Password);
+            var pwdSalt = _authSrv.GeneratePasswordHashSalt(dto.Password);
             authUser.Password = pwdSalt.Item1;
             authUser.Salt = pwdSalt.Item2;
 

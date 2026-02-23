@@ -1,5 +1,5 @@
 
-using backend.Auth;
+using backend.Services;
 using backend.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using backend.Services.ResourceService;
 
 namespace backend
 {
@@ -18,7 +19,7 @@ namespace backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            
             var connStr = builder.Configuration.GetConnectionString("comove");
             if (connStr == null)
             {
@@ -28,7 +29,8 @@ namespace backend
             
             // Add services to the container.
             builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr));
-            builder.Services.AddSingleton<AuthManager>();
+            builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<IResourceService, LocalResourceService>();
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options => {
@@ -113,9 +115,9 @@ namespace backend
                 });
             });
             */
-            
-            var app = builder.Build();
 
+            var app = builder.Build();
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -124,6 +126,12 @@ namespace backend
             }
             
             app.UseHttpsRedirection();
+            
+            // Csak ha localresourceservice-t hasznalunk
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                RequestPath = "/res",
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -136,7 +144,7 @@ namespace backend
                     .AllowAnyHeader()
                     .AllowAnyMethod()
             );
-
+            
             app.Run();
         }
     }
