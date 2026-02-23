@@ -56,7 +56,7 @@ namespace backend.Controllers
                 _context.Users.Any(x => x.Phone == registration.Phone) ||
                 _context.Users.Any(x => x.IdCardNumber == registration.IdCardNumber) ||
                 _context.Users.Any(x => x.DriversLicenseNumber == registration.DriversLicenseNumber))
-                return StatusCode(409);
+                return Conflict();
             
             var hashSalt = _authMgr.GeneratePasswordHashSalt(registration.Password);
             

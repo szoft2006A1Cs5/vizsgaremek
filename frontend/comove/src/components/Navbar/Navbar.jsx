@@ -18,6 +18,9 @@ function Navbar({ children }) {
     const [authUser, setAuthUser] = useState({});
 
     useEffect(() => {
+        if (sideNavOpen) sideNavToggle()
+        if (authBarOpen) authBarToggle()
+
         let token = localStorage.getItem("token");
 
         if (!token) {

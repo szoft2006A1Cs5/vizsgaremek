@@ -14,12 +14,17 @@ namespace backend.Contexts
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<MessageAttachment> MessageAttachments { get; set; }
+        public DbSet<Resource> Resources { get; set; }
 
         public Context(DbContextOptions<Context> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Rental>()
+                .Property(x => x.Status)
+                .HasConversion<int>();
 
             modelBuilder.Entity<VehicleAvailability>()
                 .Property(x => x.Recurrence)
