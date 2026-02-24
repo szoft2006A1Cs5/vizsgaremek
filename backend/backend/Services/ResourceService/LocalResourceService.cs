@@ -1,6 +1,7 @@
 using backend.Models;
 using FileTypeChecker;
 using FileTypeChecker.Extensions;
+using System.Security.Cryptography;
 
 namespace backend.Services.ResourceService;
 
@@ -13,28 +14,29 @@ public class LocalResourceService : IResourceService
         _webHostEnv = webHostEnv;
     }
     
-    public async Task<Resource?> Upload(IFormFile formFile, User authUser)
+    public async Task<string?> Upload(IFormFile formFile)
     {
         string filename;
-        
+
         await using (var stream = formFile.OpenReadStream())
         {
             if (!await stream.IsImageAsync()) return null;
 
-            filename = $"{Guid.NewGuid().ToString()}{Path.GetExtension(formFile.FileName)}";
+            if (stream.CanSeek)
+                stream.Position = 0;
+
+            filename = $"{Convert.ToHexString(await SHA512.Create().ComputeHashAsync(stream))}{Path.GetExtension(formFile.FileName)}";
             string path = Path.Combine(_webHostEnv.WebRootPath, filename);
+
+            if (File.Exists(path)) return filename;
 
             if (stream.CanSeek)
                 stream.Position = 0;
-            
+
             await using (var file = File.Create(path))
                 await stream.CopyToAsync(file);
         }
 
-        return new Resource
-        {
-            Path = filename,
-            UserId = authUser.Id
-        };
+        return filename;
     }
 }

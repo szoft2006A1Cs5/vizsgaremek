@@ -110,20 +110,6 @@ INSERT INTO `rentals` (`id`, `fullPrice`, `downpayment`, `start`, `end`, `status
 (2, 25000, 5000, '2026-01-11 09:00:00', '2026-01-13 17:00:00', 5, 47.4979, 19.0402, 75.5, NULL, NULL, 4, 2),
 (3, 8000, 1500, '2026-01-15 08:00:00', '2026-01-15 12:00:00', 1, 47.2345, 16.6321, NULL, NULL, NULL, 1, 3);
 
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `resources`
---
-
-CREATE TABLE `resources` (
-  `id` int(11) NOT NULL,
-  `path` varchar(2048) NOT NULL
-  `type` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
--- --------------------------------------------------------
-
 --
 -- Tábla szerkezet ehhez a táblához `users`
 --
@@ -265,13 +251,6 @@ ALTER TABLE `rentals`
   ADD KEY `vehicle` (`vehicleId`);
 
 --
--- A tábla indexei `resources`
---
-ALTER TABLE `resources`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `path` (`path`) USING HASH;
-
---
 -- A tábla indexei `users`
 --
 ALTER TABLE `users`
@@ -317,12 +296,6 @@ ALTER TABLE `notifications`
 --
 ALTER TABLE `rentals`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT a táblához `resources`
---
-ALTER TABLE `resources`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT a táblához `users`

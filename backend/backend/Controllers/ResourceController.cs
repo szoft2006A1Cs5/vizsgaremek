@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.VisibilityFiltering;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace backend.Controllers
 {
@@ -31,20 +32,20 @@ namespace backend.Controllers
 
             if (authUser == null) return Unauthorized();
 
-            List<Resource> addedResources = new();
+            List<object> addedResources = new();
             
             foreach (var file in files)
             {
-                var res = await _resSrv.Upload(file, authUser);
+                var res = await _resSrv.Upload(file);
                 if (res == null) continue;
-                
-                await _context.Resources.AddAsync(res);
-                await _context.SaveChangesAsync();
-                
-                addedResources.Add(res);
+
+                addedResources.Add(new
+                {
+                    Path = $"{Request.Scheme}://{Request.Host.Host}:{Request.Host.Port}/res/{res}"
+                });
             }
 
-            return Ok(addedResources.FilterSerialize(authUser));
+            return Created($"{Request.Scheme}://{Request.Host.Host}:{Request.Host.Port}/res/", addedResources);
         }
     }
 }
