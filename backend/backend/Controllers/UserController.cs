@@ -82,7 +82,8 @@ namespace backend.Controllers
             var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
-            if (!_authSrv.VerifyPassword(dto.PreviousPassword, authUser)) return Forbid();
+            if (authUser.Role != UserRole.Administrator &&
+                !_authSrv.VerifyPassword(dto.PreviousPassword, authUser)) return Forbid();
 
             var userProps = typeof(User).GetProperties();
             foreach (var dtoProp in typeof(UserModificationDTO).GetProperties())

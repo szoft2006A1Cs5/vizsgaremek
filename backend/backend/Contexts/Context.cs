@@ -13,8 +13,6 @@ namespace backend.Contexts
         public DbSet<Rental> Rentals { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<MessageAttachment> MessageAttachments { get; set; }
-        public DbSet<Resource> Resources { get; set; }
 
         public Context(DbContextOptions<Context> options) : base(options) { }
 

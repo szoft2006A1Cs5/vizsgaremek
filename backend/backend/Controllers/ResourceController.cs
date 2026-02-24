@@ -41,7 +41,7 @@ namespace backend.Controllers
 
                 addedResources.Add(new
                 {
-                    Path = $"{Request.Scheme}://{Request.Host.Host}:{Request.Host.Port}/res/{res}"
+                    Path = res
                 });
             }
 

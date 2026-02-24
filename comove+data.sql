@@ -26,23 +26,13 @@ USE `comove`;
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `messageattachments`
---
-
-CREATE TABLE `messageattachments` (
-  `messageId` int(11) NOT NULL,
-  `attachmentPath` varchar(256) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
--- --------------------------------------------------------
-
---
 -- Tábla szerkezet ehhez a táblához `messages`
 --
 
 CREATE TABLE `messages` (
   `id` int(11) NOT NULL,
   `content` varchar(512) NOT NULL,
+  `isImage` tinyint(1) NOT NULL DEFAULT 0,
   `timeSent` datetime NOT NULL,
   `isComplaint` tinyint(1) NOT NULL,
   `senderId` int(11) NOT NULL,
@@ -53,9 +43,9 @@ CREATE TABLE `messages` (
 -- A tábla adatainak kiíratása `messages`
 --
 
-INSERT INTO `messages` (`id`, `content`, `timeSent`, `isComplaint`, `senderId`, `rentalId`) VALUES
-(1, 'Szia! Megérkeztem az autóhoz, minden rendben tűnik.', '2026-01-11 08:55:00', 0, 4, 2),
-(2, 'Szuper, a kulcs a kijelölt helyen volt?', '2026-01-11 08:57:00', 0, 2, 2);
+INSERT INTO `messages` (`id`, `content`, `isImage`, `timeSent`, `isComplaint`, `senderId`, `rentalId`) VALUES
+(1, 'Szia! Megérkeztem az autóhoz, minden rendben tűnik.', 0, '2026-01-11 08:55:00', 0, 4, 2),
+(2, 'Szuper, a kulcs a kijelölt helyen volt?', 0, '2026-01-11 08:57:00', 0, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -176,17 +166,19 @@ INSERT INTO `vehicleavailabilities` (`id`, `vehicleId`, `start`, `end`, `recurre
 CREATE TABLE `vehicleimages` (
   `id` int(11) NOT NULL,
   `vehicleId` int(11) NOT NULL,
-  `imagePath` varchar(256) NOT NULL
+  `imageId` int(11) NOT NULL,
+  `sortIndex` int(11) NOT NULL,
+  `path` varchar(2048) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
 -- A tábla adatainak kiíratása `vehicleimages`
 --
 
-INSERT INTO `vehicleimages` (`id`, `vehicleId`, `imagePath`) VALUES
-(1, 1, 'uploads/vehicles/toyota_corolla_front.jpg'),
-(1, 2, 'uploads/vehicles/bmw_320d_side.png'),
-(1, 3, 'uploads/vehicles/skoda_octavia.jpg');
+INSERT INTO `vehicleimages` (`id`, `vehicleId`, `imageId`, `sortIndex`, `path`) VALUES
+(1, 1, 1, 0, 'uploads/vehicles/toyota_corolla_front.jpg'),
+(2, 1, 2, 1, 'uploads/vehicles/bmw_320d_side.png'),
+(3, 1, 3, 2, 'uploads/vehicles/skoda_octavia.jpg');
 
 -- --------------------------------------------------------
 
@@ -220,12 +212,6 @@ INSERT INTO `vehicles` (`id`, `ownerId`, `vin`, `licensePlate`, `manufacturer`, 
 --
 -- Indexek a kiírt táblákhoz
 --
-
---
--- A tábla indexei `messageattachments`
---
-ALTER TABLE `messageattachments`
-  ADD PRIMARY KEY (`messageId`,`attachmentPath`);
 
 --
 -- A tábla indexei `messages`
@@ -266,7 +252,8 @@ ALTER TABLE `vehicleavailabilities`
 -- A tábla indexei `vehicleimages`
 --
 ALTER TABLE `vehicleimages`
-  ADD PRIMARY KEY (`vehicleId`,`id`,`imagePath`);
+  ADD PRIMARY KEY (`id`)
+  ADD UNIQUE INDEX `vehicleimage` (`vehicleId`, `imageId`);
 
 --
 -- A tábla indexei `vehicles`
@@ -304,6 +291,12 @@ ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT a táblához `vehicleimages`
+--
+ALTER TABLE `vehicleimages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT a táblához `vehicles`
 --
 ALTER TABLE `vehicles`
@@ -312,12 +305,6 @@ ALTER TABLE `vehicles`
 --
 -- Megkötések a kiírt táblákhoz
 --
-
---
--- Megkötések a táblához `messageattachments`
---
-ALTER TABLE `messageattachments`
-  ADD CONSTRAINT `messageattachments_ibfk_1` FOREIGN KEY (`messageId`) REFERENCES `messages` (`id`);
 
 --
 -- Megkötések a táblához `messages`

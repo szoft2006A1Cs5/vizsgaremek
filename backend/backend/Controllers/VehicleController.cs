@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using backend.Common;
 using backend.DTOs.Vehicle;
+using backend.DTOs.VehicleImage;
 using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -189,7 +190,8 @@ namespace backend.Controllers
                 .FirstOrDefaultAsync(x => x.Id == vehicleId);
             
             if (vehicle == null) return NotFound();
-            if (vehicle.OwnerId != authUser.Id) return Forbid();
+            if (vehicle.OwnerId != authUser.Id 
+                && authUser.Role != UserRole.Administrator) return Forbid();
 
             if (availability.End < availability.Start || availability.HourlyRate < 0)
                 return BadRequest(new
@@ -201,7 +203,7 @@ namespace backend.Controllers
             if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(availability.DateInterval)))
                 return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
 
-            availability.Id = vehicle.Availabilities.Max(x => x.Id) + 1;
+            availability.Id = vehicle.Availabilities.MaxOrZero(x => x.Id) + 1;
             availability.VehicleId = vehicle.Id;
             
             await _context.VehicleAvailabilities.AddAsync(availability);
@@ -237,7 +239,8 @@ namespace backend.Controllers
                 .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == availabilityId);
             
             if (availability == null || availability.Vehicle == null) return NotFound();
-            if (availability.Vehicle.OwnerId != authUser.Id) return Forbid();
+            if (availability.Vehicle.OwnerId != authUser.Id &&
+                authUser.Role != UserRole.Administrator) return Forbid();
 
             if (availability.End < availability.Start || availability.HourlyRate < 0)
                 return BadRequest(new
@@ -275,7 +278,8 @@ namespace backend.Controllers
                 .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == availabilityId);
 
             if (availability == null || availability.Vehicle == null) return NotFound();
-            if (availability.Vehicle.OwnerId != authUser.Id) return Forbid();
+            if (availability.Vehicle.OwnerId != authUser.Id &&
+                authUser.Role != UserRole.Administrator) return Forbid();
 
             _context.VehicleAvailabilities.Remove(availability);
             await _context.SaveChangesAsync();
@@ -286,21 +290,91 @@ namespace backend.Controllers
         [HttpGet("{vehicleId}/image")]
         public async Task<IActionResult> GetImages(int vehicleId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
-            throw new NotImplementedException();
-            return Ok();
+            return Ok(
+                await _context.VehicleImages
+                    .Where(x => x.VehicleId == vehicleId)
+                    .Skip(offset)
+                    .Take(limit)
+                    .ToListAsync()
+            );
         }
 
         [HttpPost("{vehicleId}/image")]
-        public async Task<IActionResult> AddImage(int vehicleId, [FromBody] string imageUrl)
+        public async Task<IActionResult> AddImage(int vehicleId, [FromBody] VehicleAddImageDTO dto)
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            var vehicle = await _context.Vehicles
+                .Include(x => x.Images)
+                .FirstOrDefaultAsync(x => x.Id == vehicleId);
+            
+            if (vehicle == null) return NotFound();
+            
+            if (authUser == null) return Unauthorized();
+            if (authUser.Role != UserRole.Administrator &&
+                vehicle.OwnerId != authUser.Id) return Forbid();
+
+            if (dto.Path == null) return BadRequest();
+            
+            var vehicleImage = new VehicleImage
+            {
+                Vehicle = vehicle,
+                ImageId = vehicle.Images.MaxOrZero(x => x.ImageId) + 1,
+                Path = dto.Path,
+                SortIndex = dto.SortIndex ?? vehicle.Images.MaxOrZero(x => x.SortIndex) + 1,
+            };
+
+            await _context.VehicleImages.AddAsync(vehicleImage);
+            await _context.SaveChangesAsync();
+            
+            return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
         }
+
+        [HttpPut("{vehicleId}/image/{imageId}")]
+        public async Task<IActionResult> PutImage(int vehicleId, int imageId, [FromBody] VehicleAddImageDTO dto)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            var image = await _context.VehicleImages
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
+                .Include(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.ImageId == imageId);
+            
+            if (image == null) return NotFound();
+            
+            if (authUser == null) return Unauthorized();
+            if (authUser.Role != UserRole.Administrator &&
+                image.Vehicle.OwnerId != authUser.Id) return Forbid();
+
+            image.Path = string.IsNullOrWhiteSpace(dto.Path) ? image.Path : dto.Path;
+            image.SortIndex = dto.SortIndex ?? image.SortIndex;
+            
+            await _context.SaveChangesAsync();
+            
+            return Ok(image.FilterSerialize(authUser));
+        }
+        
 
         [HttpDelete("{vehicleId}/image/{imageId}")]
         public async Task<IActionResult> DeleteImage(int vehicleId, int imageId)
         {
-            throw new NotImplementedException();
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            var image = await _context.VehicleImages
+                .Include(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.ImageId == imageId);
+            
+            if (image == null) return NotFound();
+            
+            if (authUser == null) return Unauthorized();
+            if (authUser.Role != UserRole.Administrator &&
+                image.Vehicle.OwnerId != authUser.Id) return Forbid();
+
+            _context.VehicleImages.Remove(image);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

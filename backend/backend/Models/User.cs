@@ -68,7 +68,6 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly)]
         public ICollection<Notification> Notifications { get; set; } = [];
 
-
         public static Func<object?, User?, bool> GetVisibilityConditionLambda(VisibilityLevel visLevel)
         {
             switch (visLevel)

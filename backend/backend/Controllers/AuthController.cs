@@ -24,7 +24,7 @@ namespace backend.Controllers
             _context = ctx;
             _authSrv = authSrv;
         }
-
+        
         /// <summary>
         /// Bejelentkezés e-maillel és jelszóval
         /// </summary>
@@ -40,7 +40,7 @@ namespace backend.Controllers
 
             if (!_authSrv.VerifyPassword(credentials.Password, user))
                 return Unauthorized();
-
+            
             var jwt = _authSrv.GenerateJWT(user);
             return jwt != null ? Ok(new { UserId = user.Id, Token = jwt }) : StatusCode(500);
         }
@@ -81,6 +81,7 @@ namespace backend.Controllers
                 AddressSettlement = registration.AddressSettlement,
                 AddressStreetHouse = registration.AddressStreetHouse,
                 Balance = 0,
+                //ConfirmedEmail = false,
             };
             
             _context.Users.Add(user);
