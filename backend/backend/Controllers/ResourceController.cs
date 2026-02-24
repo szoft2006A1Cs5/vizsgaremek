@@ -5,6 +5,7 @@ using backend.Services.ResourceService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using backend.VisibilityFiltering;
 
 namespace backend.Controllers
 {
@@ -32,10 +33,9 @@ namespace backend.Controllers
 
             List<Resource> addedResources = new();
             
-            Console.WriteLine($"{files.Count}");
             foreach (var file in files)
             {
-                var res = await _resSrv.Upload(file);
+                var res = await _resSrv.Upload(file, authUser);
                 if (res == null) continue;
                 
                 await _context.Resources.AddAsync(res);
@@ -44,7 +44,7 @@ namespace backend.Controllers
                 addedResources.Add(res);
             }
 
-            return Ok(addedResources);
+            return Ok(addedResources.FilterSerialize(authUser));
         }
     }
 }

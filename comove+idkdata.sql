@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Feb 23. 09:04
+-- Létrehozás ideje: 2026. Feb 24. 09:08
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -118,8 +118,8 @@ INSERT INTO `rentals` (`id`, `fullPrice`, `downpayment`, `start`, `end`, `status
 
 CREATE TABLE `resources` (
   `id` int(11) NOT NULL,
-  `path` varchar(2048) NOT NULL
-  `type` int(11) NOT NULL
+  `path` varchar(2048) NOT NULL,
+  `userId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -269,7 +269,8 @@ ALTER TABLE `rentals`
 --
 ALTER TABLE `resources`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `path` (`path`) USING HASH;
+  ADD UNIQUE KEY `path` (`path`) USING HASH,
+  ADD KEY `userId` (`userId`);
 
 --
 -- A tábla indexei `users`
@@ -322,7 +323,7 @@ ALTER TABLE `rentals`
 -- AUTO_INCREMENT a táblához `resources`
 --
 ALTER TABLE `resources`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT a táblához `users`
@@ -365,6 +366,12 @@ ALTER TABLE `notifications`
 ALTER TABLE `rentals`
   ADD CONSTRAINT `rentals_ibfk_1` FOREIGN KEY (`vehicleId`) REFERENCES `vehicles` (`id`),
   ADD CONSTRAINT `rentals_ibfk_2` FOREIGN KEY (`renterId`) REFERENCES `users` (`id`);
+
+--
+-- Megkötések a táblához `resources`
+--
+ALTER TABLE `resources`
+  ADD CONSTRAINT `resources_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`);
 
 --
 -- Megkötések a táblához `vehicleavailabilities`

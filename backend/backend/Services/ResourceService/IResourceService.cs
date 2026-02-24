@@ -4,5 +4,5 @@ namespace backend.Services.ResourceService;
 
 public interface IResourceService
 { 
-    public Task<Resource?> Upload(IFormFile file);
+    public Task<Resource?> Upload(IFormFile file, User authUser);
 }

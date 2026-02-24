@@ -14,6 +14,7 @@ namespace backend.Models
         public int Id { get; set; }
         [MaxLength(2048)]
         public required string Path { get; set; }
-        public ResourceType Type { get; set; }
+        public required int UserId { get; set; }
+        public User User { get; set; }
     }
 }

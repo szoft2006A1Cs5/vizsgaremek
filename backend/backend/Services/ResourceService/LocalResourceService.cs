@@ -13,36 +13,28 @@ public class LocalResourceService : IResourceService
         _webHostEnv = webHostEnv;
     }
     
-    public async Task<Resource?> Upload(IFormFile formFile)
+    public async Task<Resource?> Upload(IFormFile formFile, User authUser)
     {
         string filename;
-        ResourceType? fileType = null;
         
         await using (var stream = formFile.OpenReadStream())
         {
-            var extension = Path.GetExtension(formFile.FileName);
-            
-            if (await stream.IsImageAsync()) fileType = ResourceType.Image;
-            if (await stream.IsDocumentAsync()) fileType = ResourceType.PDF;
+            if (!await stream.IsImageAsync()) return null;
 
-            filename = $"{Guid.NewGuid().ToString()}{extension}";
+            filename = $"{Guid.NewGuid().ToString()}{Path.GetExtension(formFile.FileName)}";
             string path = Path.Combine(_webHostEnv.WebRootPath, filename);
 
             if (stream.CanSeek)
                 stream.Position = 0;
             
             await using (var file = File.Create(path))
-            {
                 await stream.CopyToAsync(file);
-            }
         }
-
-        if (fileType == null) return null;
 
         return new Resource
         {
             Path = filename,
-            Type = fileType.Value
+            UserId = authUser.Id
         };
     }
 }
