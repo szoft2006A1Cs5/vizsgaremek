@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -8,6 +9,7 @@ namespace backend.Models
     [Index(nameof(VehicleId), nameof(ImageId))]
     public class VehicleImage
     {
+        [JsonIgnore]
         public int Id { get; set; }
         public int VehicleId { get; set; }
         public required Vehicle Vehicle { get; set; }

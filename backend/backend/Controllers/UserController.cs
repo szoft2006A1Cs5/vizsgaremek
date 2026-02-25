@@ -112,32 +112,16 @@ namespace backend.Controllers
             var authUID = _authSrv.GetUID(User);
             if (authUID == null) return Unauthorized();
 
-            var user = await _context.Users
-                .Include(x => x.Vehicles)
-                .ThenInclude(x => x.Availabilities)
-                .Include(x => x.Rentals)
-                .Include(x => x.Notifications)
-                .FirstOrDefaultAsync(x => x.Id == authUID);
-
-            // Nem kene, hogy lehetseges legyen
-            if (user == null) return NotFound();
-
-            // TODO: jarmu elerhetosegek torlese, meg nem elfogadott berlesek
-            //       torlese (es rendszerertesitesek kuldese a masik felnek),
-            //       a mar elfogadott berlesek visszamondasa (kiveve nyilvan
-            //       a befejezetteket)
-
-            return NoContent();
+            return await DeleteUser(authUID.Value);
         }
 
-        [Authorize(Roles = "Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
-            if (authUser == null || (authUser.Id != id && authUser.Role == UserRole.Administrator))
-                return Unauthorized();
+            if (authUser == null) return Unauthorized();
+            if (authUser.Id != id && authUser.Role == UserRole.Administrator) return Forbid();
 
             var user = await _context.Users
                 .Include(x => x.Vehicles)
@@ -153,8 +137,6 @@ namespace backend.Controllers
             //       torlese (es rendszerertesitesek kuldese a masik felnek),
             //       a mar elfogadott berlesek visszamondasa (kiveve nyilvan
             //       a befejezetteket)
-
-            return NoContent();
 
             return NoContent();
         }

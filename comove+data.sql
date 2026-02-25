@@ -142,9 +142,9 @@ INSERT INTO `users` (`id`, `idCardNumber`, `name`, `phone`, `dateOfBirth`, `prof
 CREATE TABLE `vehicleavailabilities` (
   `id` int(11) NOT NULL,
   `vehicleId` int(11) NOT NULL,
+  `availabilityId` int(11) NOT NULL,
   `start` datetime NOT NULL,
   `end` datetime NOT NULL,
-  `recurrence` enum('None','Weekly','Biweekly','Monthly') NOT NULL DEFAULT 'None',
   `hourlyRate` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
@@ -152,10 +152,10 @@ CREATE TABLE `vehicleavailabilities` (
 -- A tábla adatainak kiíratása `vehicleavailabilities`
 --
 
-INSERT INTO `vehicleavailabilities` (`id`, `vehicleId`, `start`, `end`, `recurrence`, `hourlyRate`) VALUES
-(1, 1, '2026-01-01 08:00:00', '2026-12-31 20:00:00', 'None', 1800),
-(1, 2, '2026-01-10 00:00:00', '2026-02-10 00:00:00', 'None', 2500),
-(1, 3, '2026-01-12 08:00:00', '2026-01-20 20:00:00', 'Weekly', 2000);
+INSERT INTO `vehicleavailabilities` (`id`, `vehicleId`, `availabilityId`, `start`, `end`, `hourlyRate`) VALUES
+(1, 1, 1, '2026-01-01 08:00:00', '2026-12-31 20:00:00', 1800),
+(2, 1, 2, '2026-01-10 00:00:00', '2026-02-10 00:00:00', 2500),
+(3, 1, 3, '2026-01-12 08:00:00', '2026-01-20 20:00:00', 2000);
 
 -- --------------------------------------------------------
 
@@ -246,7 +246,8 @@ ALTER TABLE `users`
 -- A tábla indexei `vehicleavailabilities`
 --
 ALTER TABLE `vehicleavailabilities`
-  ADD PRIMARY KEY (`vehicleId`,`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE INDEX `vehicleavailability` (`vehicleId`, `availabilityId`);
 
 --
 -- A tábla indexei `vehicleimages`
@@ -289,6 +290,12 @@ ALTER TABLE `rentals`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT a táblához `vehicleavailabilities`
+--
+ALTER TABLE `vehicleavailabilities`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT a táblához `vehicleimages`

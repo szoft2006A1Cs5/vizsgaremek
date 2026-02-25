@@ -205,7 +205,7 @@ namespace backend.Controllers
             if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(availability.DateInterval)))
                 return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
 
-            availability.Id = vehicle.Availabilities.MaxOrZero(x => x.Id) + 1;
+            availability.AvailabilityId = vehicle.Availabilities.MaxOrZero(x => x.AvailabilityId) + 1;
             availability.VehicleId = vehicle.Id;
             
             await _context.VehicleAvailabilities.AddAsync(availability);
@@ -218,7 +218,7 @@ namespace backend.Controllers
         public async Task<IActionResult> GetAvailability(int vehicleId, int availabilityId)
         {
             var availability = await _context.VehicleAvailabilities
-                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == availabilityId);
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.AvailabilityId == availabilityId);
             
             if (availability == null) return NotFound();
             
@@ -238,7 +238,7 @@ namespace backend.Controllers
 
             var availability = await _context.VehicleAvailabilities
                 .Include(x => x.Vehicle)
-                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == availabilityId);
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.AvailabilityId == availabilityId);
             
             if (availability == null || availability.Vehicle == null) return NotFound();
             if (availability.Vehicle.OwnerId != authUser.Id &&
@@ -252,12 +252,11 @@ namespace backend.Controllers
                 });
             
             if (availability.Vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(replacement.DateInterval) &&
-                                                             x.Id != availabilityId))
+                                                             x.AvailabilityId != availabilityId))
                 return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
 
             availability.Start = replacement.Start;
             availability.End = replacement.End;
-            availability.Recurrence = replacement.Recurrence;
             availability.HourlyRate = replacement.HourlyRate;
             
             await _context.SaveChangesAsync();
@@ -277,7 +276,7 @@ namespace backend.Controllers
 
             var availability = await _context.VehicleAvailabilities
                 .Include(x => x.Vehicle)
-                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.Id == availabilityId);
+                .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.AvailabilityId == availabilityId);
 
             if (availability == null || availability.Vehicle == null) return NotFound();
             if (availability.Vehicle.OwnerId != authUser.Id &&

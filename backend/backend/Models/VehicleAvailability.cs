@@ -6,23 +6,19 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace backend.Models
 {
-    public enum AvailabilityRecurrence
-    {
-        None = 0,
-        Weekly = 1,
-        Biweekly = 2,
-        Monthly = 3,
-    }
 
-    [PrimaryKey(nameof(VehicleId), nameof(Id))]
+    [PrimaryKey(nameof(Id))]
+    [Index(nameof(VehicleId), nameof(AvailabilityId))]
     public class VehicleAvailability
     {
-        [SwaggerIgnore]
+        [JsonIgnore]
         public int Id { get; set; }
         [SwaggerIgnore]
         public int VehicleId { get; set; }
         [SwaggerIgnore]
         public Vehicle? Vehicle { get; set; }
+        [SwaggerIgnore]
+        public int AvailabilityId { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
 
@@ -33,7 +29,6 @@ namespace backend.Models
             get => new DateInterval(Start, End);
         }
         
-        public AvailabilityRecurrence Recurrence { get; set; }
         public int HourlyRate { get; set; }
     }
 }

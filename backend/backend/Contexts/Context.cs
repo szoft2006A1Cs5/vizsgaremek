@@ -24,10 +24,6 @@ namespace backend.Contexts
                 .Property(x => x.Status)
                 .HasConversion<int>();
 
-            modelBuilder.Entity<VehicleAvailability>()
-                .Property(x => x.Recurrence)
-                .HasConversion<string>();
-
             modelBuilder.Entity<User>()
                 .Property(x => x.Role)
                 .HasConversion<string>();
