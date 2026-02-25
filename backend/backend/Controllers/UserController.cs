@@ -43,8 +43,7 @@ namespace backend.Controllers
                 .Include(x => x.Vehicles)
                 .ThenInclude(x => x.Availabilities)
                 .AsSplitQuery()
-                .Where(x => x.Id == id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(x => x.Id == id);
             
             if (user == null) return NotFound();
 

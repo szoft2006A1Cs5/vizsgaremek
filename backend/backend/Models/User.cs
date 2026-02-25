@@ -61,6 +61,16 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly)]
         public int Balance { get; set; }
 
+        public double? RenterRating
+        {
+            get => this.Rentals.Average(x => x.RenterRating);
+        }
+
+        public double? OwnerRating
+        {
+            get => this.Vehicles.SelectMany(x => x.Rentals.Select(y => OwnerRating)).Average();
+        }
+
         [VisibleTo(VisibilityLevel.OwnerOnly)] 
         public ICollection<Rental> Rentals { get; set; } = [];
         public ICollection<Vehicle> Vehicles { get; set; } = [];

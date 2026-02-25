@@ -49,23 +49,21 @@ namespace backend.Controllers
             return Ok();
         }
         
-        [HttpGet("{id}/message")]
+        [HttpGet("{id}/Message")]
         public async Task<IActionResult> GetMessages([FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
             throw new NotImplementedException();
             return Ok();
         }
         
-        [HttpPost("{id}/message")]
+        [HttpPost("{id}/Message")]
         public async Task<IActionResult> SendMessage([FromBody] MessageSendDTO content)
         {
             throw new NotImplementedException();
             return Ok();
         }
-        
-        // TODO: MESSAGE ATTACHMENTS
 
-        [HttpGet("offer")]
+        [HttpGet("Offer")]
         public async Task<IActionResult> GetOffers([FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
             throw new NotImplementedException();

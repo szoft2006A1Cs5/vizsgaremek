@@ -296,6 +296,7 @@ namespace backend.Controllers
                     .Where(x => x.VehicleId == vehicleId)
                     .Skip(offset)
                     .Take(limit)
+                    .OrderBy(x => x.SortIndex)
                     .ToListAsync()
             );
         }
