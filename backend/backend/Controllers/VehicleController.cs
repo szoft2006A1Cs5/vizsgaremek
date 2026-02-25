@@ -306,7 +306,39 @@ namespace backend.Controllers
                     .ToListAsync()
             );
         }
+        
+        [HttpPost("{vehicleId}/Image")]
+        public async Task<IActionResult> AddImage(int vehicleId, IFormFile file, [FromQuery] int? sortIndex = null)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
 
+            var vehicle = await _context.Vehicles
+                .Include(x => x.Images)
+                .FirstOrDefaultAsync(x => x.Id == vehicleId);
+
+            if (vehicle == null) return NotFound();
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Role != UserRole.Administrator &&
+                vehicle.OwnerId != authUser.Id) return Forbid();
+
+            var path = await _resSrv.Store(file);
+            if (path == null) return BadRequest();
+
+            var vehicleImage = new VehicleImage
+            {
+                Vehicle = vehicle,
+                ImageId = vehicle.Images.MaxOrZero(x => x.ImageId) + 1,
+                Path = path,
+                SortIndex = sortIndex ?? vehicle.Images.MaxOrZero(x => x.SortIndex) + 1,
+            };
+
+            await _context.VehicleImages.AddAsync(vehicleImage);
+            await _context.SaveChangesAsync();
+
+            return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
+        }
+        
         [HttpPost("{vehicleId}/Image/Path")]
         public async Task<IActionResult> AddImagePath(int vehicleId, [FromBody] VehicleAddImageDTO dto)
         {
@@ -335,39 +367,6 @@ namespace backend.Controllers
             await _context.VehicleImages.AddAsync(vehicleImage);
             await _context.SaveChangesAsync();
             
-            return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
-        }
-
-        // TODO: Single IFormFileal nem mukodik
-        [HttpPost("{vehicleId}/Image")]
-        public async Task<IActionResult> AddImage(int vehicleId, [FromForm(Name = "file")] List<IFormFile> files, [FromQuery] int? sortIndex = null)
-        {
-            var authUser = await _authSrv.GetUser(User, _context);
-
-            var vehicle = await _context.Vehicles
-                .Include(x => x.Images)
-                .FirstOrDefaultAsync(x => x.Id == vehicleId);
-
-            if (vehicle == null) return NotFound();
-
-            if (authUser == null) return Unauthorized();
-            if (authUser.Role != UserRole.Administrator &&
-                vehicle.OwnerId != authUser.Id) return Forbid();
-
-            var path = await _resSrv.Store(files.FirstOrDefault());
-            if (path == null) return BadRequest();
-
-            var vehicleImage = new VehicleImage
-            {
-                Vehicle = vehicle,
-                ImageId = vehicle.Images.MaxOrZero(x => x.ImageId) + 1,
-                Path = path,
-                SortIndex = sortIndex ?? vehicle.Images.MaxOrZero(x => x.SortIndex) + 1,
-            };
-
-            await _context.VehicleImages.AddAsync(vehicleImage);
-            await _context.SaveChangesAsync();
-
             return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
         }
 

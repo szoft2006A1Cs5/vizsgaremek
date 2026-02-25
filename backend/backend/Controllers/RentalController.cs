@@ -62,6 +62,13 @@ namespace backend.Controllers
             throw new NotImplementedException();
             return Ok();
         }
+        
+        [HttpPost("{id}/Message/Image")]
+        public async Task<IActionResult> SendMessageImage(IFormFile file, [FromQuery] bool isComplaint = false)
+        {
+            throw new NotImplementedException();
+            return Ok();
+        }
 
         [HttpGet("Offer")]
         public async Task<IActionResult> GetOffers([FromQuery] int limit = 10, [FromQuery] int offset = 0)
