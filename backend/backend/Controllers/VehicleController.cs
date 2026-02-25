@@ -43,7 +43,9 @@ namespace backend.Controllers
             [FromQuery] int? year = null,
             [FromQuery] string? settlement = null,
             [FromQuery] int? minRate = null,
-            [FromQuery] int? maxRate = null)
+            [FromQuery] int? maxRate = null,
+            [FromQuery] bool showOwned = false
+        )
         {
             if (rentalStart != null && rentalEnd != null && rentalEnd < rentalStart)
                 return BadRequest();
@@ -70,7 +72,7 @@ namespace backend.Controllers
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&
                     (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true) &&
-                    (authUser != null ? x.OwnerId != authUser.Id : true)
+                    (!showOwned && authUser != null ? x.OwnerId != authUser.Id : true)
                 )
                 .Skip(offset)
                 .Take(limit)
@@ -114,7 +116,7 @@ namespace backend.Controllers
         }
 
         [Authorize(Roles = "User")]
-        [HttpGet("owned")]
+        [HttpGet("Owned")]
         public async Task<IActionResult> GetOwned([FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
             var authUser = await _authSrv.GetUser(User, _context);
@@ -163,7 +165,7 @@ namespace backend.Controllers
             return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", vehicle.FilterSerialize(authUser));
         }
         
-        [HttpGet("{id}/availability")]
+        [HttpGet("{id}/Availability")]
         public async Task<IActionResult> GetAvailabilities(int id, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
             return Ok(
@@ -175,7 +177,7 @@ namespace backend.Controllers
             );
         }
 
-        [HttpPost("{vehicleId}/availability")]
+        [HttpPost("{vehicleId}/Availability")]
         public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
         {
             var authUser = await _authSrv.GetUser(User, _context);
@@ -212,7 +214,7 @@ namespace backend.Controllers
             return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", availability.FilterSerialize(authUser));
         }
 
-        [HttpGet("{vehicleId}/availability/{availabilityId}")]
+        [HttpGet("{vehicleId}/Availability/{availabilityId}")]
         public async Task<IActionResult> GetAvailability(int vehicleId, int availabilityId)
         {
             var availability = await _context.VehicleAvailabilities
@@ -223,7 +225,7 @@ namespace backend.Controllers
             return Ok(availability);
         }
         
-        [HttpPut("{vehicleId}/availability/{availabilityId}")]
+        [HttpPut("{vehicleId}/Availability/{availabilityId}")]
         public async Task<IActionResult> EditAvailability(
             int vehicleId, 
             int availabilityId, 
@@ -263,7 +265,7 @@ namespace backend.Controllers
             return Ok(availability.FilterSerialize(authUser));
         }
 
-        [HttpDelete("{vehicleId}/availability/{availabilityId}")]
+        [HttpDelete("{vehicleId}/Availability/{availabilityId}")]
         public async Task<IActionResult> DeleteAvailability(
             int vehicleId,
             int availabilityId
@@ -287,7 +289,7 @@ namespace backend.Controllers
             return NoContent();
         }
 
-        [HttpGet("{vehicleId}/image")]
+        [HttpGet("{vehicleId}/Image")]
         public async Task<IActionResult> GetImages(int vehicleId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
             return Ok(
@@ -299,7 +301,7 @@ namespace backend.Controllers
             );
         }
 
-        [HttpPost("{vehicleId}/image")]
+        [HttpPost("{vehicleId}/Image")]
         public async Task<IActionResult> AddImage(int vehicleId, [FromBody] VehicleAddImageDTO dto)
         {
             var authUser = await _authSrv.GetUser(User, _context);
@@ -330,7 +332,7 @@ namespace backend.Controllers
             return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
         }
 
-        [HttpPut("{vehicleId}/image/{imageId}")]
+        [HttpPut("{vehicleId}/Image/{imageId}")]
         public async Task<IActionResult> PutImage(int vehicleId, int imageId, [FromBody] VehicleAddImageDTO dto)
         {
             var authUser = await _authSrv.GetUser(User, _context);
@@ -356,7 +358,7 @@ namespace backend.Controllers
         }
         
 
-        [HttpDelete("{vehicleId}/image/{imageId}")]
+        [HttpDelete("{vehicleId}/Image/{imageId}")]
         public async Task<IActionResult> DeleteImage(int vehicleId, int imageId)
         {
             var authUser = await _authSrv.GetUser(User, _context);

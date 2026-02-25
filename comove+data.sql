@@ -252,7 +252,7 @@ ALTER TABLE `vehicleavailabilities`
 -- A tábla indexei `vehicleimages`
 --
 ALTER TABLE `vehicleimages`
-  ADD PRIMARY KEY (`id`)
+  ADD PRIMARY KEY (`id`),
   ADD UNIQUE INDEX `vehicleimage` (`vehicleId`, `imageId`);
 
 --

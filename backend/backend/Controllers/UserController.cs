@@ -7,6 +7,7 @@ using backend.DTOs.User;
 using backend.Models;
 using backend.VisibilityFiltering;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -103,6 +104,59 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
             
             return Ok(authUser.FilterSerialize(authUser));
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUser()
+        {
+            var authUID = _authSrv.GetUID(User);
+            if (authUID == null) return Unauthorized();
+
+            var user = await _context.Users
+                .Include(x => x.Vehicles)
+                .ThenInclude(x => x.Availabilities)
+                .Include(x => x.Rentals)
+                .Include(x => x.Notifications)
+                .FirstOrDefaultAsync(x => x.Id == authUID);
+
+            // Nem kene, hogy lehetseges legyen
+            if (user == null) return NotFound();
+
+            // TODO: jarmu elerhetosegek torlese, meg nem elfogadott berlesek
+            //       torlese (es rendszerertesitesek kuldese a masik felnek),
+            //       a mar elfogadott berlesek visszamondasa (kiveve nyilvan
+            //       a befejezetteket)
+
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            if (authUser == null || (authUser.Id != id && authUser.Role == UserRole.Administrator))
+                return Unauthorized();
+
+            var user = await _context.Users
+                .Include(x => x.Vehicles)
+                .ThenInclude(x => x.Availabilities)
+                .Include(x => x.Rentals)
+                .Include(x => x.Notifications)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            // Nem kene, hogy lehetseges legyen
+            if (user == null) return NotFound();
+
+            // TODO: jarmu elerhetosegek torlese, meg nem elfogadott berlesek
+            //       torlese (es rendszerertesitesek kuldese a masik felnek),
+            //       a mar elfogadott berlesek visszamondasa (kiveve nyilvan
+            //       a befejezetteket)
+
+            return NoContent();
+
+            return NoContent();
         }
     }
 }
