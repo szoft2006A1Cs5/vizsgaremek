@@ -14,7 +14,7 @@ public class LocalResourceService : IResourceService
         _webHostEnv = webHostEnv;
     }
     
-    public async Task<string?> Upload(IFormFile formFile)
+    public async Task<string?> Store(IFormFile formFile)
     {
         string filename;
 

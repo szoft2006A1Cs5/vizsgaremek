@@ -36,7 +36,7 @@ namespace backend.Controllers
             
             foreach (var file in files)
             {
-                var res = await _resSrv.Upload(file);
+                var res = await _resSrv.Store(file);
                 if (res == null) continue;
 
                 addedResources.Add(new

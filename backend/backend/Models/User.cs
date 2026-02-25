@@ -68,7 +68,7 @@ namespace backend.Models
 
         public double? OwnerRating
         {
-            get => this.Vehicles.SelectMany(x => x.Rentals.Select(y => OwnerRating)).Average();
+            get => this.Vehicles.Average(x => x.Rating);
         }
 
         [VisibleTo(VisibilityLevel.OwnerOnly)] 

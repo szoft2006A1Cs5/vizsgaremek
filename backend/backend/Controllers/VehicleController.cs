@@ -13,6 +13,7 @@ using backend.DTOs.Vehicle;
 using backend.DTOs.VehicleImage;
 using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
+using backend.Services.ResourceService;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -24,11 +25,13 @@ namespace backend.Controllers
     {
         private readonly Context _context;
         private readonly AuthService _authSrv;
+        private readonly IResourceService _resSrv;
 
-        public VehicleController(Context ctx, AuthService authSrv)
+        public VehicleController(Context ctx, AuthService authSrv, IResourceService resSrv)
         {
             _context = ctx;
             _authSrv = authSrv;
+            _resSrv = resSrv;
         }
 
         // GET: api/<VehicleController>
@@ -127,7 +130,10 @@ namespace backend.Controllers
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .AsSplitQuery()
+                .Include(x => x.Owner)
                 .Include(x => x.Availabilities)
+                .Include(x => x.Rentals)
+                .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
                 .Where(x => x.OwnerId == authUser.Id)
                 .Skip(offset)
@@ -301,8 +307,8 @@ namespace backend.Controllers
             );
         }
 
-        [HttpPost("{vehicleId}/Image")]
-        public async Task<IActionResult> AddImage(int vehicleId, [FromBody] VehicleAddImageDTO dto)
+        [HttpPost("{vehicleId}/Image/Path")]
+        public async Task<IActionResult> AddImagePath(int vehicleId, [FromBody] VehicleAddImageDTO dto)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -329,6 +335,39 @@ namespace backend.Controllers
             await _context.VehicleImages.AddAsync(vehicleImage);
             await _context.SaveChangesAsync();
             
+            return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
+        }
+
+        // TODO: Single IFormFileal nem mukodik
+        [HttpPost("{vehicleId}/Image")]
+        public async Task<IActionResult> AddImage(int vehicleId, [FromForm(Name = "file")] List<IFormFile> files, [FromQuery] int? sortIndex = null)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            var vehicle = await _context.Vehicles
+                .Include(x => x.Images)
+                .FirstOrDefaultAsync(x => x.Id == vehicleId);
+
+            if (vehicle == null) return NotFound();
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Role != UserRole.Administrator &&
+                vehicle.OwnerId != authUser.Id) return Forbid();
+
+            var path = await _resSrv.Store(files.FirstOrDefault());
+            if (path == null) return BadRequest();
+
+            var vehicleImage = new VehicleImage
+            {
+                Vehicle = vehicle,
+                ImageId = vehicle.Images.MaxOrZero(x => x.ImageId) + 1,
+                Path = path,
+                SortIndex = sortIndex ?? vehicle.Images.MaxOrZero(x => x.SortIndex) + 1,
+            };
+
+            await _context.VehicleImages.AddAsync(vehicleImage);
+            await _context.SaveChangesAsync();
+
             return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
         }
 

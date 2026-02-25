@@ -42,6 +42,8 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Images)
                 .Include(x => x.Vehicles)
                 .ThenInclude(x => x.Availabilities)
+                .Include(x => x.Vehicles)
+                .ThenInclude(x => x.Rentals)
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(x => x.Id == id);
             
