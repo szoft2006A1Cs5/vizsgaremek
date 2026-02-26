@@ -329,49 +329,21 @@ namespace backend.Controllers
             {
                 Vehicle = vehicle,
                 ImageId = vehicle.Images.MaxOrZero(x => x.ImageId) + 1,
-                Path = path,
+                Path = $"res/{path}",
                 SortIndex = sortIndex ?? vehicle.Images.MaxOrZero(x => x.SortIndex) + 1,
             };
 
             await _context.VehicleImages.AddAsync(vehicleImage);
             await _context.SaveChangesAsync();
 
-            return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
-        }
-        
-        [HttpPost("{vehicleId}/Image/Path")]
-        public async Task<IActionResult> AddImagePath(int vehicleId, [FromBody] VehicleAddImageDTO dto)
-        {
-            var authUser = await _authSrv.GetUser(User, _context);
-
-            var vehicle = await _context.Vehicles
-                .Include(x => x.Images)
-                .FirstOrDefaultAsync(x => x.Id == vehicleId);
-            
-            if (vehicle == null) return NotFound();
-            
-            if (authUser == null) return Unauthorized();
-            if (authUser.Role != UserRole.Administrator &&
-                vehicle.OwnerId != authUser.Id) return Forbid();
-
-            if (dto.Path == null) return BadRequest();
-            
-            var vehicleImage = new VehicleImage
-            {
-                Vehicle = vehicle,
-                ImageId = vehicle.Images.MaxOrZero(x => x.ImageId) + 1,
-                Path = dto.Path,
-                SortIndex = dto.SortIndex ?? vehicle.Images.MaxOrZero(x => x.SortIndex) + 1,
-            };
-
-            await _context.VehicleImages.AddAsync(vehicleImage);
-            await _context.SaveChangesAsync();
-            
-            return Created($"{Request.GetDisplayUrl()}/{vehicleId}", vehicleImage.FilterSerialize(authUser));
+            return Created(
+                $"{Request.GetDisplayUrl()}/{vehicleId}/Image/{vehicleImage.ImageId}",
+                vehicleImage.FilterSerialize(authUser)
+            );
         }
 
         [HttpPut("{vehicleId}/Image/{imageId}")]
-        public async Task<IActionResult> PutImage(int vehicleId, int imageId, [FromBody] VehicleAddImageDTO dto)
+        public async Task<IActionResult> PutImage(int vehicleId, int imageId, [FromBody] int? sortIndex = null)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -387,8 +359,7 @@ namespace backend.Controllers
             if (authUser.Role != UserRole.Administrator &&
                 image.Vehicle.OwnerId != authUser.Id) return Forbid();
 
-            image.Path = string.IsNullOrWhiteSpace(dto.Path) ? image.Path : dto.Path;
-            image.SortIndex = dto.SortIndex ?? image.SortIndex;
+            image.SortIndex = sortIndex ?? image.SortIndex;
             
             await _context.SaveChangesAsync();
             
@@ -410,6 +381,8 @@ namespace backend.Controllers
             if (authUser == null) return Unauthorized();
             if (authUser.Role != UserRole.Administrator &&
                 image.Vehicle.OwnerId != authUser.Id) return Forbid();
+
+            if (!_resSrv.Delete(image.Path.Replace("res/", ""))) return StatusCode(500);
 
             _context.VehicleImages.Remove(image);
             await _context.SaveChangesAsync();

@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace backend.Models
 {
     public class Message
     {
+        [JsonIgnore]
         public int Id { get; set; }
         [MaxLength(2048)]
         public required string Content { get; set; }
