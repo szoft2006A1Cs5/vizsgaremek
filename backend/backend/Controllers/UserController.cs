@@ -62,6 +62,10 @@ namespace backend.Controllers
             return await Get(authUser.Id);
         }
 
+        // TODO: Profilkep hozzaadasa IResourceService-el
+        //       Kerdeses, mert ha IFormFile-t megadok parameterkent,
+        //       akkor az egesz input json-rol formdata-va valtozik,
+        //       ami nem konzisztens a tobbi metodussal
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] UserModificationDTO dto)
         {
