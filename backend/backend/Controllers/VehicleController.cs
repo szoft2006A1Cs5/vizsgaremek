@@ -337,7 +337,7 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             return Created(
-                $"{Request.GetDisplayUrl()}/{vehicleId}/Image/{vehicleImage.ImageId}",
+                $"{Request.GetDisplayUrl()}/{vehicleImage.ImageId}",
                 vehicleImage.FilterSerialize(authUser)
             );
         }
