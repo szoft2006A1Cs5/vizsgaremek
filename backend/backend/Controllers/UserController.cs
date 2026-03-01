@@ -28,7 +28,7 @@ namespace backend.Controllers
 
         // GET api/<UserController>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetUserById(int id)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -59,15 +59,11 @@ namespace backend.Controllers
 
             if (authUser == null) return Unauthorized();
 
-            return await Get(authUser.Id);
+            return await GetUserById(authUser.Id);
         }
 
-        // TODO: Profilkep hozzaadasa IResourceService-el
-        //       Kerdeses, mert ha IFormFile-t megadok parameterkent,
-        //       akkor az egesz input json-rol formdata-va valtozik,
-        //       ami nem konzisztens a tobbi metodussal
-        [HttpPut]
-        public async Task<IActionResult> Put([FromBody] UserModificationDTO dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUserById(int id, [FromBody] UserModificationDTO dto)
         {
             if (!Regex.IsMatch(dto.Name,
                     @"^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)+$") ||
@@ -79,18 +75,24 @@ namespace backend.Controllers
                 !(dto.DateOfBirth.ToDateTime(new TimeOnly(0)).AddYears(18) <= DateTime.Now))
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
-            if (_context.Users.Any(x => x.Email == dto.Email) ||
-                _context.Users.Any(x => x.Phone == dto.Phone) ||
-                _context.Users.Any(x => x.IdCardNumber == dto.IdCardNumber) ||
-                _context.Users.Any(x => x.DriversLicenseNumber == dto.DriversLicenseNumber))
-                return StatusCode(409);
-            
             var authUser = await _authSrv.GetUser(User, _context);
 
-            if (authUser == null) return Unauthorized();
-            if (authUser.Role != UserRole.Administrator &&
-                !_authSrv.VerifyPassword(dto.PreviousPassword, authUser)) return Forbid();
+            if (authUser == null) return Unauthorized(); 
+            if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
 
+            // Duplan nezzuk az authUser id-t, de megeri, mert igy atugorhatunk egy adatbazis lekerdezest.
+            var user = authUser.Id == id ? authUser : await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null) return NotFound();
+            
+            if (authUser.Role != UserRole.Administrator &&
+                !_authSrv.VerifyPassword(dto.PreviousPassword, user)) return Forbid();
+
+            if (_context.Users.Any(x => x.Email == dto.Email && x != user) ||
+                _context.Users.Any(x => x.Phone.Substring(2) == dto.Phone.Substring(2) && x != user) ||
+                _context.Users.Any(x => x.IdCardNumber == dto.IdCardNumber && x != user) ||
+                _context.Users.Any(x => x.DriversLicenseNumber == dto.DriversLicenseNumber && x != user))
+                return Conflict();
+            
             var userProps = typeof(User).GetProperties();
             foreach (var dtoProp in typeof(UserModificationDTO).GetProperties())
             {
@@ -99,16 +101,29 @@ namespace backend.Controllers
                                                   x.PropertyType == dtoProp.PropertyType);
                 
                 if (userProp != null)
-                    userProp.SetValue(authUser, dtoProp.GetValue(dto));
+                    userProp.SetValue(user, dtoProp.GetValue(dto));
             }
             
             var pwdSalt = _authSrv.GeneratePasswordHashSalt(dto.Password);
-            authUser.Password = pwdSalt.Item1;
-            authUser.Salt = pwdSalt.Item2;
+            user.Password = pwdSalt.Item1;
+            user.Salt = pwdSalt.Item2;
 
             await _context.SaveChangesAsync();
             
-            return Ok(authUser.FilterSerialize(authUser));
+            return Ok(user.FilterSerialize(authUser));
+        }
+        
+        // TODO: Profilkep hozzaadasa IResourceService-el
+        //       Kerdeses, mert ha IFormFile-t megadok parameterkent,
+        //       akkor az egesz input json-rol formdata-va valtozik,
+        //       ami nem konzisztens a tobbi metodussal
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] UserModificationDTO dto)
+        {
+            var authUID = _authSrv.GetUID(User);
+            if (authUID == null) return Unauthorized();
+
+            return await UpdateUserById(authUID.Value, dto);
         }
 
         [HttpDelete]
@@ -117,16 +132,16 @@ namespace backend.Controllers
             var authUID = _authSrv.GetUID(User);
             if (authUID == null) return Unauthorized();
 
-            return await DeleteUser(authUID.Value);
+            return await DeleteUserById(authUID.Value);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUserById(int id)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
-            if (authUser.Id != id && authUser.Role == UserRole.Administrator) return Forbid();
+            if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
 
             var user = await _context.Users
                 .Include(x => x.Vehicles)

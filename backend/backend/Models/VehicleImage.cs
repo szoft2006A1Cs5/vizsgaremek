@@ -12,7 +12,7 @@ namespace backend.Models
         [JsonIgnore]
         public int Id { get; set; }
         public int VehicleId { get; set; }
-        public required Vehicle Vehicle { get; set; }
+        public Vehicle? Vehicle { get; set; }
         public int ImageId { get; set; }
         public int SortIndex { get; set; }
         [MaxLength(2048)]

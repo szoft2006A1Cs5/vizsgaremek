@@ -72,12 +72,15 @@ namespace backend.Models
                 case VisibilityLevel.InRelation:
                     return (obj, auth) => obj is Vehicle model &&
                                           auth != null &&
-                                          (model.Rentals.Any(x => x.RenterId == auth.Id) ||
-                                           model.OwnerId == auth.Id);
+                                          (model.Rentals.Any(x => x.RenterId == auth.Id &&
+                                                                  RentalStatus.OfferAccepted <= x.Status) ||
+                                           model.OwnerId == auth.Id ||
+                                           auth.Role == UserRole.Administrator);
                 case VisibilityLevel.OwnerOnly:
                     return (obj, auth) => obj is Vehicle model &&
                                           auth != null &&
-                                          model.OwnerId == auth.Id;
+                                          (model.OwnerId == auth.Id ||
+                                           auth.Role == UserRole.Administrator);
                 default:
                     return (_, _) => false;
             }
@@ -89,9 +92,11 @@ namespace backend.Models
             // Ha van mar berles amit elfogadtak es utkozik a megadott datummal,
             // akkor nyilvan nem elerheto az idoszakra, emellett a jarmu tulajdonosa
             // altal meghatarozott berelhetosegi idoszakban van-e a megadott intervallum.
-            return !this.Rentals.Any(x => RentalStatus.OfferAccepted <= x.Status &&
-                                             x.DateInterval.DoesCollide(new DateInterval(intervalStart, intervalEnd))) &&
-                   this.Availabilities.Any(x => x.DateInterval.DoesContain(new DateInterval(intervalStart, intervalEnd)));
+            return !this.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status && 
+                                          !(r.End < intervalStart || intervalEnd < r.Start)) &&
+                   this.Availabilities.Any(a => a.Start <= intervalStart && intervalEnd <= a.End) &&
+                   intervalStart < intervalEnd &&
+                   DateTime.Now < intervalStart;
         }
     }
 }

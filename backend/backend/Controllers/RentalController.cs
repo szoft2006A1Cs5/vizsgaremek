@@ -1,7 +1,10 @@
+using backend.Contexts;
 using backend.DTOs.Message;
 using backend.Models;
+using backend.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
@@ -9,6 +12,15 @@ namespace backend.Controllers
     [ApiController]
     public class RentalController : ControllerBase
     {
+        private readonly Context _context;
+        private readonly AuthService _authSrv;
+        
+        public RentalController(Context context, AuthService authSrv)
+        {
+            _context = context;
+            _authSrv = authSrv;
+        }
+        
         // GET: api/<RentalController>
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int limit = 10, [FromQuery] int offset = 0)
@@ -27,17 +39,57 @@ namespace backend.Controllers
 
         // POST api/<RentalController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Rental value)
+        public async Task<IActionResult> Post([FromBody] Rental rentalRequest)
         {
-            throw new NotImplementedException();
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+
+            if (authUser.DriversLicenseNumber == null) return Forbid();
+            
+            var rentedVehicle = await _context.Vehicles
+                .Include(x => x.Rentals)
+                .Include(x => x.Availabilities)
+                .FirstOrDefaultAsync(x => x.Id == rentalRequest.VehicleId);
+            
+            if (rentedVehicle == null ||
+                authUser.Id == rentedVehicle.OwnerId) 
+                return BadRequest();
+
+            if (!rentedVehicle.CheckAvailable(rentalRequest.Start, rentalRequest.End))
+                return Conflict(new { Error = "Nem bérelhető a jármű az adott időszakban."});
+            
+            rentalRequest.RenterId = authUser.Id;
+            rentalRequest.Status = RentalStatus.RenterOffer;
+            
+            // TODO: PAYMENT CALCULATION
+            
             return Ok();
         }
 
         // PUT api/<RentalController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Rental value)
+        public async Task<IActionResult> Put(int id, [FromBody] Rental modifications)
         {
-            throw new NotImplementedException();
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+            
+            var existingRental = await _context.Rentals
+                .Include(x => x.Vehicle)
+                .ThenInclude(x => x.Rentals)
+                .Include(x => x.Vehicle)
+                .ThenInclude(x => x.Availabilities)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (existingRental == null) return NotFound();
+
+            if (existingRental.RenterId != authUser.Id &&
+                existingRental.Vehicle.OwnerId != authUser.Id)
+                return Forbid();
+
+            if (!existingRental.Vehicle.CheckAvailable(modifications.Start, modifications.End))
+                return Conflict(new { Error = "Nem bérelhető a jármű az adott időszakban."});
+
+            existingRental.Update(modifications, authUser);
+            
             return Ok();
         }
 

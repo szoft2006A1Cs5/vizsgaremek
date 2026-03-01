@@ -8,12 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using backend.Common;
 using backend.DTOs.Vehicle;
 using backend.DTOs.VehicleImage;
 using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
 using backend.Services.ResourceService;
+using Microsoft.CodeAnalysis.Differencing;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -36,7 +38,7 @@ namespace backend.Controllers
 
         // GET: api/<VehicleController>
         [HttpGet]
-        public async Task<IActionResult> Get(
+        public async Task<IActionResult> GetVehicles(
             [FromQuery] int limit = 30,
             [FromQuery] int offset = 0,
             [FromQuery] DateTime? rentalStart = null,
@@ -98,7 +100,7 @@ namespace backend.Controllers
 
         // GET api/<VehicleController>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetVehicleById(int id)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -120,7 +122,7 @@ namespace backend.Controllers
 
         [Authorize(Roles = "User")]
         [HttpGet("Owned")]
-        public async Task<IActionResult> GetOwned([FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetOwnedVehicles([FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -145,24 +147,33 @@ namespace backend.Controllers
 
         [Authorize(Roles = "User")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] VehicleDTO vehicledata)
+        public async Task<IActionResult> AddVehicle([FromBody] VehicleDTO vehicleData)
         {
             var authUser = await _authSrv.GetUser(User, _context);
-
             if (authUser == null) return Unauthorized();
+            
+            if (!Regex.IsMatch(vehicleData.VIN, "^[A-Z0-9]{18}$") ||
+                !Regex.IsMatch(vehicleData.LicensePlate, "([A-Z]{4}[0-9]{3})|([A-Z]{3}[0-9]{3})") ||
+                string.IsNullOrWhiteSpace(vehicleData.InsuranceNumber))
+                return BadRequest();
 
+            if (_context.Vehicles.Any(x => x.LicensePlate == vehicleData.LicensePlate ||
+                                           x.VIN == vehicleData.VIN ||
+                                           x.InsuranceNumber == vehicleData.InsuranceNumber))
+                return Conflict();
+            
             Vehicle vehicle = new Vehicle
             {
                 OwnerId = authUser.Id,
-                VIN = vehicledata.VIN,
-                LicensePlate = vehicledata.LicensePlate,
-                Manufacturer = vehicledata.Manufacturer,
-                Model = vehicledata.Model,
-                Year = vehicledata.Year,
-                Description = vehicledata.Description,
-                OdometerReading = vehicledata.OdometerReading,
-                AvgFuelConsumption = vehicledata.AvgFuelConsumption,
-                InsuranceNumber = vehicledata.InsuranceNumber,
+                VIN = vehicleData.VIN,
+                LicensePlate = vehicleData.LicensePlate,
+                Manufacturer = vehicleData.Manufacturer,
+                Model = vehicleData.Model,
+                Year = vehicleData.Year,
+                Description = vehicleData.Description,
+                OdometerReading = vehicleData.OdometerReading,
+                AvgFuelConsumption = vehicleData.AvgFuelConsumption,
+                InsuranceNumber = vehicleData.InsuranceNumber,
             };
             
             await _context.Vehicles.AddAsync(vehicle);
@@ -170,16 +181,58 @@ namespace backend.Controllers
 
             return Created($"{Request.GetDisplayUrl()}/{vehicle.Id}", vehicle.FilterSerialize(authUser));
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateVehicle(int id, [FromBody] VehicleDTO vehicleData)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+            
+            if (!Regex.IsMatch(vehicleData.VIN, "^[A-Z0-9]{18}$") ||
+                !Regex.IsMatch(vehicleData.LicensePlate, "([A-Z]{4}[0-9]{3})|([A-Z]{3}[0-9]{3})") ||
+                string.IsNullOrWhiteSpace(vehicleData.InsuranceNumber))
+                return BadRequest();
+
+            var vehicle = await _context.Vehicles.FirstOrDefaultAsync(x => x.Id == id);
+            if (vehicle == null) return NotFound();
+
+            if (vehicle.OwnerId != authUser.Id && authUser.Role != UserRole.Administrator) return Forbid();
+
+            if (_context.Vehicles.Any(x => (x.LicensePlate == vehicleData.LicensePlate ||
+                                           x.VIN == vehicleData.VIN ||
+                                           x.InsuranceNumber == vehicleData.InsuranceNumber) &&
+                                           x != vehicle))
+                return Conflict();
+
+            var vehicleProps = typeof(Vehicle).GetProperties();
+            foreach (var prop in typeof(VehicleDTO).GetProperties())
+            {
+                var vehicleProp = vehicleProps
+                    .FirstOrDefault(x => x.Name == prop.Name &&
+                                         x.PropertyType == prop.PropertyType);
+                
+                if (vehicleProp != null)
+                    vehicleProp.SetValue(vehicle, prop.GetValue(vehicleData));
+            }
+
+            _context.Vehicles.Update(vehicle);
+            await _context.SaveChangesAsync();
+
+            return Ok(vehicle.FilterSerialize(authUser));
+        }
         
         [HttpGet("{id}/Availability")]
         public async Task<IActionResult> GetAvailabilities(int id, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
+            var authUser = await _authSrv.GetUser(User, _context);
+            
             return Ok(
-                await _context.VehicleAvailabilities
-                .Where(x => x.VehicleId == id)
-                .Skip(offset)
-                .Take(limit)
-                .ToListAsync()
+                (await _context.VehicleAvailabilities
+                    .Where(x => x.VehicleId == id)
+                    .Skip(offset)
+                    .Take(limit)
+                    .ToListAsync())
+                    .FilterSerialize(authUser)
             );
         }
 
@@ -187,7 +240,6 @@ namespace backend.Controllers
         public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
         {
             var authUser = await _authSrv.GetUser(User, _context);
-            
             if (authUser == null) return Unauthorized();
             
             var vehicle = await _context.Vehicles
@@ -201,11 +253,11 @@ namespace backend.Controllers
             if (vehicle.OwnerId != authUser.Id 
                 && authUser.Role != UserRole.Administrator) return Forbid();
 
-            if (availability.End < availability.Start || availability.HourlyRate < 0)
+            if (availability.End <= availability.Start || availability.HourlyRate <= 0)
                 return BadRequest(new
                 {
                     Error = "A bérelhetőség kezdete nem lehet később a végénél," +
-                            " és a beállított ár nem lehet kevesebb 0-nál!"
+                            " és a beállított ár nem lehet 0 vagy kevesebb!"
                 });
             
             if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(availability.DateInterval)))
@@ -223,38 +275,40 @@ namespace backend.Controllers
         [HttpGet("{vehicleId}/Availability/{availabilityId}")]
         public async Task<IActionResult> GetAvailability(int vehicleId, int availabilityId)
         {
+            var authUser = await _authSrv.GetUser(User, _context);
+            
             var availability = await _context.VehicleAvailabilities
                 .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.AvailabilityId == availabilityId);
             
             if (availability == null) return NotFound();
             
-            return Ok(availability);
+            return Ok(availability.FilterSerialize(authUser));
         }
         
         [HttpPut("{vehicleId}/Availability/{availabilityId}")]
-        public async Task<IActionResult> EditAvailability(
+        public async Task<IActionResult> UpdateAvailability(
             int vehicleId, 
             int availabilityId, 
             [FromBody] VehicleAvailability replacement
         )
         {
             var authUser = await _authSrv.GetUser(User, _context);
-            
             if (authUser == null) return Unauthorized();
 
             var availability = await _context.VehicleAvailabilities
                 .Include(x => x.Vehicle)
+                .ThenInclude(x => x.Availabilities)
                 .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.AvailabilityId == availabilityId);
             
             if (availability == null || availability.Vehicle == null) return NotFound();
             if (availability.Vehicle.OwnerId != authUser.Id &&
                 authUser.Role != UserRole.Administrator) return Forbid();
 
-            if (availability.End < availability.Start || availability.HourlyRate < 0)
+            if (replacement.End <= replacement.Start || replacement.HourlyRate < 0)
                 return BadRequest(new
                 {
                     Error = "A bérelhetőség kezdete nem lehet később a végénél," +
-                            " és a beállított ár nem lehet kevesebb 0-nál!"
+                            " és a beállított ár nem lehet 0 vagy kevesebb!"
                 });
             
             if (availability.Vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(replacement.DateInterval) &&
@@ -277,7 +331,6 @@ namespace backend.Controllers
         )
         {
             var authUser = await _authSrv.GetUser(User, _context);
-
             if (authUser == null) return Unauthorized();
 
             var availability = await _context.VehicleAvailabilities
@@ -297,13 +350,16 @@ namespace backend.Controllers
         [HttpGet("{vehicleId}/Image")]
         public async Task<IActionResult> GetImages(int vehicleId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
         {
+            var authUser = await _authSrv.GetUser(User, _context);
+            
             return Ok(
-                await _context.VehicleImages
+                (await _context.VehicleImages
                     .Where(x => x.VehicleId == vehicleId)
                     .Skip(offset)
                     .Take(limit)
                     .OrderBy(x => x.SortIndex)
-                    .ToListAsync()
+                    .ToListAsync())
+                    .FilterSerialize(authUser)
             );
         }
         
@@ -343,7 +399,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("{vehicleId}/Image/{imageId}")]
-        public async Task<IActionResult> PutImage(int vehicleId, int imageId, [FromBody] int? sortIndex = null)
+        public async Task<IActionResult> UpdateImage(int vehicleId, int imageId, [FromBody] int? sortIndex = null)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 

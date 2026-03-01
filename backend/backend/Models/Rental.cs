@@ -1,5 +1,6 @@
 ﻿using backend.Common;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace backend.Models
@@ -57,8 +58,62 @@ namespace backend.Models
         public double? OwnerRating { get; set; }
 
         public int RenterId { get; set; }
-        public required User Renter { get; set; }
+        public User? Renter { get; set; }
         public int VehicleId { get; set; }
-        public required Vehicle Vehicle { get; set; }
+        public Vehicle? Vehicle { get; set; }
+
+        private void HandleStatusChange(RentalStatus to, User authUser)
+        {
+            
+        }
+        
+        public bool Update(Rental to, User authUser)
+        {
+            if (this.Status != to.Status)
+            {
+                // Statusz valtozasnal mas nem valtozhat,
+                // pl. ha elfogadjuk a masik ajanlatat,
+                // akkor nyilvan nem modosithatjuk a sajat
+                // valtoztatasainkra es fogadhatjuk el
+                // egyszerre.
+                
+                HandleStatusChange(to.Status, authUser);
+            }
+            
+            IEnumerable<PropertyInfo> props = typeof(Rental)
+                .GetProperties()
+                .Where(x => authUser.Role != UserRole.Administrator ? !(new[]
+                {
+                    nameof(Id),
+                    nameof(VehicleId),
+                    nameof(RenterId),
+                    nameof(Status), // Status kulon lesz kezelve
+                }.Contains(x.Name)) : true);
+            
+            if (authUser.Role != UserRole.Administrator &&
+                this.Status != RentalStatus.Finished)
+                props = props.Where(x => !(new[]
+                {
+                    nameof(OwnerRating), nameof(RenterRating)
+                }.Contains(x.Name)));
+
+            if (authUser.Role != UserRole.Administrator &&
+                RentalStatus.OfferAccepted <= this.Status)
+                props = props.Where(x => !(new[]
+                {
+                    nameof(FullPrice),
+                    nameof(Downpayment),
+                    nameof(Start),
+                    nameof(End),
+                    nameof(PickupLatitude),
+                    nameof(PickupLongtitude),
+                    nameof(FuelLevel)
+                }.Contains(x.Name)));
+
+            foreach (var prop in props)
+                prop.SetValue(this, prop.GetValue(to));
+            
+            return false;
+        }
     }
 }

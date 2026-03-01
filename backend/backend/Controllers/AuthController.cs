@@ -58,7 +58,7 @@ namespace backend.Controllers
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
             if (_context.Users.Any(x => x.Email == registration.Email) ||
-                _context.Users.Any(x => x.Phone == registration.Phone) ||
+                _context.Users.Any(x => x.Phone.Substring(2) == registration.Phone.Substring(2)) ||
                 _context.Users.Any(x => x.IdCardNumber == registration.IdCardNumber) ||
                 _context.Users.Any(x => x.DriversLicenseNumber == registration.DriversLicenseNumber))
                 return Conflict();
@@ -81,7 +81,6 @@ namespace backend.Controllers
                 AddressSettlement = registration.AddressSettlement,
                 AddressStreetHouse = registration.AddressStreetHouse,
                 Balance = 0,
-                //ConfirmedEmail = false,
             };
             
             _context.Users.Add(user);
