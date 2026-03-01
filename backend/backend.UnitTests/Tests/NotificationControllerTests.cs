@@ -3,6 +3,7 @@ namespace backend.UnitTests.Tests;
 [TestClass]
 public class NotificationControllerTests
 {
+    /*
     [TestMethod]
     public async Task GetNotifications_Ok() {}
     
@@ -35,4 +36,5 @@ public class NotificationControllerTests
     
     [TestMethod]
     public async Task DeleteNotification_NotFound() {}
+    */
 }

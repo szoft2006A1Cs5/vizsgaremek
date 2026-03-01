@@ -9,6 +9,7 @@ namespace backend.UnitTests.Tests
     [TestClass]
     public sealed class RentalControllerTests
     {
+        /*
         [TestMethod]
         public async Task GetRentals_Ok() { }
 
@@ -20,5 +21,6 @@ namespace backend.UnitTests.Tests
 
         [TestMethod]
         public async Task PostRental_Unauthorized() { }
+        */
     }
 }
