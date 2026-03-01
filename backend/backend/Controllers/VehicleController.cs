@@ -404,8 +404,6 @@ namespace backend.Controllers
             var authUser = await _authSrv.GetUser(User, _context);
 
             var image = await _context.VehicleImages
-                .AsNoTracking()
-                .IgnoreAutoIncludes()
                 .Include(x => x.Vehicle)
                 .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.ImageId == imageId);
             
