@@ -20,7 +20,8 @@ namespace backend.VisibilityFiltering
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true,
             ReferenceHandler = ReferenceHandler.IgnoreCycles,
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
         };
         
         public static string FilterSerialize<T>(this T data, User? authUser)

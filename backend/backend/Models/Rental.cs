@@ -64,7 +64,37 @@ namespace backend.Models
 
         private void HandleStatusChange(RentalStatus to, User authUser)
         {
+            if (RentalStatus.Finished < to)
+            {
+                Status = to;
+                return;
+            }
             
+            var bases = new[] { 
+                (int)RentalStatus.RenterOffer,
+                (int)RentalStatus.RenterPickupAccepted,
+                (int)RentalStatus.RenterFinishAccepted,
+            };
+
+            foreach (var b in bases)
+            {
+                if ((int)to != b + 2) continue;
+                
+                bool otherWaiting = (int)this.Status == (authUser.Id == this.RenterId ? b + 1 : b);
+                this.Status = otherWaiting
+                    ? (RentalStatus)(b + 2)
+                    : (RentalStatus)(authUser.Id == this.RenterId ? b : b + 1);
+
+                // TODO: Ha OfferAccepted, akkor itt elmeletileg valahogy torolni
+                //       kene az osszes tobbi erre az idoszakra vontakozo rental offert,
+                //       es kuldeni azok kuldoinek egy ertesitest, hogy nem az o ajanlatukat
+                //       fogadtak el.
+                
+                return;
+            }
+            
+            if (this.Status < RentalStatus.OfferAccepted)
+                this.Status = authUser.Id == this.RenterId ? RentalStatus.RenterOffer : RentalStatus.OwnerOffer;
         }
         
         public bool Update(Rental to, User authUser)
@@ -87,7 +117,7 @@ namespace backend.Models
                     nameof(Id),
                     nameof(VehicleId),
                     nameof(RenterId),
-                    nameof(Status), // Status kulon lesz kezelve
+                    nameof(Status), // Status kulon kezelve
                 }.Contains(x.Name)) : true);
             
             if (authUser.Role != UserRole.Administrator &&

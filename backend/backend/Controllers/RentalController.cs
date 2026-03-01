@@ -2,6 +2,7 @@ using backend.Contexts;
 using backend.DTOs.Message;
 using backend.Models;
 using backend.Services;
+using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,8 +34,22 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+            
+            var rental = await _context.Rentals
+                .Include(x => x.Vehicle)
+                .ThenInclude(x => x.Owner)
+                .Include(x => x.Renter)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (rental == null) return NotFound();
+            
+            if (rental.Vehicle.OwnerId != authUser.Id &&
+                rental.RenterId != authUser.Id &&
+                authUser.Role != UserRole.Administrator) 
+                return Forbid();
+
+            return Ok(rental.FilterSerialize(authUser));
         }
 
         // POST api/<RentalController>
