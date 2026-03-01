@@ -813,4 +813,131 @@ public class VehicleControllerTests
         var result = await _controller!.DeleteImage(1, 1) as ForbidResult;
         Assert.IsNotNull(result);
     }
+
+    [TestMethod]
+    public async Task ChainTest()
+    {
+        _controller.SetAuthUser(3, UserRole.User);
+        
+        #region AddVehicle
+        _controller.SetAuthUser(3, UserRole.User);
+
+        var addVehicleResult = await _controller!.AddVehicle(new VehicleDTO
+        {
+            VIN = "ARS213ARS12315AB28",
+            LicensePlate = "EGH789",
+            InsuranceNumber = "KGFB245810587",
+            Manufacturer = "Hyundai",
+            Model = "Tucson",
+            Year = 2025,
+            AvgFuelConsumption = 6.7,
+            Description = "",
+            OdometerReading = 15000,
+        }) as CreatedResult;
+        
+        Assert.IsNotNull(addVehicleResult);
+        Vehicle vehicleCreated = JsonConvert.DeserializeObject<Vehicle>((string)addVehicleResult.Value);
+        Assert.IsNotNull(vehicleCreated);
+        var vehicleId = vehicleCreated.Id;
+        #endregion
+        
+        #region AddImage
+        var imageRes = await _controller!.AddImage(
+            vehicleId, 
+            new FormFile(null, 0, 0, "test", "test.jpg")
+        ) as CreatedResult;
+        Assert.IsNotNull(imageRes);
+        #endregion
+        
+        #region AddAvailability
+        var addAvailabiltyRes = await _controller!.AddAvailability(vehicleId, new VehicleAvailability
+        {
+            Start = new DateTime(2026, 03, 02, 6, 00, 00),
+            End = new DateTime(2026, 03, 07, 17, 00, 00),
+            HourlyRate = 800,
+        }) as CreatedResult;
+        Assert.IsNotNull(addAvailabiltyRes);
+        #endregion
+        
+        #region AddOtherAvailability
+        var addOtherAvailabiltyRes = await _controller!.AddAvailability(vehicleId, new VehicleAvailability
+        {
+            Start = new DateTime(2026, 04, 02, 6, 00, 00),
+            End = new DateTime(2026, 04, 07, 17, 00, 00),
+            HourlyRate = 800,
+        }) as CreatedResult;
+        Assert.IsNotNull(addOtherAvailabiltyRes);
+        #endregion
+        
+        #region UpdateOtherAvailability
+        var updateOtherAvailRes = await _controller!.UpdateAvailability(vehicleId, 2, new VehicleAvailability
+        {
+            Start = new DateTime(2026, 04, 02, 6, 00, 00),
+            End = new DateTime(2026, 04, 07, 17, 00, 00),
+            HourlyRate = 1000,
+        }) as OkObjectResult;
+        Assert.IsNotNull(updateOtherAvailRes);
+        #endregion
+        
+        #region GetOtherAvailability
+        var getOtherAvailRes = await _controller!.GetAvailability(vehicleId, 2) as OkObjectResult;
+        Assert.IsNotNull(getOtherAvailRes);
+        var otherAvail = JsonConvert.DeserializeObject<VehicleAvailability>((string)getOtherAvailRes.Value);
+        Assert.IsNotNull(otherAvail);
+        Assert.AreEqual(1000, otherAvail.HourlyRate);
+        #endregion
+        
+        #region DeleteOtherAvailability
+        var delOtherAvailRes = await _controller!.DeleteAvailability(vehicleId, 2) as NoContentResult;
+        Assert.IsNotNull(delOtherAvailRes);
+        #endregion
+        
+        #region GetAvailabilities
+        var getAvailsRes = await _controller!.GetAvailabilities(vehicleId) as OkObjectResult;
+        Assert.IsNotNull(getAvailsRes);
+        var avails = JsonConvert.DeserializeObject<List<VehicleAvailability>>((string)getAvailsRes.Value);
+        Assert.IsNotNull(avails);
+        Assert.AreEqual(1, avails.Count);
+        #endregion
+        
+        #region AddImage
+        var imgResult = await _controller!.AddImage(
+            vehicleId,
+            new FormFile(null, 0, 0, "test", "test.jpg")
+        ) as CreatedResult;
+        
+        Assert.IsNotNull(imgResult);
+        #endregion
+        
+        #region UpdateImage
+        var updateResult = await _controller!.UpdateImage(vehicleId, 1, 123) as OkObjectResult;
+        Assert.IsNotNull(updateResult);
+        #endregion
+        
+        #region UpdateVehicle
+        var updateVehicleResult = await _controller!.UpdateVehicle(vehicleId, new VehicleDTO
+        {
+            VIN = "ARS213ARS12315AB28",
+            LicensePlate = "EGH789",
+            InsuranceNumber = "KGFB245810587",
+            Manufacturer = "Hyundai",
+            Model = "Tucson",
+            Year = 2025,
+            AvgFuelConsumption = 6.7,
+            Description = "",
+            OdometerReading = 16000,
+        }) as OkObjectResult;
+        Assert.IsNotNull(updateVehicleResult);
+        #endregion
+        
+        #region GetVehicle
+        var getVehicleRes = await _controller!.GetVehicleById(vehicleId) as OkObjectResult;
+        Assert.IsNotNull(getVehicleRes);
+        var vehicle = JsonConvert.DeserializeObject<Vehicle>((string)getVehicleRes.Value);
+        Assert.IsNotNull(vehicle);
+        Assert.AreEqual("Hyundai", vehicle.Manufacturer);
+        Assert.AreEqual("Tucson", vehicle.Model);
+        Assert.AreEqual(16000, vehicle.OdometerReading);
+        #endregion
+    }
 }
