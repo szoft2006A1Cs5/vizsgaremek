@@ -150,6 +150,8 @@ public class VehicleControllerTests
             AvgFuelConsumption = 6.7,
             Description = "",
             OdometerReading = 15000,
+            FuelType = "benzin",
+            Horsepower = 190
         }) as CreatedResult;
         
         Assert.IsNotNull(result);
@@ -178,6 +180,8 @@ public class VehicleControllerTests
             AvgFuelConsumption = 6.7,
             Description = "",
             OdometerReading = 15000,
+            FuelType = "benzin",
+            Horsepower = 190
         }) as BadRequestResult;
         
         Assert.IsNotNull(result);
@@ -199,6 +203,8 @@ public class VehicleControllerTests
             AvgFuelConsumption = 6.7,
             Description = "",
             OdometerReading = 15000,
+            FuelType = "benzin",
+            Horsepower = 190
         }) as ConflictResult;
         
         Assert.IsNotNull(result);
@@ -220,6 +226,8 @@ public class VehicleControllerTests
             AvgFuelConsumption = 6.7,
             Description = "",
             OdometerReading = 15000,
+            FuelType = "benzin",
+            Horsepower = 190
         }) as UnauthorizedResult;
      
         Assert.IsNotNull(result);
@@ -241,6 +249,8 @@ public class VehicleControllerTests
             Year = 2019,
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
+            FuelType = "benzin",
+            Horsepower = 190
         }) as OkObjectResult;
         
         Assert.IsNotNull(result);
@@ -266,6 +276,8 @@ public class VehicleControllerTests
             Year = 2019,
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
+            FuelType = "benzin",
+            Horsepower = 190
         }) as NotFoundResult;
         
         Assert.IsNotNull(result);
@@ -287,6 +299,8 @@ public class VehicleControllerTests
             Year = 2019,
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1A", // Eggyel tobb betu
+            FuelType = "benzin",
+            Horsepower = 190
         }) as BadRequestResult;
         
         Assert.IsNotNull(result);
@@ -308,6 +322,8 @@ public class VehicleControllerTests
             Year = 2019,
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
+            FuelType = "benzin",
+            Horsepower = 190
         }) as ConflictResult;
         
         Assert.IsNotNull(result);
@@ -330,6 +346,8 @@ public class VehicleControllerTests
             Year = 2019,
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
+            FuelType = "benzin",
+            Horsepower = 190
         }) as ForbidResult;
         
         Assert.IsNotNull(result);
@@ -351,6 +369,7 @@ public class VehicleControllerTests
             Year = 2019,
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
+            FuelType = "benzin",
         }) as OkObjectResult;
         
         Assert.IsNotNull(result);
@@ -833,6 +852,8 @@ public class VehicleControllerTests
             AvgFuelConsumption = 6.7,
             Description = "",
             OdometerReading = 15000,
+            FuelType = "benzin",
+            Horsepower = 190
         }) as CreatedResult;
         
         Assert.IsNotNull(addVehicleResult);
@@ -935,6 +956,8 @@ public class VehicleControllerTests
             AvgFuelConsumption = 6.7,
             Description = "",
             OdometerReading = 16000,
+            FuelType = "benzin",
+            Horsepower = 190
         }) as OkObjectResult;
         Assert.IsNotNull(updateVehicleResult);
         #endregion

@@ -155,6 +155,7 @@ namespace backend.UnitTests
                     Year = 2019,
                     OdometerReading = 12000,
                     VIN = "ABCDEF123ARS12ABC1",
+                    FuelType = "benzin",
                 },
                 new Vehicle
                 {
@@ -172,6 +173,7 @@ namespace backend.UnitTests
                     Year = 2010,
                     OdometerReading = 72000,
                     VIN = "12ARTC2131KBEBU234",
+                    FuelType = "benzin",
                 },
             ]);
 
