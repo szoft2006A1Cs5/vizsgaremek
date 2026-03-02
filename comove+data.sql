@@ -1,3 +1,5 @@
+DROP DATABASE comove;
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -196,7 +198,9 @@ CREATE TABLE `vehicles` (
   `year` int(11) NOT NULL,
   `description` varchar(512) NOT NULL,
   `odometerReading` int(11) NOT NULL,
+  `horsepower` int(11) NOT NULL, 
   `avgFuelConsumption` double NOT NULL,
+  `fuelType` varchar(10) NOT NULL,
   `insuranceNumber` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
@@ -204,10 +208,10 @@ CREATE TABLE `vehicles` (
 -- A tábla adatainak kiíratása `vehicles`
 --
 
-INSERT INTO `vehicles` (`id`, `ownerId`, `vin`, `licensePlate`, `manufacturer`, `model`, `year`, `description`, `odometerReading`, `avgFuelConsumption`, `insuranceNumber`) VALUES
-(1, 1, 'VF312345678901234', 'ABC-123', 'Toyota', 'Corolla', 2018, 'Megbízható hibrid városi cirkáló.', 85000, 4.5, 'KGFB-998877'),
-(2, 2, 'WBA41234567890123', 'SKY-789', 'BMW', '320d', 2015, 'Kényelmes utazóautó hosszabb távra.', 210000, 6.2, 'KGFB-112233'),
-(3, 3, 'TMB51234567890123', 'RNL-456', 'Skoda', 'Octavia', 2020, 'Hatalmas csomagtartó, tiszta belső.', 45000, 5.5, 'KGFB-445566');
+INSERT INTO `vehicles` (`id`, `ownerId`, `vin`, `licensePlate`, `manufacturer`, `model`, `year`, `description`, `odometerReading`, `horsepower`, `avgFuelConsumption`, `fuelType`, `insuranceNumber`) VALUES
+(1, 1, 'VF312345678901234', 'ABC-123', 'Toyota', 'Corolla', 2018, 'Megbízható hibrid városi cirkáló.', 85000, 132, 4.5, "benzin", 'KGFB-998877'),
+(2, 2, 'WBA41234567890123', 'SKY-789', 'BMW', '320d', 2015, 'Kényelmes utazóautó hosszabb távra.', 210000, 180, 6.2, "dízel", 'KGFB-112233'),
+(3, 3, 'TMB51234567890123', 'RNL-456', 'Skoda', 'Octavia', 2020, 'Hatalmas csomagtartó, tiszta belső.', 45000, 150, 5.5, "benzin", 'KGFB-445566');
 
 --
 -- Indexek a kiírt táblákhoz

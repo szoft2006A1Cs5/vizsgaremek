@@ -35,7 +35,12 @@ namespace backend.Models
 
         public int OdometerReading { get; set; }
 
+        public int Horsepower { get; set; }
+
         public double AvgFuelConsumption { get; set; }
+
+        [MaxLength(10)]
+        public required string FuelType { get; set; } 
 
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(64)]
         public required string InsuranceNumber { get; set; }

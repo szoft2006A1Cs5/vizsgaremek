@@ -47,6 +47,7 @@ namespace backend.Controllers
             [FromQuery] string? model = null,
             [FromQuery] int? year = null,
             [FromQuery] string? settlement = null,
+            [FromQuery] string? fuelType = null,
             [FromQuery] int? minRate = null,
             [FromQuery] int? maxRate = null,
             [FromQuery] bool showOwned = false
@@ -77,6 +78,7 @@ namespace backend.Controllers
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&
                     (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true) &&
+                    (fuelType != null ? x.FuelType == fuelType : true) &&
                     (!showOwned && authUser != null ? x.OwnerId != authUser.Id : true)
                 )
                 .Skip(offset)
@@ -161,7 +163,7 @@ namespace backend.Controllers
                                            x.VIN == vehicleData.VIN ||
                                            x.InsuranceNumber == vehicleData.InsuranceNumber))
                 return Conflict();
-            
+
             Vehicle vehicle = new Vehicle
             {
                 OwnerId = authUser.Id,
@@ -172,7 +174,9 @@ namespace backend.Controllers
                 Year = vehicleData.Year,
                 Description = vehicleData.Description,
                 OdometerReading = vehicleData.OdometerReading,
+                Horsepower = vehicleData.Horsepower,
                 AvgFuelConsumption = vehicleData.AvgFuelConsumption,
+                FuelType = vehicleData.FuelType,
                 InsuranceNumber = vehicleData.InsuranceNumber,
             };
             
