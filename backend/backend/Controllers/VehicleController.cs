@@ -11,7 +11,6 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using backend.Common;
 using backend.DTOs.Vehicle;
-using backend.DTOs.VehicleImage;
 using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
 using backend.Services.ResourceService;
