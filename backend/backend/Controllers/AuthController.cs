@@ -49,7 +49,7 @@ namespace backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserDTO registration)
         {
-            if (!registration.CheckRegex())
+            if (!registration.CheckValid())
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
             if (_context.Users.Any(x => x.Email == registration.Email ||
@@ -63,13 +63,13 @@ namespace backend.Controllers
             var user = new User {
                 Name = registration.Name,
                 Phone = registration.Phone,
-                DateOfBirth = registration.DateOfBirth.ToDateTime(new TimeOnly(0)),
+                DateOfBirth = registration.DateOfBirth,
                 Email = registration.Email,
                 Password = hashSalt.Item1,
                 Salt = hashSalt.Item2,
                 IdCardNumber = registration.IdCardNumber,
                 DriversLicenseNumber = registration.DriversLicenseNumber,
-                DriversLicenseDate = registration.DriversLicenseDate.ToDateTime(new TimeOnly(0)),
+                DriversLicenseDate = registration.DriversLicenseDate,
                 Role = UserRole.User,
                 ProfilePicPath = null,
                 AddressZipcode = registration.AddressZipcode,

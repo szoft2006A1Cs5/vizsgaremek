@@ -69,7 +69,7 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUserById(int id, [FromBody] UserModificationDTO dto)
         {
-            if (!dto.CheckRegex())
+            if (!dto.CheckValid())
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
             var authUser = await _authSrv.GetUser(User, _context);

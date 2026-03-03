@@ -27,6 +27,22 @@ namespace backend.Contexts
             modelBuilder.Entity<User>()
                 .Property(x => x.Role)
                 .HasConversion<string>();
+
+            modelBuilder.Entity<User>()
+                .Property(x => x.DriversLicenseDate)
+                .HasColumnType("date")
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                    v => v.HasValue ? DateOnly.FromDateTime(v.Value) : (DateOnly?)null
+                );
+
+            modelBuilder.Entity<User>()
+                .Property(x => x.DateOfBirth)
+                .HasColumnType("date")
+                .HasConversion(
+                    v => v.ToDateTime(TimeOnly.MinValue),
+                    v => DateOnly.FromDateTime(v)
+                );
         }
     }
 }

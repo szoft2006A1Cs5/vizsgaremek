@@ -26,7 +26,7 @@ namespace backend.Models
         public required string Phone { get; set; }
 
         [VisibleTo(VisibilityLevel.InRelation)]
-        public DateTime DateOfBirth { get; set; }
+        public required DateOnly DateOfBirth { get; set; }
 
         [MaxLength(512)]
         public string? ProfilePicPath { get; set; }
@@ -44,10 +44,10 @@ namespace backend.Models
         public UserRole Role { get; set; }
 
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(10)]
-        public required string DriversLicenseNumber { get; set; }
+        public string? DriversLicenseNumber { get; set; }
 
         [VisibleTo(VisibilityLevel.OwnerOnly)]
-        public DateTime DriversLicenseDate { get; set; }
+        public DateOnly? DriversLicenseDate { get; set; }
 
         [VisibleTo(VisibilityLevel.InRelation), MaxLength(4)]
         public required string AddressZipcode { get; set; }
