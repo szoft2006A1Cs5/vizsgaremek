@@ -99,37 +99,5 @@ namespace backend.Services
                 .Include(x => x.Vehicles)
                 .FirstOrDefaultAsync(x => x.Id == uid);
         }
-        
-        // Mint kiderult a Google letiltja a fiokot, ha sok hasonlo e-mailt kuldunk
-        // ugyhogy ez most igy igazabol haszontalan
-        public async Task<bool> SendConfirmEmail(User user)
-        {
-            var mail = new MimeMessage();
-            mail.From.Add(new MailboxAddress("comove", "noreplycomove@gmail.com"));
-            mail.To.Add(new MailboxAddress($"{user.Name}", $"g.a.a033@gmail.com"));
-            
-            mail.Subject = "Erősítsd meg az e-mail címed!";
-            mail.Body = new TextPart("plain")
-            {
-                Text = "Test123"
-            };
-
-            using (var client = new SmtpClient())
-            {
-                var server = _config["Auth:Mail:Server"];
-                var username = _config["Auth:Mail:Credentials:Username"];
-                var appPass = _config["Auth:Mail:Credentials:AppPassword"];
-
-                if (server == null || username == null || appPass == null)
-                    return false;
-                
-                await client.ConnectAsync(server, 587, SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(username, appPass);
-                await client.SendAsync(mail);
-                await client.DisconnectAsync(true);
-            }
-
-            return true;
-        }
     }
 }
