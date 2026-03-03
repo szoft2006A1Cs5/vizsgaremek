@@ -1,4 +1,6 @@
-﻿namespace backend.Common
+﻿using ZstdSharp.Unsafe;
+
+namespace backend.Common
 {
     public class DateInterval
     {
@@ -11,12 +13,11 @@
             this.End = end;
         }
         
-        public bool DoesCollide(DateInterval rhs)
+        public bool DoesCollide(DateInterval rhs, bool inclusive = true)
         {
-            return !((this.End < rhs.Start && this.End < rhs.End) ||
-                     (this.Start < rhs.Start && this.End < rhs.Start) ||
-                     (rhs.End < this.Start && rhs.End < this.End) ||
-                     (rhs.Start < this.Start && rhs.End < this.Start));
+            return inclusive ? 
+                !(this.End <= rhs.Start || rhs.End <= this.Start) : 
+                !(this.End < rhs.Start || rhs.End < this.Start);
         }
         
         public bool DoesContain(DateInterval rhs, bool inclusive = true)
