@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using backend.DTOs.Auth;
+using backend.DTOs.User;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -46,21 +47,15 @@ namespace backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegistrationDTO registration)
+        public async Task<IActionResult> Register([FromBody] UserDTO registration)
         {
-            if (!Regex.IsMatch(registration.Name, @"^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)+$") ||
-                !Regex.IsMatch(registration.IdCardNumber, @"^\d{6}[A-Z]{2}$") ||
-                !Regex.IsMatch(registration.DriversLicenseNumber, @"^[A-Z]{2}\d{6}$") ||
-                !Regex.IsMatch(registration.Email, @"^[A-z0-9.-]+@([A-z0-9-]+\.)+(com|hu)$") ||
-                !Regex.IsMatch(registration.Phone, @"^(36|06)(94|70|30|20)\d{7}$") ||
-                !Regex.IsMatch(registration.AddressZipcode, @"^\d{4}$") ||
-                !(registration.DateOfBirth.ToDateTime(new TimeOnly(0)).AddYears(18) <= DateTime.Now))
+            if (!registration.CheckRegex())
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
-            if (_context.Users.Any(x => x.Email == registration.Email) ||
-                _context.Users.Any(x => x.Phone.Substring(2) == registration.Phone.Substring(2)) ||
-                _context.Users.Any(x => x.IdCardNumber == registration.IdCardNumber) ||
-                _context.Users.Any(x => x.DriversLicenseNumber == registration.DriversLicenseNumber))
+            if (_context.Users.Any(x => x.Email == registration.Email ||
+                                        x.Phone.Substring(2) == registration.Phone.Substring(2) ||
+                                        x.IdCardNumber == registration.IdCardNumber ||
+                                        x.DriversLicenseNumber == registration.DriversLicenseNumber))
                 return Conflict();
             
             var hashSalt = _authSrv.GeneratePasswordHashSalt(registration.Password);

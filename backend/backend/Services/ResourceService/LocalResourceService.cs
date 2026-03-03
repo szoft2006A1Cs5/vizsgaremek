@@ -41,13 +41,13 @@ public class LocalResourceService : IResourceService
                 await stream.CopyToAsync(file);
         }
 
-        return filename;
+        return $"res/{filename}";
     }
 
     public bool Delete(string filename)
     {
         if (string.IsNullOrWhiteSpace(filename)) return false;
-        string path = Path.Combine(_webHostEnv.WebRootPath, filename);
+        string path = Path.Combine(_webHostEnv.WebRootPath, filename.Replace("res/", ""));
         if (!Path.Exists(path)) return false;
 
         File.Delete(path);

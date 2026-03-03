@@ -389,7 +389,7 @@ namespace backend.Controllers
             {
                 Vehicle = vehicle,
                 ImageId = vehicle.Images.MaxOrZero(x => x.ImageId) + 1,
-                Path = $"res/{path}",
+                Path = path,
                 SortIndex = sortIndex ?? vehicle.Images.MaxOrZero(x => x.SortIndex) + 1,
             };
 
@@ -440,7 +440,7 @@ namespace backend.Controllers
             if (authUser.Role != UserRole.Administrator &&
                 image.Vehicle.OwnerId != authUser.Id) return Forbid();
 
-            if (!_resSrv.Delete(image.Path.Replace("res/", ""))) return StatusCode(500);
+            if (!_resSrv.Delete(image.Path)) return StatusCode(500);
 
             _context.VehicleImages.Remove(image);
             await _context.SaveChangesAsync();

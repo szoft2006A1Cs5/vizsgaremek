@@ -25,7 +25,11 @@ namespace backend.UnitTests.Tests
         public void Initialize()
         {
             _environment = TestHandler.CreateEnvironment();
-            _controller = new UserController(_environment.Context, _environment.AuthService);
+            _controller = new UserController(
+                _environment.Context, 
+                _environment.AuthService, 
+                _environment.ResourceService
+            );
         }
 
         [TestCleanup]
@@ -108,7 +112,7 @@ namespace backend.UnitTests.Tests
         }
 
         [TestMethod]
-        public async Task PutUser_Ok()
+        public async Task UpdateUser_Ok()
         {
             _controller.SetAuthUser(1, UserRole.User);
 
@@ -135,7 +139,7 @@ namespace backend.UnitTests.Tests
         }
 
         [TestMethod]
-        public async Task PutUser_Unauthorized()
+        public async Task UpdateUser_Unauthorized()
         {
             // Nem vagyunk bejelentkezve
             _controller.SetAuthUser(null, null);
@@ -159,7 +163,7 @@ namespace backend.UnitTests.Tests
         }
 
         [TestMethod]
-        public async Task PutUser_Forbidden()
+        public async Task UpdateUser_Forbidden()
         {
             _controller.SetAuthUser(1, UserRole.User);
             
@@ -182,7 +186,7 @@ namespace backend.UnitTests.Tests
         }
 
         [TestMethod]
-        public async Task PutUser_BadRequest()
+        public async Task UpdateUser_BadRequest()
         {
             _controller.SetAuthUser(1, UserRole.User);
             
@@ -205,7 +209,7 @@ namespace backend.UnitTests.Tests
         }
         
         [TestMethod]
-        public async Task PutUser_Conflict()
+        public async Task UpdateUser_Conflict()
         {
             _controller.SetAuthUser(1, UserRole.User);
             
@@ -228,7 +232,7 @@ namespace backend.UnitTests.Tests
         }
 
         [TestMethod]
-        public async Task PutUserByIdAdmin_Ok()
+        public async Task UpdateUserByIdAdmin_Ok()
         {
             _controller.SetAuthUser(4, UserRole.Administrator);
             
@@ -255,7 +259,7 @@ namespace backend.UnitTests.Tests
         }
 
         [TestMethod]
-        public async Task PutUserByIdAdmin_NotFound()
+        public async Task UpdateUserByIdAdmin_NotFound()
         {
             _controller.SetAuthUser(4, UserRole.Administrator);
             
@@ -276,7 +280,79 @@ namespace backend.UnitTests.Tests
             
             Assert.IsNotNull(result);
         }
-        
+
+        [TestMethod]
+        public async Task UpdateUserImageToImage_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = await _controller!.UpdateUserImage(new FormFile(null, 0, 0, "test", "test.jpg")) as OkObjectResult;
+
+            Assert.IsNotNull(result);
+            var user = JsonConvert.DeserializeObject<User>((string)result.Value);
+            Assert.IsNotNull(user);
+
+            Assert.IsNotNull(user.ProfilePicPath);
+        }
+
+        [TestMethod]
+        public async Task UpdateUserImageToNull_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = await _controller!.UpdateUserImage(null) as OkObjectResult;
+
+            Assert.IsNotNull(result);
+            var user = JsonConvert.DeserializeObject<User>((string)result.Value);
+            Assert.IsNotNull(user);
+
+            Assert.IsNull(user.ProfilePicPath);
+        }
+
+        [TestMethod]
+        public async Task UpdateUserImage_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+
+            var result = await _controller!.UpdateUserImage(new FormFile(null, 0, 0, "test", "test.jpg")) as UnauthorizedResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task UpdateUserImageByIdAdmin_Ok()
+        {
+            _controller.SetAuthUser(4, UserRole.Administrator);
+
+            var result = await _controller!.UpdateUserImageById(1, new FormFile(null, 0, 0, "test", "test.jpg")) as OkObjectResult;
+
+            Assert.IsNotNull(result);
+            var user = JsonConvert.DeserializeObject<User>((string)result.Value);
+            Assert.IsNotNull(user);
+
+            Assert.IsNotNull(user.ProfilePicPath);
+        }
+
+        [TestMethod]
+        public async Task UpdateUserImageByIdAdmin_NotFound()
+        {
+            _controller.SetAuthUser(4, UserRole.Administrator);
+
+            var result = await _controller!.UpdateUserImageById(5, new FormFile(null, 0, 0, "test", "test.jpg")) as NotFoundResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task UpdateUserImageByIdAdmin_Forbidden()
+        {
+            _controller.SetAuthUser(2, UserRole.User);
+
+            var result = await _controller!.UpdateUserImageById(1, new FormFile(null, 0, 0, "test", "test.jpg")) as ForbidResult;
+
+            Assert.IsNotNull(result);
+        }
+
         /*
         [TestMethod]
         public async Task DeleteUser_NoContent() {}

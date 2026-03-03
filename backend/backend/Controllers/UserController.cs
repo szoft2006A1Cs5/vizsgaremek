@@ -1,13 +1,15 @@
-﻿using backend.Services;
-using backend.Contexts;
+﻿using backend.Contexts;
+using backend.DTOs.User;
+using backend.Models;
+using backend.Services;
+using backend.Services.ResourceService;
+using backend.VisibilityFiltering;
+using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using backend.DTOs.User;
-using backend.Models;
-using backend.VisibilityFiltering;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,11 +21,13 @@ namespace backend.Controllers
     {
         private readonly Context _context;
         private readonly AuthService _authSrv;
+        private readonly IResourceService _resSrv;
 
-        public UserController(Context ctx, AuthService authSrv)
+        public UserController(Context ctx, AuthService authSrv, IResourceService resSrv)
         {
             _context = ctx;
             _authSrv = authSrv;
+            _resSrv = resSrv;
         }
 
         // GET api/<UserController>/5
@@ -65,14 +69,7 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUserById(int id, [FromBody] UserModificationDTO dto)
         {
-            if (!Regex.IsMatch(dto.Name,
-                    @"^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)+$") ||
-                !Regex.IsMatch(dto.IdCardNumber, @"^\d{6}[A-Z]{2}$") ||
-                !Regex.IsMatch(dto.DriversLicenseNumber, @"^[A-Z]{2}\d{6}$") ||
-                !Regex.IsMatch(dto.Email, @"^[A-z0-9.-]+@([A-z0-9-]+\.)+(com|hu)$") ||
-                !Regex.IsMatch(dto.Phone, @"^(36|06)(94|70|30|20)\d{7}$") ||
-                !Regex.IsMatch(dto.AddressZipcode, @"^\d{4}$") ||
-                !(dto.DateOfBirth.ToDateTime(new TimeOnly(0)).AddYears(18) <= DateTime.Now))
+            if (!dto.CheckRegex())
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
             var authUser = await _authSrv.GetUser(User, _context);
@@ -87,10 +84,10 @@ namespace backend.Controllers
             if (authUser.Role != UserRole.Administrator &&
                 !_authSrv.VerifyPassword(dto.PreviousPassword, user)) return Forbid();
 
-            if (_context.Users.Any(x => x.Email == dto.Email && x != user) ||
-                _context.Users.Any(x => x.Phone.Substring(2) == dto.Phone.Substring(2) && x != user) ||
-                _context.Users.Any(x => x.IdCardNumber == dto.IdCardNumber && x != user) ||
-                _context.Users.Any(x => x.DriversLicenseNumber == dto.DriversLicenseNumber && x != user))
+            if (_context.Users.Any(x => x != user && (x.Email == dto.Email ||
+                                                      x.Phone.Substring(2) == dto.Phone.Substring(2) ||
+                                                      x.IdCardNumber == dto.IdCardNumber ||
+                                                      x.DriversLicenseNumber == dto.DriversLicenseNumber)))
                 return Conflict();
             
             var userProps = typeof(User).GetProperties();
@@ -112,11 +109,7 @@ namespace backend.Controllers
             
             return Ok(user.FilterSerialize(authUser));
         }
-        
-        // TODO: Profilkep hozzaadasa IResourceService-el
-        //       Kerdeses, mert ha IFormFile-t megadok parameterkent,
-        //       akkor az egesz input json-rol formdata-va valtozik,
-        //       ami nem konzisztens a tobbi metodussal
+
         [HttpPut]
         public async Task<IActionResult> UpdateUser([FromBody] UserModificationDTO dto)
         {
@@ -124,6 +117,43 @@ namespace backend.Controllers
             if (authUID == null) return Unauthorized();
 
             return await UpdateUserById(authUID.Value, dto);
+        }
+
+        [HttpPut("{id}/Image")]
+        public async Task<IActionResult> UpdateUserImageById(int id, IFormFile? file)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
+
+            var user = authUser.Id == id ? authUser : await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null) return NotFound();
+
+            string? path = null;
+            if (file != null)
+            {
+                path = await _resSrv.Store(file);
+                if (path == null) return StatusCode(500);
+            }
+
+            if (user.ProfilePicPath != null)
+                _resSrv.Delete(user.ProfilePicPath);
+
+            user.ProfilePicPath = path;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(user.FilterSerialize(authUser));
+        }
+
+        [HttpPut("Image")]
+        public async Task<IActionResult> UpdateUserImage(IFormFile? file)
+        {
+            var authUID = _authSrv.GetUID(User);
+            if (authUID == null) return Unauthorized();
+
+            return await UpdateUserImageById(authUID.Value, file);
         }
 
         [HttpDelete]
