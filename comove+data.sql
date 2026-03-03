@@ -1,4 +1,4 @@
-DROP DATABASE comove;
+DROP DATABASE IF EXISTS comove;
 
 -- phpMyAdmin SQL Dump
 -- version 5.2.1

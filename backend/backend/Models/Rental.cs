@@ -58,9 +58,9 @@ namespace backend.Models
         public double? OwnerRating { get; set; }
 
         public int RenterId { get; set; }
-        public User? Renter { get; set; }
+        public required User Renter { get; set; }
         public int VehicleId { get; set; }
-        public Vehicle? Vehicle { get; set; }
+        public required Vehicle Vehicle { get; set; }
 
         private void HandleStatusChange(RentalStatus to, User authUser)
         {

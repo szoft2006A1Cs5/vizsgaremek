@@ -238,7 +238,9 @@ namespace backend.UnitTests
                 {
                     Id = 1,
                     VehicleId = 1,
+                    Vehicle = null,
                     RenterId = 2,
+                    Renter = null,
                     Start = new DateTime(2026, 02, 28, 10, 00, 00),
                     End = new DateTime(2026, 03, 01, 15, 00, 00),
                     Status = RentalStatus.Finished,
@@ -254,7 +256,9 @@ namespace backend.UnitTests
                 {
                     Id = 2,
                     VehicleId = 2,
+                    Vehicle = null,
                     RenterId = 3,
+                    Renter = null,
                     Start = new DateTime(2026, 03, 11, 12, 00, 00),
                     End = new DateTime(2026, 03, 19, 15, 00, 00),
                     Status = RentalStatus.OfferAccepted,
