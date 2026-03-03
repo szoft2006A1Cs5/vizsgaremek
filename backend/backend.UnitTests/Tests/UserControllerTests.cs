@@ -344,7 +344,7 @@ namespace backend.UnitTests.Tests
         }
 
         [TestMethod]
-        public async Task UpdateUserImageByIdAdmin_Forbidden()
+        public async Task UpdateUserImageById_Forbidden()
         {
             _controller.SetAuthUser(2, UserRole.User);
 
