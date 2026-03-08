@@ -62,17 +62,20 @@ namespace backend.Controllers
             var vehicles = (await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
-                .Include(x => x.Owner)
                 .Include(x => x.Availabilities)
+                .Include(x => x.Owner)
                 .Include(x => x.Rentals)
-                .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
                 .Where(x => 
+                    /*
+                     Jobb lenne ha itt lenne megoldva
+                     
                     (rentalStart != null && rentalEnd != null ? 
                         !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
                                             !(r.End < rentalStart.Value || rentalEnd.Value < r.Start)) &&
                         x.Availabilities.Any(a => a.Start <= rentalStart && rentalEnd <= a.End)
                     : true) &&
+                    */
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&
@@ -82,19 +85,15 @@ namespace backend.Controllers
                 )
                 .Skip(offset)
                 .Take(limit)
-                .Select(v => new
-                {
-                     v,
-                     MinRate = v.Availabilities.Min(x => x.HourlyRate),
-                     MaxRate = v.Availabilities.Max(x => x.HourlyRate),
-                })
                 .ToListAsync())
                 .Select(x =>
                 {
-                    x.v.ExtensionData.Add("minRate", x.MinRate);
-                    x.v.ExtensionData.Add("maxRate", x.MaxRate);
-                    return x.v;
-                });
+                    var offer = x.CheckAvailableOffer(rentalStart, rentalEnd);
+                    if (offer != null) x.ExtensionData.Add("offer", offer);
+                    
+                    return x;
+                })
+                .Where(x => x.ExtensionData.ContainsKey("offer"));
             
             return Ok(vehicles.FilterSerialize(authUser));
         }

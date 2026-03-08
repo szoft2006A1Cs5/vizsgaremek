@@ -56,11 +56,6 @@ namespace backend.Models
         {
             get => this.Rentals.Average(x => x.OwnerRating);
         }
-
-        [NotMapped]
-        public int MinRate { get; set; }
-        [NotMapped]
-        public int MaxRate { get; set; }
         
         [NotMapped] 
         [JsonExtensionData] 
@@ -103,5 +98,57 @@ namespace backend.Models
                    intervalStart < intervalEnd &&
                    DateTime.Now < intervalStart;
         }
+
+        public VehicleRentalOffer? CheckAvailableOffer(DateTime? intervalStart, DateTime? intervalEnd)
+        {
+            if (intervalStart == null || intervalEnd == null) return null;
+            
+            // Ha van mar az idoszakban berles, nyilvan nem berelheto
+            if (this.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                      !(r.End < intervalStart || intervalEnd < r.Start)))
+                return null;
+
+            var relevantAvailabilites = this.Availabilities
+                .Where(a => !(a.End < intervalStart || intervalEnd < a.Start))
+                .OrderBy(a => a.Start)
+                .ToList();
+
+            // Ha nem kapunk vissza semmit, vagy
+            // a kezdeti/veg datumaink nem esnek bele
+            // egyik elerhetosegbe sem.
+            if (!relevantAvailabilites.Any() ||
+                !(relevantAvailabilites.First().Start <= intervalStart &&
+                 intervalEnd <= relevantAvailabilites.Last().End))
+                return null;
+            
+            var fullPrice = 0.0;
+            for (int i = 0; i < relevantAvailabilites.Count; i++)
+            {
+                var availability = relevantAvailabilites[i];
+                DateTime start = i == 0 ? intervalStart.Value : availability.Start;
+                DateTime end = i == relevantAvailabilites.Count - 1 ? intervalEnd.Value : availability.End;
+                
+                if (end != intervalEnd && availability.End != relevantAvailabilites[i + 1].Start)
+                    return null;
+                
+                fullPrice += (end - start).TotalHours * availability.HourlyRate;
+            }
+
+            return new VehicleRentalOffer
+            {
+                Start = intervalStart.Value,
+                End = intervalEnd.Value,
+                Rates = relevantAvailabilites.Select(x => x.HourlyRate).ToList(),
+                FullPrice = (int)Math.Round(fullPrice),
+            };
+        }
+    }
+
+    public struct VehicleRentalOffer
+    {
+        public List<int> Rates { get; set; }
+        public int FullPrice { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
     }
 }
