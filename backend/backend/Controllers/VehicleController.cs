@@ -38,8 +38,8 @@ namespace backend.Controllers
         // GET: api/<VehicleController>
         [HttpGet]
         public async Task<IActionResult> GetVehicles(
-            [FromQuery] DateTime? rentalStart,
-            [FromQuery] DateTime? rentalEnd,
+            [FromQuery] DateTime rentalStart,
+            [FromQuery] DateTime rentalEnd,
             [FromQuery] int limit = 30,
             [FromQuery] int offset = 0,
             [FromQuery] string? manufacturer = null,
@@ -52,7 +52,7 @@ namespace backend.Controllers
             [FromQuery] bool showOwned = false
         )
         {
-            if (rentalStart == null || rentalEnd == null)
+            if (rentalStart == default || rentalEnd == default || (rentalEnd < rentalStart))
                 return BadRequest();
             
             var authUser = await _authSrv.GetUser(User, _context);
@@ -68,13 +68,11 @@ namespace backend.Controllers
                 .Include(x => x.Images)
                 .Where(x => 
                     /*
-                     Jobb lenne ha itt lenne megoldva
-                     
-                    (rentalStart != null && rentalEnd != null ? 
-                        !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
-                                            !(r.End < rentalStart.Value || rentalEnd.Value < r.Start)) &&
-                        x.Availabilities.Any(a => a.Start <= rentalStart && rentalEnd <= a.End)
-                    : true) &&
+                    !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                        !(r.End < rentalStart || rentalEnd < r.Start)) &&
+                    x.Availabilities.Any(a => a.Start <= rentalStart && rentalStart <= a.End) &&
+                    x.Availabilities.Any(a => a.Start <= rentalEnd && rentalEnd <= a.End) &&
+                    x.Availabilities.Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
                     */
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&

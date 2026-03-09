@@ -30,10 +30,15 @@ public class VehicleControllerTests
     {
         _controller.SetAuthUser(null, null);
 
-        var result = await _controller!.GetVehicles() as OkObjectResult;
+        var result = await _controller!.GetVehicles(
+            new DateTime(2026, 03, 11, 12, 00, 00),
+            new DateTime(2026, 03, 15, 14, 00, 00)
+        ) as OkObjectResult;
         Assert.IsNotNull(result);
         List<Vehicle> vehicles = JsonConvert.DeserializeObject<List<Vehicle>>((string)result.Value);
         Assert.IsNotNull(vehicles);
+
+        Assert.AreEqual(1, vehicles.Count);
 
         foreach (var vehicle in vehicles)
         {
