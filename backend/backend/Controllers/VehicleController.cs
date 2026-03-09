@@ -38,10 +38,10 @@ namespace backend.Controllers
         // GET: api/<VehicleController>
         [HttpGet]
         public async Task<IActionResult> GetVehicles(
+            [FromQuery] DateTime? rentalStart,
+            [FromQuery] DateTime? rentalEnd,
             [FromQuery] int limit = 30,
             [FromQuery] int offset = 0,
-            [FromQuery] DateTime? rentalStart = null,
-            [FromQuery] DateTime? rentalEnd = null,
             [FromQuery] string? manufacturer = null,
             [FromQuery] string? model = null,
             [FromQuery] int? year = null,
@@ -52,7 +52,7 @@ namespace backend.Controllers
             [FromQuery] bool showOwned = false
         )
         {
-            if (rentalStart != null && rentalEnd != null && rentalEnd < rentalStart)
+            if (rentalStart == null || rentalEnd == null)
                 return BadRequest();
             
             var authUser = await _authSrv.GetUser(User, _context);
