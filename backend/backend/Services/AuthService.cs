@@ -1,19 +1,23 @@
 ﻿using backend.Contexts;
 using backend.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
-namespace backend.Auth
+namespace backend.Services
 {
-    public class AuthManager
+    public class AuthService
     {
         private readonly IConfiguration _config;
 
-        public AuthManager(IConfiguration configuration)
+        public AuthService(IConfiguration configuration)
         {
             _config = configuration;
         }
@@ -60,7 +64,8 @@ namespace backend.Auth
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Sub, $"{user.Id}"),
                     new Claim(JwtRegisteredClaimNames.Name, $"{user.Id}"),
-                    new Claim("role", $"{user.Role}"),
+                    new Claim(ClaimTypes.NameIdentifier, $"{user.Id}"),
+                    new Claim(ClaimTypes.Role, $"{user.Role}"),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ]),
                 SigningCredentials = signingCreds,
@@ -81,6 +86,18 @@ namespace backend.Auth
             if (!int.TryParse(uidClaim.Value, out var uid)) return null;
 
             return uid;
+        }
+
+        public async Task<User?> GetUser(ClaimsPrincipal claims, Context context)
+        {
+            var uid = GetUID(claims);
+
+            if (uid == null) return null;
+
+            return await context.Users
+                .Include(x => x.Rentals)
+                .Include(x => x.Vehicles)
+                .FirstOrDefaultAsync(x => x.Id == uid);
         }
     }
 }

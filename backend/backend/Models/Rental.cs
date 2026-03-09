@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using backend.Common;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace backend.Models
 {
@@ -24,10 +27,18 @@ namespace backend.Models
         public int Downpayment { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
+        
+        [JsonIgnore]
+        [NotMapped]
+        public DateInterval DateInterval { 
+            get => new DateInterval(Start, End);
+        }
+
         public RentalStatus Status { get; set; }
         public double PickupLatitude { get; set; }
         public double PickupLongtitude { get; set; }
 
+        [JsonIgnore]
         [NotMapped]
         public Tuple<double, double> Pickup
         {
@@ -50,5 +61,89 @@ namespace backend.Models
         public required User Renter { get; set; }
         public int VehicleId { get; set; }
         public required Vehicle Vehicle { get; set; }
+
+        private void HandleStatusChange(RentalStatus to, User authUser)
+        {
+            if (RentalStatus.Finished < to)
+            {
+                Status = to;
+                return;
+            }
+            
+            var bases = new[] { 
+                (int)RentalStatus.RenterOffer,
+                (int)RentalStatus.RenterPickupAccepted,
+                (int)RentalStatus.RenterFinishAccepted,
+            };
+
+            foreach (var b in bases)
+            {
+                if ((int)to != b + 2) continue;
+                
+                bool otherWaiting = (int)this.Status == (authUser.Id == this.RenterId ? b + 1 : b);
+                this.Status = otherWaiting
+                    ? (RentalStatus)(b + 2)
+                    : (RentalStatus)(authUser.Id == this.RenterId ? b : b + 1);
+
+                // TODO: Ha OfferAccepted, akkor itt elmeletileg valahogy torolni
+                //       kene az osszes tobbi erre az idoszakra vontakozo rental offert,
+                //       es kuldeni azok kuldoinek egy ertesitest, hogy nem az o ajanlatukat
+                //       fogadtak el.
+                
+                return;
+            }
+            
+            if (this.Status < RentalStatus.OfferAccepted)
+                this.Status = authUser.Id == this.RenterId ? RentalStatus.RenterOffer : RentalStatus.OwnerOffer;
+        }
+        
+        public bool Update(Rental to, User authUser)
+        {
+            if (this.Status != to.Status)
+            {
+                // Statusz valtozasnal mas nem valtozhat,
+                // pl. ha elfogadjuk a masik ajanlatat,
+                // akkor nyilvan nem modosithatjuk a sajat
+                // valtoztatasainkra es fogadhatjuk el
+                // egyszerre.
+                
+                HandleStatusChange(to.Status, authUser);
+            }
+            
+            IEnumerable<PropertyInfo> props = typeof(Rental)
+                .GetProperties()
+                .Where(x => authUser.Role != UserRole.Administrator ? !(new[]
+                {
+                    nameof(Id),
+                    nameof(VehicleId),
+                    nameof(RenterId),
+                    nameof(Status), // Status kulon kezelve
+                }.Contains(x.Name)) : true);
+            
+            if (authUser.Role != UserRole.Administrator &&
+                this.Status != RentalStatus.Finished)
+                props = props.Where(x => !(new[]
+                {
+                    nameof(OwnerRating), nameof(RenterRating)
+                }.Contains(x.Name)));
+
+            if (authUser.Role != UserRole.Administrator &&
+                RentalStatus.OfferAccepted <= this.Status)
+                props = props.Where(x => !(new[]
+                {
+                    nameof(FullPrice),
+                    nameof(Downpayment),
+                    nameof(Start),
+                    nameof(End),
+                    nameof(PickupLatitude),
+                    nameof(PickupLongtitude),
+                    nameof(FuelLevel)
+                }.Contains(x.Name)));
+
+            foreach (var prop in props)
+                prop.SetValue(this, prop.GetValue(to));
+            
+            return false;
+        }
     }
 }

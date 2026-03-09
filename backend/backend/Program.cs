@@ -1,13 +1,16 @@
 
-using backend.Auth;
+using backend.Services;
 using backend.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using backend.Services.ResourceService;
 
 namespace backend
 {
@@ -16,22 +19,24 @@ namespace backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            
             var connStr = builder.Configuration.GetConnectionString("comove");
             if (connStr == null)
             {
-                Console.WriteLine("Nem tal·lhatÛ connection string az adatb·zis kapcsolathoz!");
+                Console.WriteLine("Nem tal√°lhat√≥ connection string az adatb√°zis kapcsolathoz!");
                 return;
             }
-
+            
             // Add services to the container.
-            builder.Services.AddDbContext<Context>(builder => builder.UseMySQL(connStr));
-            builder.Services.AddSingleton<AuthManager>();
+            builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr));
+            builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<IResourceService, LocalResourceService>();
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options => {
-                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 });
+            
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
@@ -70,10 +75,10 @@ namespace backend
 
                 if (key == null || iss == null || aud == null)
                 {
-                    Console.WriteLine("Hi·nyos az azonosÌt·si konfigur·ciÛ!");
+                    Console.WriteLine("Hi√°nyos az azonos√≠t√°si konfigur√°ci√≥!");
                     return;
                 }
-
+                
                 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                      {
@@ -91,26 +96,55 @@ namespace backend
 
                 builder.Services.AddAuthorization(options =>
                 {
-                    options.AddPolicy("role", policy => policy.RequireClaim("role"));
+                    options.AddPolicy("OnlyUser", policy => policy.RequireClaim(ClaimTypes.Role, "User"));
+                    options.AddPolicy("OnlyAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
+                    options.AddPolicy("AllowAll", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator", "User"));
                 });
             }
 
-            var app = builder.Build();
+            /*
+            builder.Services.AddCors(o =>
+            {
+                o.AddPolicy("AllowFrontend", x =>
+                {
+                    x
+                        .WithOrigins("https://localhost:5173")
+                        .WithOrigins("https://127.0.0.1:5173")
+                        .WithOrigins("http://localhost:5173")
+                        .WithOrigins("http://127.0.0.1:5173");
+                });
+            });
+            */
 
+            var app = builder.Build();
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            
             app.UseHttpsRedirection();
+            
+            // Csak ha localresourceservice-t hasznalunk
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                RequestPath = "/res",
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
 
+            app.UseCors(policy => 
+                policy
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+            );
+            
             app.Run();
         }
     }
