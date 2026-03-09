@@ -357,6 +357,15 @@
     font-size: 15px;
 }
 
+.auth_field.input_error {
+    border: 1px solid #e74b49;
+}
+
+
+.auth_field.input_error .auth_icon {
+    fill: #e74b49;
+}
+
 .auth_select {
     width: 100%;
     border: none;

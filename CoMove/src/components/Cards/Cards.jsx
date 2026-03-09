@@ -83,17 +83,6 @@ function Cards({ cars = [] }) {
                                                 {Number(car.pricePerHour).toLocaleString("hu-HU")} Ft <span>/ óra</span>
                                             </strong>
                                         </div>
-
-                                        <button
-                                            className={`heart ${favorites.has(car.id) ? "active" : ""}`}
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                toggleFav(car.id)
-                                            }}
-                                        >
-                                            <i className="fas fa-heart"></i>
-                                        </button>
                                     </div>
                                 </div>
                             </div>

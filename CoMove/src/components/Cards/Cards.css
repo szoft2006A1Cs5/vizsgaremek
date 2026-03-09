@@ -149,20 +149,6 @@ h1 {
   font-weight: 500;
 }
 
-.heart {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #cbd5e1;
-  transition: color 0.2s;
-  padding: 0;
-}
-
-.heart.active {
-  color: #ef4444;
-}
-
 @media (max-width: 520px) {
   .img {
     height: 170px;

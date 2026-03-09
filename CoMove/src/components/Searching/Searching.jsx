@@ -1,5 +1,5 @@
 import "./Searching.css";
-import { useLayoutEffect, useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useEffect, useMemo, useState, useEffectEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Cards from "../Cards/Cards";
 import auto1 from "../../assets/kepek/autok/toyotacorolla1.png"
@@ -108,28 +108,42 @@ const CARS = [
 ];
 
 function normalize(s) {
-    return (s || "").toString().trim().toLowerCase();
+    return (s || "").toString().trim().toLowerCase()
 }
 
 function Searching() {
-    const navigate = useNavigate();
-    const [loaded, setLoaded] = useState(false);
-    const [start, setStart] = useState("");
-    const [end, setEnd] = useState("");
-    const [brand, setBrand] = useState("");
-    const [type, setType] = useState("");
-    const [year, setYear] = useState("");
-    const [minPrice, setMinPrice] = useState("");
-    const [maxPrice, setMaxPrice] = useState("");
-    const [pickup, setPickup] = useState("");
-    const [submittedFilters, setSubmittedFilters] = useState(null);
+    const navigate = useNavigate()
+    const [vehicle, setVehicle] = useState([])
+    const [loaded, setLoaded] = useState(false)
+    const [start, setStart] = useState("")
+    const [end, setEnd] = useState("")
+    const [brand, setBrand] = useState("")
+    const [type, setType] = useState("")
+    const [minPrice, setMinPrice] = useState("")
+    const [maxPrice, setMaxPrice] = useState("")
+    const [pickup, setPickup] = useState("")
+    const [submittedFilters, setSubmittedFilters] = useState(null)
 
-    useLayoutEffect(() => window.scrollTo(0, 0), []);
+    useLayoutEffect(() => window.scrollTo(0, 0), [])
+
+    /*useEffect(() => {
+        async function FetchData() {
+            try {
+                const resp = await fetch("http://localhost:5126/api/VehicleController")
+                    .then(response => response.json())
+                setVehicle(resp)
+
+            } catch (error) {
+                console.log(error)
+            }
+
+        }
+    }, [])*/
 
     useEffect(() => {
-        const id = requestAnimationFrame(() => setLoaded(true));
-        return () => cancelAnimationFrame(id);
-    }, []);
+        const id = requestAnimationFrame(() => setLoaded(true))
+        return () => cancelAnimationFrame(id)
+    }, [])
 
     const filters = useMemo(
         () => ({
@@ -137,18 +151,16 @@ function Searching() {
             end,
             brand,
             type,
-            year: year ? Number(year) : null,
             minPrice: minPrice ? Number(minPrice) : null,
             maxPrice: maxPrice ? Number(maxPrice) : null,
             pickup: pickup.trim(),
         }),
-        [start, end, brand, type, year, minPrice, maxPrice, pickup]
+        [start, end, brand, type, minPrice, maxPrice, pickup]
     );
-
     const handleSearch = () => {
         if (filters.start && filters.end && new Date(filters.start) >= new Date(filters.end)) {
-            alert("A bérlés vége nem lehet korábban vagy ugyanakkor, mint a kezdete.");
-            return;
+            alert("A bérlés vége nem lehet korábban vagy ugyanakkor, mint a kezdete.")
+            return
         }
         setSubmittedFilters(filters);
         requestAnimationFrame(() => {
@@ -168,7 +180,6 @@ function Searching() {
         return CARS.filter((c) => {
             if (fBrand && normalize(c.brand) !== fBrand) return false;
             if (fType && normalize(c.type) !== fType) return false;
-            if (f.year != null && Number(c.year) !== Number(f.year)) return false;
             if (f.minPrice != null && c.pricePerHour < f.minPrice) return false;
             if (f.maxPrice != null && c.pricePerHour > f.maxPrice) return false;
             if (fPickup && !normalize(`${c.pickup} ${c.county}`).includes(fPickup)) return false;
@@ -263,11 +274,6 @@ function Searching() {
                             </div>
 
                             <div className="searching_divider" />
-
-                            <div className="searching_field">
-                                <div className="searching_label">Autó évjárata</div>
-                                <input className="searching_input" type="number" placeholder="pl. 2018" value={year} onChange={(e) => setYear(e.target.value)} />
-                            </div>
 
                             <div className="searching_divider" />
 

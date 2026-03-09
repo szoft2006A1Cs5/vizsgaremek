@@ -350,6 +350,7 @@ body,
     position: relative;
     z-index: 1;
     display: flex;
+    align-items: stretch;
     gap: 0;
     background: #ffffff;
     border-radius: 999px;
@@ -378,7 +379,8 @@ body,
 }
 
 .searching_field {
-    min-width: 170px;
+    flex: 1 1 160px;
+    min-width: 140px;
     padding: 12px 14px 18px;
     display: flex;
     flex-direction: column;
@@ -387,7 +389,8 @@ body,
 }
 
 .searching_fieldSmall {
-    min-width: 150px;
+    flex: 0.9 1 130px;
+    min-width: 120px;
 }
 
 .searching_label {
@@ -436,17 +439,15 @@ select.searching_input {
 .searching_searchBtn {
     margin: 8px;
     padding: 0 24px;
-    min-width: 120px;
-
+    min-width: 130px;
+    white-space: nowrap;
     border: none;
     border-radius: 999px;
     background: rgba(15, 23, 32, 0.08);
     color: rgba(13, 20, 27, .88);
-
     font-weight: 900;
     font-size: 12px;
     letter-spacing: .4px;
-
     cursor: pointer;
     transition:
         transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -510,6 +511,41 @@ select.searching_input {
 
     .searching_searchWrap {
         max-width: 1200px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .searching_searchBar {
+        border-radius: 22px;
+        flex-wrap: wrap;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .searching_searchBarOuter::before {
+        border-radius: 22px;
+        transform: translate(6px, 6px);
+    }
+
+    .searching_divider {
+        display: none;
+    }
+
+    .searching_field,
+    .searching_fieldSmall {
+        min-width: 0;
+        width: calc(33.333% - 7px);
+        padding: 10px 12px 12px;
+        background: rgba(15, 23, 32, 0.03);
+        border-radius: 14px;
+        box-sizing: border-box;
+    }
+
+    .searching_searchBtn {
+        width: 100%;
+        min-width: 0;
+        height: 46px;
+        margin: 0;
     }
 }
 
