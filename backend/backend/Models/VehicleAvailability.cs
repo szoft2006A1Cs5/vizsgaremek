@@ -16,6 +16,7 @@ namespace backend.Models
         [SwaggerIgnore]
         public int VehicleId { get; set; }
         [SwaggerIgnore]
+        [JsonIgnore]
         public Vehicle? Vehicle { get; set; }
         [SwaggerIgnore]
         public int AvailabilityId { get; set; }

@@ -12,6 +12,7 @@ namespace backend.Models
         [JsonIgnore]
         public int Id { get; set; }
         public int VehicleId { get; set; }
+        [JsonIgnore]
         public Vehicle? Vehicle { get; set; }
         public int ImageId { get; set; }
         public int SortIndex { get; set; }

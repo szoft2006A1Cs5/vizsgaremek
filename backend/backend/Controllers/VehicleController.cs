@@ -126,7 +126,7 @@ namespace backend.Controllers
 
             if (authUser == null) return Unauthorized();
 
-            var vehicles = _context.Vehicles
+            var vehicles = await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .AsSplitQuery()
@@ -228,6 +228,8 @@ namespace backend.Controllers
             
             return Ok(
                 (await _context.VehicleAvailabilities
+                    .AsNoTracking()
+                    .IgnoreAutoIncludes()
                     .Where(x => x.VehicleId == id)
                     .Skip(offset)
                     .Take(limit)
@@ -278,6 +280,8 @@ namespace backend.Controllers
             var authUser = await _authSrv.GetUser(User, _context);
             
             var availability = await _context.VehicleAvailabilities
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
                 .FirstOrDefaultAsync(x => x.VehicleId == vehicleId && x.AvailabilityId == availabilityId);
             
             if (availability == null) return NotFound();
