@@ -1,0 +1,308 @@
+.cdm_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+}
+
+.cdm_modal {
+    width: min(1350px, 96vw);
+    max-height: 88vh;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35);
+    position: relative;
+    overflow: hidden;
+    animation: modalIn 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.cdm_close {
+    position: absolute;
+    padding: 0px 0px 5px;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(15, 23, 32, 0.08);
+    cursor: pointer;
+    font-size: 26px;
+    line-height: 1;
+    color: #060631;
+    transition: transform 180ms ease, background 180ms ease;
+    z-index: 3;
+}
+
+.cdm_close:hover {
+    background: rgba(15, 23, 32, 0.12);
+    transform: scale(1.05);
+}
+
+.cdm_body {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 0;
+    min-height: 560px;
+}
+
+.cdm_left {
+    background: #f3f6ff;
+    display: grid;
+    place-items: center;
+}
+
+.cdm_img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cdm_right {
+    padding: 22px 22px 18px;
+    color: #060631;
+    overflow: auto;
+}
+
+.cdm_title {
+    margin: 2px 0 6px;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.cdm_ownerline {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #060631;
+    ;
+}
+
+.cdm_infoList {
+    list-style: none;
+    padding: 0;
+    margin: 20px 15px 20px;
+    display: grid;
+    gap: 15px;
+}
+
+.cdm_infoItem {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #2136bd;
+}
+
+.cdm_infoIcon {
+    width: 22px;
+    display: grid;
+    place-items: center;
+    color: #2136bd;
+}
+
+.cdm_infoItem i {
+    font-size: 14px;
+}
+
+.cdm_price {
+    margin: 12px 0 10px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(9, 75, 230, 0.14);
+    font-size: 26px;
+    font-weight: 900;
+}
+
+.cdm_price span {
+    font-size: 12px;
+    color: #060631;
+}
+
+.cdm_descTitle {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 900;
+    color: #060631;
+}
+
+.cdm_desc {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #060631;
+}
+
+.cdm_rentBtn {
+    width: 100%;
+    margin: 12px 0 16px;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #192570, #0b1f66);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 250ms cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 10px 25px rgba(25, 37, 112, 0.35);
+}
+
+.cdm_rentBtn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(25, 37, 112, 0.45);
+}
+
+.cdm_rentBtn:active {
+    transform: translateY(0);
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+
+
+
+/* --------------------Reszponzivitás -------------------- */
+@media (max-width: 1200px) {
+    .cdm_modal {
+        width: min(1100px, 96vw);
+        max-height: 90vh;
+    }
+
+    .cdm_body {
+        min-height: 520px;
+        grid-template-columns: 1.15fr 0.85fr;
+    }
+
+    .cdm_title {
+        font-size: 22px;
+    }
+
+    .cdm_price {
+        font-size: 24px;
+    }
+}
+
+
+@media (max-width: 980px) {
+    .cdm_overlay {
+        padding: 16px;
+        align-items: center;
+    }
+
+    .cdm_modal {
+        width: 96vw;
+        max-height: 92vh;
+        border-radius: 16px;
+    }
+
+    .cdm_body {
+        grid-template-columns: 1fr;
+        min-height: unset;
+    }
+
+    .cdm_left {
+        max-height: 320px;
+    }
+
+    .cdm_img {
+        max-height: 320px;
+    }
+
+    .cdm_right {
+        max-height: calc(92vh - 320px);
+        overflow: auto;
+    }
+
+    .cdm_close {
+        top: 12px;
+        right: 12px;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .cdm_overlay {
+        padding: 12px;
+    }
+
+    .cdm_modal {
+        border-radius: 14px;
+    }
+
+    .cdm_right {
+        padding: 18px 16px 14px;
+    }
+
+    .cdm_title {
+        font-size: 20px;
+    }
+
+    .cdm_infoList {
+        margin: 16px 8px 16px;
+        gap: 12px;
+    }
+
+    .cdm_price {
+        font-size: 22px;
+    }
+
+    .cdm_rentBtn {
+        padding: 13px 14px;
+        font-size: 13px;
+    }
+}
+
+
+@media (max-width: 520px) {
+    .cdm_overlay {
+        padding: 10px;
+    }
+
+    .cdm_left {
+        max-height: 240px;
+    }
+
+    .cdm_img {
+        max-height: 240px;
+    }
+
+    .cdm_right {
+        max-height: calc(92vh - 240px);
+    }
+
+    .cdm_close {
+        width: 38px;
+        height: 38px;
+        font-size: 24px;
+    }
+
+    .cdm_title {
+        font-size: 18px;
+    }
+
+    .cdm_infoItem {
+        font-size: 12.5px;
+    }
+
+    .cdm_price {
+        font-size: 20px;
+    }
+}
