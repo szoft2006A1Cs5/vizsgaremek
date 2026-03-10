@@ -70,7 +70,6 @@ namespace backend.Controllers
                 Salt = hashSalt.Item2,
                 IdCardNumber = registration.IdCardNumber,
                 DriversLicenseNumber = registration.DriversLicenseNumber,
-                DriversLicenseDate = registration.DriversLicenseDate,
                 Role = UserRole.User,
                 ProfilePicPath = null,
                 AddressZipcode = registration.AddressZipcode,

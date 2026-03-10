@@ -125,7 +125,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -153,7 +152,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -176,7 +174,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -199,7 +196,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -222,7 +218,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -245,7 +240,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -272,7 +266,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -413,7 +406,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"

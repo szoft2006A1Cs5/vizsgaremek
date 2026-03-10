@@ -11,7 +11,6 @@ namespace backend.DTOs.User
         public required string Email { get; set; }
         public required string Password { get; set; }
         public string? DriversLicenseNumber { get; set; }
-        public DateOnly? DriversLicenseDate { get; set; }
         public required string AddressZipcode { get; set; }
         public required string AddressSettlement { get; set; }
         public required string AddressStreetHouse { get; set; }

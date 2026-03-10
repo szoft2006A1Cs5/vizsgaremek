@@ -1,12 +1,10 @@
-DROP DATABASE IF EXISTS comove;
-
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Feb 23. 09:04
--- Kiszolgáló verziója: 10.4.32-MariaDB
+-- Gép: 127.0.0.1:3307
+-- Létrehozás ideje: 2026. Már 10. 11:52
+-- Kiszolgáló verziója: 9.9.0
 -- PHP verzió: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -22,7 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `comove`
 --
-CREATE DATABASE IF NOT EXISTS `comove` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci;
+DROP DATABASE IF EXISTS `comove`;
+CREATE DATABASE `comove` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci;
 USE `comove`;
 
 -- --------------------------------------------------------
@@ -102,6 +101,8 @@ INSERT INTO `rentals` (`id`, `fullPrice`, `downpayment`, `start`, `end`, `status
 (2, 25000, 5000, '2026-01-11 09:00:00', '2026-01-13 17:00:00', 5, 47.4979, 19.0402, 75.5, NULL, NULL, 4, 2),
 (3, 8000, 1500, '2026-01-15 08:00:00', '2026-01-15 12:00:00', 1, 47.2345, 16.6321, NULL, NULL, NULL, 1, 3);
 
+-- --------------------------------------------------------
+
 --
 -- Tábla szerkezet ehhez a táblához `users`
 --
@@ -118,7 +119,6 @@ CREATE TABLE `users` (
   `salt` blob NOT NULL,
   `role` enum('User','Administrator') NOT NULL DEFAULT 'User',
   `driversLicenseNumber` varchar(10) DEFAULT NULL,
-  `driversLicenseDate` date DEFAULT NULL,
   `addressZipcode` varchar(4) NOT NULL,
   `addressSettlement` varchar(64) NOT NULL,
   `addressStreetHouse` varchar(64) NOT NULL,
@@ -129,11 +129,12 @@ CREATE TABLE `users` (
 -- A tábla adatainak kiíratása `users`
 --
 
-INSERT INTO `users` (`id`, `idCardNumber`, `name`, `phone`, `dateOfBirth`, `profilePicPath`, `email`, `password`, `salt`, `role`, `driversLicenseNumber`, `driversLicenseDate`, `addressZipcode`, `addressSettlement`, `addressStreetHouse`, `balance`) VALUES
-(1, '123456AA', 'Teszt Elek', '36201234567', '2004-04-18', NULL, 'tesztelek@teszt.hu', 0x5cd79118803c295ee4566a87a59423e7b4b020194520f52e78bddcdbfb36daef43b032e7a122323e5849344ff1fd625a7885c3ff62688a0241b7e4018ed3d9e0, 0x945200f84cef838d8d44e0121415fa53, 'User', 'AA123456', '2024-02-04', '9700', 'Szombathely', 'Zrínyi Ilona utca 12.', 0),
-(2, '123456BB', 'Gipsz Jakab', '36701234567', '1995-07-21', NULL, 'gipszjakab@teszt.hu', 0xd08e0fc7c893f8e40935a39f87be3b90c43d63f563ff851e64469d0cdd468dd0ee73881850bb01a97a084fdaae5b634816dabd10c2b41dcbabef3705adbf16d9, 0x881c6de362d428ab7db9241bbe10d4ac, 'User', 'BB123456', '2017-03-12', '1117', 'Budapest', 'Budafoki út 12.', 0),
-(3, '123456CC', 'Vincs Eszter', '36301234567', '2000-11-02', NULL, 'vincseszter@teszt.hu', 0xe9699389486299dda48bda984e52ca3b8d1d13a16ce95ebea830ca087980920867bfd72fc2846cb600cf8c4157c7af4059d6ca032292c947614ebe716c969493, 0xb1c0e441552bef260ef5b1d075e2c871, 'User', 'CC123456', '2019-10-09', '9700', 'Szombathely', 'Kéthly Anna utca 7.', 0),
-(4, '123456DD', 'Teszt Teréz', '36707654321', '1989-12-12', NULL, 'tesztterez@teszt.hu', 0xb1fa19e5947dd5b0395e12c4a41fd93c723587e753db40e10003c27e9635f1dd5951748bc18effae1e42fc1df5fafa7b30d37390f01dfca893613ad58042516b, 0x04c98372f19591c29d3416242bdd64e6, 'User', 'DD123456', '2014-08-19', '1095', 'Budapest', 'Tinódi utca 1.', 0);
+INSERT INTO `users` (`id`, `idCardNumber`, `name`, `phone`, `dateOfBirth`, `profilePicPath`, `email`, `password`, `salt`, `role`, `driversLicenseNumber`, `addressZipcode`, `addressSettlement`, `addressStreetHouse`, `balance`) VALUES
+(1, '123456AA', 'Teszt Elek', '36201234567', '2004-04-18', NULL, 'tesztelek@teszt.hu', 0x5cd79118803c295ee4566a87a59423e7b4b020194520f52e78bddcdbfb36daef43b032e7a122323e5849344ff1fd625a7885c3ff62688a0241b7e4018ed3d9e0, 0x945200f84cef838d8d44e0121415fa53, 'User', 'AA123456', '9700', 'Szombathely', 'Zrínyi Ilona utca 12.', 0),
+(2, '123456BB', 'Gipsz Jakab', '36701234567', '1995-07-21', NULL, 'gipszjakab@teszt.hu', 0xd08e0fc7c893f8e40935a39f87be3b90c43d63f563ff851e64469d0cdd468dd0ee73881850bb01a97a084fdaae5b634816dabd10c2b41dcbabef3705adbf16d9, 0x881c6de362d428ab7db9241bbe10d4ac, 'User', 'BB123456', '1117', 'Budapest', 'Budafoki út 12.', 0),
+(3, '123456CC', 'Vincs Eszter', '36301234567', '2000-11-02', NULL, 'vincseszter@teszt.hu', 0xe9699389486299dda48bda984e52ca3b8d1d13a16ce95ebea830ca087980920867bfd72fc2846cb600cf8c4157c7af4059d6ca032292c947614ebe716c969493, 0xb1c0e441552bef260ef5b1d075e2c871, 'User', 'CC123456', '9700', 'Szombathely', 'Kéthly Anna utca 7.', 0),
+(4, '123456DD', 'Teszt Teréz', '36707654321', '1989-12-12', NULL, 'tesztterez@teszt.hu', 0xb1fa19e5947dd5b0395e12c4a41fd93c723587e753db40e10003c27e9635f1dd5951748bc18effae1e42fc1df5fafa7b30d37390f01dfca893613ad58042516b, 0x04c98372f19591c29d3416242bdd64e6, 'User', 'DD123456', '1095', 'Budapest', 'Tinódi utca 1.', 0),
+(5, '623412AD', 'Admin Tamás', '36704124536', '1978-09-07', NULL, 'admin@teszt.hu', 0x7fb56f2b80f33bcd3cff022a4a7505a8b4280d05b2484b7312a25220f57e710b2c22b1cdc3554378ede61888d9fac7baf72075a63173f6a703f4877e1a126a30, 0x5f458e5e1d8d4e561691395cce56ae88, 'Administrator', NULL, '9700', 'Szombathely', 'Zrínyi Ilona utca 12.', 0);
 
 -- --------------------------------------------------------
 
@@ -155,9 +156,9 @@ CREATE TABLE `vehicleavailabilities` (
 --
 
 INSERT INTO `vehicleavailabilities` (`id`, `vehicleId`, `availabilityId`, `start`, `end`, `hourlyRate`) VALUES
-(1, 1, 1, '2026-01-01 08:00:00', '2026-12-31 20:00:00', 1800),
-(2, 1, 2, '2026-01-10 00:00:00', '2026-02-10 00:00:00', 2500),
-(3, 1, 3, '2026-01-12 08:00:00', '2026-01-20 20:00:00', 2000);
+(4, 2, 1, '2026-03-11 11:00:00', '2026-03-14 17:00:00', 700),
+(5, 1, 1, '2026-03-11 11:00:00', '2026-03-13 12:00:00', 700),
+(6, 1, 2, '2026-03-13 12:00:00', '2026-03-15 18:00:00', 900);
 
 -- --------------------------------------------------------
 
@@ -178,9 +179,9 @@ CREATE TABLE `vehicleimages` (
 --
 
 INSERT INTO `vehicleimages` (`id`, `vehicleId`, `imageId`, `sortIndex`, `path`) VALUES
-(1, 1, 1, 0, 'uploads/vehicles/toyota_corolla_front.jpg'),
-(2, 1, 2, 1, 'uploads/vehicles/bmw_320d_side.png'),
-(3, 1, 3, 2, 'uploads/vehicles/skoda_octavia.jpg');
+(1, 1, 1, 1, 'res/58274674-91a9-4afb-ab80-52a0a605c520.jpg'),
+(2, 2, 1, 1, 'res/64725ad2-8502-4eef-b4f3-07d3c5af9423.jpg'),
+(3, 3, 1, 1, 'res/43b1c8fd-ce7c-4c34-8dfc-f46d2e12b6ba.png');
 
 -- --------------------------------------------------------
 
@@ -198,9 +199,9 @@ CREATE TABLE `vehicles` (
   `year` int(11) NOT NULL,
   `description` varchar(512) NOT NULL,
   `odometerReading` int(11) NOT NULL,
-  `horsepower` int(11) NOT NULL, 
+  `horsepower` int(11) NOT NULL,
   `avgFuelConsumption` double NOT NULL,
-  `fuelType` varchar(10) NOT NULL,
+  `fuelType` varchar(20) NOT NULL,
   `insuranceNumber` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
@@ -209,9 +210,9 @@ CREATE TABLE `vehicles` (
 --
 
 INSERT INTO `vehicles` (`id`, `ownerId`, `vin`, `licensePlate`, `manufacturer`, `model`, `year`, `description`, `odometerReading`, `horsepower`, `avgFuelConsumption`, `fuelType`, `insuranceNumber`) VALUES
-(1, 1, 'VF312345678901234', 'ABC-123', 'Toyota', 'Corolla', 2018, 'Megbízható hibrid városi cirkáló.', 85000, 132, 4.5, "benzin", 'KGFB-998877'),
-(2, 2, 'WBA41234567890123', 'SKY-789', 'BMW', '320d', 2015, 'Kényelmes utazóautó hosszabb távra.', 210000, 180, 6.2, "dízel", 'KGFB-112233'),
-(3, 3, 'TMB51234567890123', 'RNL-456', 'Skoda', 'Octavia', 2020, 'Hatalmas csomagtartó, tiszta belső.', 45000, 150, 5.5, "benzin", 'KGFB-445566');
+(1, 1, 'VF312345678901234', 'ABC-123', 'Toyota', 'Corolla', 2018, 'Megbízható hibrid városi cirkáló.', 85000, 132, 4.5, 'benzin-elektromos', 'KGFB-998877'),
+(2, 2, 'WBA41234567890123', 'SKY-789', 'BMW', '320d', 2015, 'Kényelmes utazóautó hosszabb távra.', 210000, 180, 6.2, 'dízel', 'KGFB-112233'),
+(3, 3, 'TMB51234567890123', 'RNL-456', 'Skoda', 'Octavia', 2020, 'Hatalmas csomagtartó, tiszta belső.', 45000, 150, 5.5, 'benzin', 'KGFB-445566');
 
 --
 -- Indexek a kiírt táblákhoz
@@ -251,14 +252,14 @@ ALTER TABLE `users`
 --
 ALTER TABLE `vehicleavailabilities`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE INDEX `vehicleavailability` (`vehicleId`, `availabilityId`);
+  ADD UNIQUE KEY `vehicleavailability` (`vehicleId`,`availabilityId`);
 
 --
 -- A tábla indexei `vehicleimages`
 --
 ALTER TABLE `vehicleimages`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE INDEX `vehicleimage` (`vehicleId`, `imageId`);
+  ADD UNIQUE KEY `vehicleimage` (`vehicleId`,`imageId`);
 
 --
 -- A tábla indexei `vehicles`
@@ -293,13 +294,13 @@ ALTER TABLE `rentals`
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT a táblához `vehicleavailabilities`
 --
 ALTER TABLE `vehicleavailabilities`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT a táblához `vehicleimages`
