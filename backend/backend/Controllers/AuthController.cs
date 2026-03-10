@@ -51,9 +51,10 @@ namespace backend.Controllers
         {
             if (!registration.CheckValid())
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
-            
+
+            var phone = registration.Phone.Substring(2);
             if (_context.Users.Any(x => x.Email == registration.Email ||
-                                        x.Phone.Substring(2) == registration.Phone.Substring(2) ||
+                                        x.Phone.EndsWith(phone) ||
                                         x.IdCardNumber == registration.IdCardNumber ||
                                         x.DriversLicenseNumber == registration.DriversLicenseNumber))
                 return Conflict();

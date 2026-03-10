@@ -57,8 +57,9 @@ namespace backend.Controllers
             
             var authUser = await _authSrv.GetUser(User, _context);
 
-            // TODO: Lehet, hogy egy berles ativelne tobb elerhetosegen is, es igazabol csak arbeli elteres lenne,
-            //       igy at kell neznunk azt hogy esetleg atlog-e tobb elerhetosegen.
+            // TODO: Ez megse jo LINQ. A problema alapvetoen abbol fakad, hogy van olyan eset,
+            //       ahol egyetlen egy elerhetoseg van az egesz autora, igy az Any nyilvanvaloan
+            //       mindig false lesz az All-ban.
             var vehicles = (await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
@@ -98,7 +99,11 @@ namespace backend.Controllers
 
         // GET api/<VehicleController>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetVehicleById(int id)
+        public async Task<IActionResult> GetVehicleById(
+            int id, 
+            [FromQuery] DateTime? rentalStart = null,
+            [FromQuery] DateTime? rentalEnd = null
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -112,8 +117,11 @@ namespace backend.Controllers
                 .Include(x => x.Images)
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
-                
+
             if (vehicle == null) return NotFound();
+
+            if (rentalStart != null && rentalEnd != null && rentalStart < rentalEnd)
+                vehicle.ExtensionData.Add("offer", vehicle.CheckAvailableOffer(rentalStart, rentalEnd));
 
             return Ok(vehicle.FilterSerialize(authUser));
         }

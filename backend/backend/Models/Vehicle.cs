@@ -59,7 +59,7 @@ namespace backend.Models
         
         [NotMapped] 
         [JsonExtensionData] 
-        public Dictionary<string, object> ExtensionData { get; } = new();
+        public Dictionary<string, object?> ExtensionData { get; } = new();
         
         public static Func<object?, User?, bool> GetVisibilityConditionLambda(VisibilityLevel visLevel)
         {
@@ -85,7 +85,6 @@ namespace backend.Models
                     return (_, _) => false;
             }
         }
-        
         
         public bool CheckAvailable(DateTime intervalStart, DateTime intervalEnd)
         {

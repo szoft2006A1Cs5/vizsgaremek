@@ -84,8 +84,9 @@ namespace backend.Controllers
             if (authUser.Role != UserRole.Administrator &&
                 !_authSrv.VerifyPassword(dto.PreviousPassword, user)) return Forbid();
 
+            var phone = dto.Phone.Substring(2);
             if (_context.Users.Any(x => x != user && (x.Email == dto.Email ||
-                                                      x.Phone.Substring(2) == dto.Phone.Substring(2) ||
+                                                      x.Phone.EndsWith(phone) ||
                                                       x.IdCardNumber == dto.IdCardNumber ||
                                                       x.DriversLicenseNumber == dto.DriversLicenseNumber)))
                 return Conflict();
