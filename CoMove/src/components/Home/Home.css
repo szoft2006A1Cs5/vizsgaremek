@@ -1092,7 +1092,8 @@ body,
   }
 
   .home_csapattag {
-    width: min(320px, 92vw);
+    width: min(360px, 92vw);
+    height: 420px;
   }
 
   .home_footer_container {
@@ -1103,6 +1104,24 @@ body,
   .home_footer_right {
     flex-wrap: wrap;
     gap: 12px;
+  }
+
+  .home_right {
+    justify-content: center;
+    height: 250px;
+  }
+
+  .home_carShadow {
+    right: 50%;
+    transform: translateX(50%);
+    width: 70%;
+  }
+
+  .home_carImg {
+    width: min(740px, 92vw);
+    transform: translateY(30px);
+    margin-bottom: -130px;
+    margin-left: -220px;
   }
 }
 
