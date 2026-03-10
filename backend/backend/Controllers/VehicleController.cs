@@ -67,13 +67,14 @@ namespace backend.Controllers
                 .Include(x => x.Rentals)
                 .Include(x => x.Images)
                 .Where(x => 
-                    /*
                     !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
                                         !(r.End < rentalStart || rentalEnd < r.Start)) &&
                     x.Availabilities.Any(a => a.Start <= rentalStart && rentalStart <= a.End) &&
                     x.Availabilities.Any(a => a.Start <= rentalEnd && rentalEnd <= a.End) &&
-                    x.Availabilities.Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
-                    */
+                    x.Availabilities
+                        .Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
+                        .OrderBy(a => a.Start)
+                        .All(a1 => x.Availabilities.Any(a2 => a1 != a2 && (a2.End == a1.Start || a2.Start == a1.End))) &&
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&
@@ -90,8 +91,7 @@ namespace backend.Controllers
                     if (offer != null) x.ExtensionData.Add("offer", offer);
                     
                     return x;
-                })
-                .Where(x => x.ExtensionData.ContainsKey("offer"));
+                });
             
             return Ok(vehicles.FilterSerialize(authUser));
         }
