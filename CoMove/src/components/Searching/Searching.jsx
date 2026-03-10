@@ -1,7 +1,7 @@
 import "./Searching.css";
 import { useLayoutEffect, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa"; // Ikonok importálása
+import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa"; 
 import Cards from "../Cards/Cards";
 import auto1 from "../../assets/kepek/autok/toyotacorolla1.png";
 import auto2 from "../../assets/kepek/autok/toyotacorolla3.png";
@@ -396,7 +396,7 @@ function Searching() {
                             <h4>Oldalak</h4>
                             <a href="/">Főoldal</a>
                             <a href="/searching">Autóbérlés</a>
-                            <a href="/about">Rólunk</a>
+                            <a href="/login">Fiókom</a>
                         </div>
                         <div className="footerCol">
                             <h4>Kövess minket</h4>

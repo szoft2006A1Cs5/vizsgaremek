@@ -282,7 +282,7 @@ function Home() {
                                 <h4>Oldalak</h4>
                                 <a href="/">Főoldal</a>
                                 <a href="/searching">Autóbérlés</a>
-                                <a href="/">aaaaa</a>
+                                <a href="/login">Fiókom</a>
                             </div>
                             <div className="footerCol">
                                 <h4>Kövess minket</h4>
