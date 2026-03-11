@@ -40,14 +40,9 @@ namespace backend.Controllers
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .Include(x => x.Rentals)
-                .ThenInclude(x => x.Vehicle)
-                .ThenInclude(x => x.Owner)
-                .Include(x => x.Vehicles)
-                .ThenInclude(x => x.Images)
-                .Include(x => x.Vehicles)
-                .ThenInclude(x => x.Availabilities)
                 .Include(x => x.Vehicles)
                 .ThenInclude(x => x.Rentals)
+                .Include(x => x.Notifications)
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(x => x.Id == id);
             
@@ -111,15 +106,6 @@ namespace backend.Controllers
             return Ok(user.FilterSerialize(authUser));
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateUser([FromBody] UserModificationDTO dto)
-        {
-            var authUID = _authSrv.GetUID(User);
-            if (authUID == null) return Unauthorized();
-
-            return await UpdateUserById(authUID.Value, dto);
-        }
-
         [HttpPut("{id}/Image")]
         public async Task<IActionResult> UpdateUserImageById(int id, IFormFile? file)
         {
@@ -148,24 +134,6 @@ namespace backend.Controllers
             return Ok(user.FilterSerialize(authUser));
         }
 
-        [HttpPut("Image")]
-        public async Task<IActionResult> UpdateUserImage(IFormFile? file)
-        {
-            var authUID = _authSrv.GetUID(User);
-            if (authUID == null) return Unauthorized();
-
-            return await UpdateUserImageById(authUID.Value, file);
-        }
-
-        [HttpDelete]
-        public async Task<IActionResult> DeleteUser()
-        {
-            var authUID = _authSrv.GetUID(User);
-            if (authUID == null) return Unauthorized();
-
-            return await DeleteUserById(authUID.Value);
-        }
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserById(int id)
         {
@@ -188,6 +156,85 @@ namespace backend.Controllers
             //       torlese (es rendszerertesitesek kuldese a masik felnek),
             //       a mar elfogadott berlesek visszamondasa (kiveve nyilvan
             //       a befejezetteket)
+
+            return NoContent();
+        }
+
+        [HttpGet("{uid}/Notification")]
+        public async Task<IActionResult> GetNotificationsForUID(int userId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
+
+            return Ok(
+                await _context.Notifications
+                .Where(x => x.UserId == userId)
+                .Skip(offset)
+                .Take(limit)
+                .ToListAsync()
+            );
+        }
+
+        [HttpGet("{uid}/Notification/{notificationId}")]
+        public async Task<IActionResult> GetNotificationByIdAndUID(int userId, int notificationId)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
+
+            var message = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == notificationId);
+            if (message == null) return NotFound();
+
+            return Ok(message);
+        }
+
+        [HttpPut("{uid}/Notification/{notificationId}")]
+        public async Task<IActionResult> SetNotificationReadByUIDAndId(int userId, int notificationId)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
+
+            var notification = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == notificationId);
+            if (notification == null) return NotFound();
+
+            notification.Read = true;
+            await _context.SaveChangesAsync();
+
+            return Ok(notification);
+        }
+
+        [HttpDelete("{uid}/Notification/{notificationId}")]
+        public async Task<IActionResult> DeleteNotificationByUIDAndId(int userId, int notificationId)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
+
+            var notification = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == notificationId);
+            if (notification == null) return NotFound();
+
+            _context.Notifications.Remove(notification);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{uid}/Notification")]
+        public async Task<IActionResult> DeleteNotificationsByUID(int userId)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
+
+            _context.Notifications.RemoveRange(_context.Notifications.Where(x => x.UserId == userId));
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

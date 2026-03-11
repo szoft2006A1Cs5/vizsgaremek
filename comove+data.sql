@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Gép: 127.0.0.1:3307
--- Létrehozás ideje: 2026. Már 10. 11:52
+-- Gép: 127.0.0.1
+-- Létrehozás ideje: 2026. Már 11. 12:53
 -- Kiszolgáló verziója: 9.9.0
 -- PHP verzió: 8.2.12
 
@@ -57,6 +57,7 @@ INSERT INTO `messages` (`id`, `content`, `isImage`, `timeSent`, `isComplaint`, `
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
+  `notificationId` int(11) NOT NULL,
   `content` varchar(512) NOT NULL,
   `timeSent` datetime NOT NULL,
   `read` tinyint(1) NOT NULL DEFAULT 0
@@ -66,9 +67,9 @@ CREATE TABLE `notifications` (
 -- A tábla adatainak kiíratása `notifications`
 --
 
-INSERT INTO `notifications` (`id`, `userId`, `content`, `timeSent`, `read`) VALUES
-(1, 2, 'Új üzeneted érkezett Teszt Teréztől a BMW bérléssel kapcsolatban.', '2026-01-11 08:55:05', 1),
-(2, 3, 'Új bérlési ajánlatod érkezett a Skodára Teszt Elektől!', '2026-01-12 00:05:00', 0);
+INSERT INTO `notifications` (`id`, `userId`, `notificationId`, `content`, `timeSent`, `read`) VALUES
+(1, 2, 1, 'Új üzeneted érkezett Teszt Teréztől a BMW bérléssel kapcsolatban.', '2026-01-11 08:55:05', 1),
+(2, 3, 1, 'Új bérlési ajánlatod érkezett a Skodára Teszt Elektől!', '2026-01-12 00:05:00', 0);
 
 -- --------------------------------------------------------
 
