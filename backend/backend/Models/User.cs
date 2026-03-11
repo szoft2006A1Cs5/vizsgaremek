@@ -46,9 +46,6 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(10)]
         public string? DriversLicenseNumber { get; set; }
 
-        [VisibleTo(VisibilityLevel.OwnerOnly)]
-        public DateOnly? DriversLicenseDate { get; set; }
-
         [VisibleTo(VisibilityLevel.InRelation), MaxLength(4)]
         public required string AddressZipcode { get; set; }
 

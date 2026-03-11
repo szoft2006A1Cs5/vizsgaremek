@@ -57,8 +57,6 @@ namespace backend.Controllers
             
             var authUser = await _authSrv.GetUser(User, _context);
 
-            // TODO: Lehet, hogy egy berles ativelne tobb elerhetosegen is, es igazabol csak arbeli elteres lenne,
-            //       igy at kell neznunk azt hogy esetleg atlog-e tobb elerhetosegen.
             var vehicles = (await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
@@ -67,38 +65,53 @@ namespace backend.Controllers
                 .Include(x => x.Rentals)
                 .Include(x => x.Images)
                 .Where(x => 
-                    /*
                     !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
                                         !(r.End < rentalStart || rentalEnd < r.Start)) &&
                     x.Availabilities.Any(a => a.Start <= rentalStart && rentalStart <= a.End) &&
                     x.Availabilities.Any(a => a.Start <= rentalEnd && rentalEnd <= a.End) &&
-                    x.Availabilities.Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
-                    */
+                    // Tsodalatos megoldas, az intervallumon belul, az utolso elerhetoseget kiveve, vegigmegyunk,
+                    // es megnezzuk, hogy van-e olyan elerhetoseg utana, ami akkor kezdodik, amikor az vegez.
+                    x.Availabilities
+                        .Where(a => rentalStart <= a.End && a.End < rentalEnd)
+                        .All(a1 => x.Availabilities.Any(a2 => a1.End == a2.Start && a1.End < a2.End)) &&
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&
                     (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true) &&
                     (fuelType != null ? x.FuelType == fuelType : true) &&
-                    (!showOwned && authUser != null ? x.OwnerId != authUser.Id : true)
+                    (!showOwned && authUser != null ? x.OwnerId != authUser.Id : true) &&
+                    (minRate != null ? 
+                        x.Availabilities
+                            .Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
+                            .All(a => minRate.Value <= a.HourlyRate) 
+                    : true) &&
+                    (maxRate != null ?
+                        x.Availabilities
+                            .Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
+                            .All(a => a.HourlyRate <= maxRate.Value)
+                    : true)
                 )
                 .Skip(offset)
                 .Take(limit)
                 .ToListAsync())
                 .Select(x =>
                 {
-                    var offer = x.CheckAvailableOffer(rentalStart, rentalEnd);
+                    var offer = x.GetInitialRentalOffer(rentalStart, rentalEnd);
                     if (offer != null) x.ExtensionData.Add("offer", offer);
                     
                     return x;
-                })
-                .Where(x => x.ExtensionData.ContainsKey("offer"));
+                });
             
             return Ok(vehicles.FilterSerialize(authUser));
         }
 
         // GET api/<VehicleController>/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetVehicleById(int id)
+        public async Task<IActionResult> GetVehicleById(
+            int id, 
+            [FromQuery] DateTime? rentalStart = null,
+            [FromQuery] DateTime? rentalEnd = null
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -112,8 +125,11 @@ namespace backend.Controllers
                 .Include(x => x.Images)
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
-                
+
             if (vehicle == null) return NotFound();
+
+            if (rentalStart != null && rentalEnd != null && rentalStart < rentalEnd)
+                vehicle.ExtensionData.Add("offer", vehicle.GetInitialRentalOffer(rentalStart, rentalEnd));
 
             return Ok(vehicle.FilterSerialize(authUser));
         }

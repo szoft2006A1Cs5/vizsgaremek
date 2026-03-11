@@ -59,7 +59,7 @@ namespace backend.Models
         
         [NotMapped] 
         [JsonExtensionData] 
-        public Dictionary<string, object> ExtensionData { get; } = new();
+        public Dictionary<string, object?> ExtensionData { get; } = new();
         
         public static Func<object?, User?, bool> GetVisibilityConditionLambda(VisibilityLevel visLevel)
         {
@@ -86,7 +86,6 @@ namespace backend.Models
             }
         }
         
-        
         public bool CheckAvailable(DateTime intervalStart, DateTime intervalEnd)
         {
             // Ha van mar berles amit elfogadtak es utkozik a megadott datummal,
@@ -99,7 +98,7 @@ namespace backend.Models
                    DateTime.Now < intervalStart;
         }
 
-        public VehicleRentalOffer? CheckAvailableOffer(DateTime? intervalStart, DateTime? intervalEnd)
+        public VehicleRentalOffer? GetInitialRentalOffer(DateTime? intervalStart, DateTime? intervalEnd)
         {
             if (intervalStart == null || intervalEnd == null) return null;
             

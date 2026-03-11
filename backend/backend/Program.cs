@@ -30,6 +30,7 @@ namespace backend
             // Add services to the container.
             builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr));
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddScoped<RentalService>();
             builder.Services.AddSingleton<IResourceService, LocalResourceService>();
 
             builder.Services.AddControllers()

@@ -116,7 +116,7 @@ namespace backend.UnitTests.Tests
         {
             _controller.SetAuthUser(1, UserRole.User);
 
-            var result = (await _controller!.UpdateUser(new UserModificationDTO
+            var result = (await _controller!.UpdateUserById(1, new UserModificationDTO
             {
                 PreviousPassword = "NagyTesztElek32",
                 IdCardNumber = "123456AA",
@@ -125,7 +125,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -144,7 +143,7 @@ namespace backend.UnitTests.Tests
             // Nem vagyunk bejelentkezve
             _controller.SetAuthUser(null, null);
             
-            var result = (await _controller!.UpdateUser(new UserModificationDTO
+            var result = (await _controller!.UpdateUserById(1, new UserModificationDTO
             {
                 PreviousPassword = "NagyTesztElek32",
                 IdCardNumber = "123456AA",
@@ -153,7 +152,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -167,7 +165,7 @@ namespace backend.UnitTests.Tests
         {
             _controller.SetAuthUser(1, UserRole.User);
             
-            var result = (await _controller!.UpdateUser(new UserModificationDTO
+            var result = (await _controller!.UpdateUserById(1, new UserModificationDTO
             {
                 PreviousPassword = "ElirtJelszo123",
                 IdCardNumber = "123456AA",
@@ -176,7 +174,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -190,7 +187,7 @@ namespace backend.UnitTests.Tests
         {
             _controller.SetAuthUser(1, UserRole.User);
             
-            var result = (await _controller!.UpdateUser(new UserModificationDTO
+            var result = (await _controller!.UpdateUserById(1, new UserModificationDTO
             {
                 PreviousPassword = "NagyTesztElek32",
                 IdCardNumber = "12345", // Helytelen szemelyi formatum
@@ -199,7 +196,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -213,7 +209,7 @@ namespace backend.UnitTests.Tests
         {
             _controller.SetAuthUser(1, UserRole.User);
             
-            var result = (await _controller!.UpdateUser(new UserModificationDTO
+            var result = (await _controller!.UpdateUserById(1, new UserModificationDTO
             {
                 PreviousPassword = "NagyTesztElek32",
                 IdCardNumber = "123456BB", // Ilyen szemelyivel mar van user
@@ -222,7 +218,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -245,7 +240,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -272,7 +266,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
@@ -286,7 +279,7 @@ namespace backend.UnitTests.Tests
         {
             _controller.SetAuthUser(1, UserRole.User);
 
-            var result = await _controller!.UpdateUserImage(new FormFile(null, 0, 0, "test", "test.jpg")) as OkObjectResult;
+            var result = await _controller!.UpdateUserImageById(1, new FormFile(null, 0, 0, "test", "test.jpg")) as OkObjectResult;
 
             Assert.IsNotNull(result);
             var user = JsonConvert.DeserializeObject<User>((string)result.Value);
@@ -300,7 +293,7 @@ namespace backend.UnitTests.Tests
         {
             _controller.SetAuthUser(1, UserRole.User);
 
-            var result = await _controller!.UpdateUserImage(null) as OkObjectResult;
+            var result = await _controller!.UpdateUserImageById(1, null) as OkObjectResult;
 
             Assert.IsNotNull(result);
             var user = JsonConvert.DeserializeObject<User>((string)result.Value);
@@ -314,7 +307,7 @@ namespace backend.UnitTests.Tests
         {
             _controller.SetAuthUser(null, null);
 
-            var result = await _controller!.UpdateUserImage(new FormFile(null, 0, 0, "test", "test.jpg")) as UnauthorizedResult;
+            var result = await _controller!.UpdateUserImageById(1, new FormFile(null, 0, 0, "test", "test.jpg")) as UnauthorizedResult;
 
             Assert.IsNotNull(result);
         }
@@ -362,7 +355,7 @@ namespace backend.UnitTests.Tests
         public async Task DeleteUser_Unauthorized()
         {
             _controller.SetAuthUser(null, null);
-            var result = await _controller!.DeleteUser() as UnauthorizedResult;
+            var result = await _controller!.DeleteUserById(1) as UnauthorizedResult;
             Assert.IsNotNull(result);
         }
         
@@ -404,7 +397,7 @@ namespace backend.UnitTests.Tests
             #region Put
             _controller.SetAuthUser(1, UserRole.User);
             
-            var putResult = (await _controller!.UpdateUser(new UserModificationDTO
+            var putResult = (await _controller!.UpdateUserById(1, new UserModificationDTO
             {
                 PreviousPassword = "NagyTesztElek32",
                 IdCardNumber = "123456AA",
@@ -413,7 +406,6 @@ namespace backend.UnitTests.Tests
                 Email = "tesztelek@teszt.hu",
                 Password = "NagyTesztElek32",
                 DriversLicenseNumber = "AA123456",
-                DriversLicenseDate = new DateOnly(),
                 AddressStreetHouse = "Zrínyi Ilona utca 12.",
                 AddressSettlement = "Szombathely",
                 AddressZipcode = "9700"
