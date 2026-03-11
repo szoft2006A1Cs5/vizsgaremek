@@ -98,7 +98,7 @@ namespace backend.Models
                    DateTime.Now < intervalStart;
         }
 
-        public VehicleRentalOffer? CheckAvailableOffer(DateTime? intervalStart, DateTime? intervalEnd)
+        public VehicleRentalOffer? GetInitialRentalOffer(DateTime? intervalStart, DateTime? intervalEnd)
         {
             if (intervalStart == null || intervalEnd == null) return null;
             

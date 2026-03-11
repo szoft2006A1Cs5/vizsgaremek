@@ -57,9 +57,6 @@ namespace backend.Controllers
             
             var authUser = await _authSrv.GetUser(User, _context);
 
-            // TODO: Ez megse jo LINQ. A problema alapvetoen abbol fakad, hogy van olyan eset,
-            //       ahol egyetlen egy elerhetoseg van az egesz autora, igy az Any nyilvanvaloan
-            //       mindig false lesz az All-ban.
             var vehicles = (await _context.Vehicles
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
@@ -72,23 +69,34 @@ namespace backend.Controllers
                                         !(r.End < rentalStart || rentalEnd < r.Start)) &&
                     x.Availabilities.Any(a => a.Start <= rentalStart && rentalStart <= a.End) &&
                     x.Availabilities.Any(a => a.Start <= rentalEnd && rentalEnd <= a.End) &&
+                    // Tsodalatos megoldas, az intervallumon belul, az utolso elerhetoseget kiveve, vegigmegyunk,
+                    // es megnezzuk, hogy van-e olyan elerhetoseg utana, ami akkor kezdodik, amikor az vegez.
                     x.Availabilities
-                        .Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
-                        .OrderBy(a => a.Start)
-                        .All(a1 => x.Availabilities.Any(a2 => a1 != a2 && (a2.End == a1.Start || a2.Start == a1.End))) &&
+                        .Where(a => rentalStart <= a.End && a.End < rentalEnd)
+                        .All(a1 => x.Availabilities.Any(a2 => a1.End == a2.Start && a1.End < a2.End)) &&
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&
                     (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true) &&
                     (fuelType != null ? x.FuelType == fuelType : true) &&
-                    (!showOwned && authUser != null ? x.OwnerId != authUser.Id : true)
+                    (!showOwned && authUser != null ? x.OwnerId != authUser.Id : true) &&
+                    (minRate != null ? 
+                        x.Availabilities
+                            .Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
+                            .All(a => minRate.Value <= a.HourlyRate) 
+                    : true) &&
+                    (maxRate != null ?
+                        x.Availabilities
+                            .Where(a => !(a.End < rentalStart || rentalEnd < a.Start))
+                            .All(a => a.HourlyRate <= maxRate.Value)
+                    : true)
                 )
                 .Skip(offset)
                 .Take(limit)
                 .ToListAsync())
                 .Select(x =>
                 {
-                    var offer = x.CheckAvailableOffer(rentalStart, rentalEnd);
+                    var offer = x.GetInitialRentalOffer(rentalStart, rentalEnd);
                     if (offer != null) x.ExtensionData.Add("offer", offer);
                     
                     return x;
@@ -121,7 +129,7 @@ namespace backend.Controllers
             if (vehicle == null) return NotFound();
 
             if (rentalStart != null && rentalEnd != null && rentalStart < rentalEnd)
-                vehicle.ExtensionData.Add("offer", vehicle.CheckAvailableOffer(rentalStart, rentalEnd));
+                vehicle.ExtensionData.Add("offer", vehicle.GetInitialRentalOffer(rentalStart, rentalEnd));
 
             return Ok(vehicle.FilterSerialize(authUser));
         }
