@@ -1,7 +1,7 @@
 import "./Searching.css";
 import { useLayoutEffect, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa"; 
+import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 import Cards from "../Cards/Cards";
 import auto1 from "../../assets/kepek/autok/toyotacorolla1.png";
 import auto2 from "../../assets/kepek/autok/toyotacorolla3.png";
@@ -216,7 +216,7 @@ function Searching() {
     const [maxPrice, setMaxPrice] = useState("");
     const [pickup, setPickup] = useState("");
     const [submittedFilters, setSubmittedFilters] = useState(null);
-    const [showFloatingTop, setShowFloatingTop] = useState(false); 
+    const [showFloatingTop, setShowFloatingTop] = useState(false);
 
     useLayoutEffect(() => window.scrollTo(0, 0), []);
 
