@@ -387,7 +387,7 @@ function Searching() {
                                 <p className="footerItem footerItem--mail">comove@projekt.hu</p>
                             </div>
                             <div className="footerSocials">
-                                <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><FaFacebookF /></a>
+                                <a href="https://www.facebook.com/profile.php?id=61586242866516" target="_blank" rel="noreferrer" aria-label="Facebook"><FaFacebookF /></a>
                                 <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><FaInstagram /></a>
                                 <a href="https://tiktok.com" target="_blank" rel="noreferrer" aria-label="TikTok"><FaTiktok /></a>
                             </div>
@@ -400,7 +400,7 @@ function Searching() {
                         </div>
                         <div className="footerCol">
                             <h4>Kövess minket</h4>
-                            <a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a>
+                            <a href="https://www.facebook.com/profile.php?id=61586242866516" target="_blank" rel="noreferrer">Facebook</a>
                             <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
                             <a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a>
                         </div>
