@@ -1,4 +1,5 @@
-﻿using backend.Services;
+﻿using System.ComponentModel.DataAnnotations;
+using backend.Services;
 using backend.Contexts;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -40,8 +41,8 @@ namespace backend.Controllers
         public async Task<IActionResult> GetVehicles(
             [FromQuery] DateTime rentalStart,
             [FromQuery] DateTime rentalEnd,
-            [FromQuery] int limit = 30,
-            [FromQuery] int offset = 0,
+            [FromQuery, Range(1, int.MaxValue)] int limit = 30,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1,
             [FromQuery] string? manufacturer = null,
             [FromQuery] string? model = null,
             [FromQuery] int? year = null,
@@ -91,12 +92,12 @@ namespace backend.Controllers
                             .All(a => a.HourlyRate <= maxRate.Value)
                     : true)
                 )
-                .Skip(offset)
+                .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToListAsync())
                 .Select(x =>
                 {
-                    var offer = x.GetInitialRentalOffer(rentalStart, rentalEnd);
+                    var offer = x.GetPriceOffer(rentalStart, rentalEnd);
                     if (offer != null) x.ExtensionData.Add("offer", offer);
                     
                     return x;
@@ -129,14 +130,17 @@ namespace backend.Controllers
             if (vehicle == null) return NotFound();
 
             if (rentalStart != null && rentalEnd != null && rentalStart < rentalEnd)
-                vehicle.ExtensionData.Add("offer", vehicle.GetInitialRentalOffer(rentalStart, rentalEnd));
+                vehicle.ExtensionData.Add("offer", vehicle.GetPriceOffer(rentalStart, rentalEnd));
 
             return Ok(vehicle.FilterSerialize(authUser));
         }
 
         [Authorize(Roles = "User")]
         [HttpGet("Owned")]
-        public async Task<IActionResult> GetOwnedVehicles([FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetOwnedVehicles(
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10, 
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -152,7 +156,7 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
                 .Where(x => x.OwnerId == authUser.Id)
-                .Skip(offset)
+                .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToListAsync();
 
@@ -238,7 +242,11 @@ namespace backend.Controllers
         }
         
         [HttpGet("{id}/Availability")]
-        public async Task<IActionResult> GetAvailabilities(int id, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetAvailabilities(
+            int id,
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
             
@@ -247,7 +255,7 @@ namespace backend.Controllers
                     .AsNoTracking()
                     .IgnoreAutoIncludes()
                     .Where(x => x.VehicleId == id)
-                    .Skip(offset)
+                    .Skip((page - 1) * limit)
                     .Take(limit)
                     .ToListAsync())
                     .FilterSerialize(authUser)
@@ -368,14 +376,18 @@ namespace backend.Controllers
         }
 
         [HttpGet("{vehicleId}/Image")]
-        public async Task<IActionResult> GetImages(int vehicleId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetImages(
+            int vehicleId,
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
             
             return Ok(
                 (await _context.VehicleImages
                     .Where(x => x.VehicleId == vehicleId)
-                    .Skip(offset)
+                    .Skip((page - 1) * limit)
                     .Take(limit)
                     .OrderBy(x => x.SortIndex)
                     .ToListAsync())

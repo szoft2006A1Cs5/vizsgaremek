@@ -31,10 +31,6 @@ class ComoveAPILoadTest(HttpUser):
         self.client.get(f"/api/Vehicle/{random.randint(1, 3)}", verify=False)
 
     @task
-    def getNotifications(self):
-        self.client.get("/api/Notification", verify=False)
-
-    @task
     def getAvailabilities(self):
         self.client.get(f"/api/Vehicle/{random.randint(1, 3)}/availability", verify=False)
 

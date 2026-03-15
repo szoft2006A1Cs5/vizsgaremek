@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using backend.Contexts;
 using backend.DTOs.Message;
 using backend.Models;
@@ -24,7 +25,10 @@ namespace backend.Controllers
         
         // GET: api/<RentalController>
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> Get(
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
             throw new NotImplementedException();
             return Ok();

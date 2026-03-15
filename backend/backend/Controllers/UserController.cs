@@ -1,4 +1,5 @@
-﻿using backend.Contexts;
+﻿using System.ComponentModel.DataAnnotations;
+using backend.Contexts;
 using backend.DTOs.User;
 using backend.Models;
 using backend.Services;
@@ -40,6 +41,7 @@ namespace backend.Controllers
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .Include(x => x.Rentals)
+                .ThenInclude(x => x.Vehicle)
                 .Include(x => x.Vehicles)
                 .ThenInclude(x => x.Rentals)
                 .Include(x => x.Notifications)
@@ -161,7 +163,11 @@ namespace backend.Controllers
         }
 
         [HttpGet("{uid}/Notification")]
-        public async Task<IActionResult> GetNotificationsForUID(int userId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetNotificationsForUID(
+            int userId, 
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10, 
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -171,7 +177,7 @@ namespace backend.Controllers
             return Ok(
                 await _context.Notifications
                 .Where(x => x.UserId == userId)
-                .Skip(offset)
+                .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToListAsync()
             );
