@@ -357,6 +357,14 @@
     font-size: 15px;
 }
 
+.error_text {
+    color: #e74b49;
+    font-size: 13px;
+    margin-top: -6px;
+    margin-bottom: 8px;
+    padding-left: 6px;
+}
+
 .auth_field.input_error {
     border: 1px solid #e74b49;
 }

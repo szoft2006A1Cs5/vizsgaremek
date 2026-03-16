@@ -4,6 +4,7 @@ import Home from "./components/Home/Home";
 import Searching from "./components/Searching/Searching";
 import Log_Reg from "./components/Log_Reg/Log_Reg";
 import Cards from "./components/Cards/Cards";
+import Account from "./components/Account/Account";
 
 function LayoutWithNavbar() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
 
         <Route path="/login" element={<Log_Reg />} />
         <Route path="/register" element={<Log_Reg />} />
+        <Route path="/account" element={<Account />} />
       </Routes>
     </BrowserRouter>
   );

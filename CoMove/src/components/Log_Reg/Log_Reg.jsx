@@ -7,23 +7,26 @@ import whitelogo from "../../assets/kepek/logo/comove_logo4.png";
 function Registration() {
     const navigate = useNavigate();
     const location = useLocation();
-
     const routeIsRegister = useMemo(
         () => location.pathname === "/register",
         [location.pathname]
-    );
+    )
 
+    const nameRegex = /^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+(?: [A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+)+$/;
+    const numberRegex = /^\d+$/;
+    const passwordRegex = /^(?=.*[A-ZÁÉÍÓÖŐÚÜŰ])(?=.*\d).{8,}$/;
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const today = new Date();
+    const maxBirthDate = new Date(today.setFullYear(today.getFullYear() - 18));
     const [isRegisterUI, setIsRegisterUI] = useState(routeIsRegister);
-    const [leaving, setLeaving] = useState(null);
-    const [regStep, setRegStep] = useState(0);
-    const [errors, setErrors] = useState({});
+    const [leaving, setLeaving] = useState(null)
+    const [regStep, setRegStep] = useState(0)
+    const [errors, setErrors] = useState({})
     const [showLoginPass, setShowLoginPass] = useState(false);
     const [showRegPass1, setShowRegPass1] = useState(false);
     const [showRegPass2, setShowRegPass2] = useState(false);
-
     const [formData, setFormData] = useState({
-        vezeteknev: "",
-        keresztnev: "",
+        teljes_nev: "",
         szuletesi_datum: "",
         nem: "",
         lakcim: "",
@@ -34,36 +37,78 @@ function Registration() {
         jelszo2: "",
     });
 
+
+    const isValidAdultBirthDate = (birthDate) => {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age >= 18;
+    };
+
+
     const validateStep = () => {
         const newErrors = {};
-
         if (regStep === 0) {
-            if (!formData.vezeteknev.trim()) newErrors.vezeteknev = true;
-            if (!formData.keresztnev.trim()) newErrors.keresztnev = true;
-            if (!formData.szuletesi_datum) newErrors.szuletesi_datum = true;
-            if (!formData.nem) newErrors.nem = true;
-        }
+            if (!formData.teljes_nev.trim()) {
+                newErrors.teljes_nev = "A név megadása kötelező.";
+            }
+            else if (!nameRegex.test(formData.teljes_nev.trim())) {
+                newErrors.teljes_nev = "A név legalább két szóból álljon és nagybetűvel kezdődjön.";
+            }
 
-        if (regStep === 1) {
-            if (!formData.lakcim.trim()) newErrors.lakcim = true;
-            if (!formData.telefonszam.trim()) newErrors.telefonszam = true;
-            if (!formData.forgalmi_szam.trim()) newErrors.forgalmi_szam = true;
-        }
+            if (!formData.szuletesi_datum) {
+                newErrors.szuletesi_datum = "A születési dátum megadása kötelező.";
+            }
+            else if (!isValidAdultBirthDate(formData.szuletesi_datum)) {
+                newErrors.szuletesi_datum = "A regisztrációhoz legalább 18 évesnek kell lenned.";
+            }
 
-        if (regStep === 2) {
-            if (!formData.email.trim()) newErrors.email = true;
-            if (!formData.jelszo.trim()) newErrors.jelszo = true;
-            if (!formData.jelszo2.trim()) newErrors.jelszo2 = true;
-            if (
-                formData.jelszo.trim() &&
-                formData.jelszo2.trim() &&
-                formData.jelszo !== formData.jelszo2
-            ) {
-                newErrors.jelszo = true;
-                newErrors.jelszo2 = true;
+            if (!formData.nem) {
+                newErrors.nem = "A nem kiválasztása kötelező.";
             }
         }
+        if (regStep === 1) {
+            if (!formData.lakcim.trim()) {
+                newErrors.lakcim = "A lakcím megadása kötelező.";
+            }
 
+            if (!formData.telefonszam.trim()) {
+                newErrors.telefonszam = "A telefonszám megadása kötelező.";
+            } else if (!numberRegex.test(formData.telefonszam.trim())) {
+                newErrors.telefonszam = "A telefonszám csak számokat tartalmazhat.";
+            }
+
+            if (!formData.forgalmi_szam.trim()) {
+                newErrors.forgalmi_szam = "A forgalmi szám megadása kötelező.";
+            } else if (!numberRegex.test(formData.forgalmi_szam.trim())) {
+                newErrors.forgalmi_szam = "A forgalmi szám csak számokat tartalmazhat.";
+            }
+        }
+        if (regStep === 2) {
+            if (!formData.email.trim()) {
+                newErrors.email = "Az email cím megadása kötelező.";
+            } else if (!emailRegex.test(formData.email.trim())) {
+                newErrors.email = "Nem megfelelő email formátum.";
+            }
+
+            if (!formData.jelszo.trim()) {
+                newErrors.jelszo = "A jelszó megadása kötelező.";
+            } else if (!passwordRegex.test(formData.jelszo)) {
+                newErrors.jelszo =
+                    "A jelszónak legalább 8 karakter hosszúnak kell lennie, tartalmaznia kell legalább 1 nagybetűt és 1 számot.";
+            }
+
+            if (!formData.jelszo2.trim()) {
+                newErrors.jelszo2 = "A jelszó megerősítése kötelező.";
+            } else if (formData.jelszo !== formData.jelszo2) {
+                newErrors.jelszo2 = "A két jelszó nem egyezik.";
+            }
+        }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -96,6 +141,29 @@ function Registration() {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
+        // TELJES NÉV AUTOMATIKUS FORMÁZÁSA
+        if (name === "teljes_nev") {
+            const formatted = value
+                .split(" ")
+                .map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                )
+                .join(" ");
+
+            setFormData(prev => ({
+                ...prev,
+                [name]: formatted
+            }));
+
+            setErrors(prev => ({
+                ...prev,
+                [name]: false
+            }));
+
+            return;
+        }
+
+        // MINDEN MÁS INPUT
         setFormData((prev) => ({
             ...prev,
             [name]: value,
@@ -105,36 +173,6 @@ function Registration() {
             ...prev,
             [name]: false,
         }));
-    };
-
-    const isStepValid = () => {
-        if (regStep === 0) {
-            return (
-                formData.vezeteknev.trim() !== "" &&
-                formData.keresztnev.trim() !== "" &&
-                formData.szuletesi_datum !== "" &&
-                formData.nem !== ""
-            );
-        }
-
-        if (regStep === 1) {
-            return (
-                formData.lakcim.trim() !== "" &&
-                formData.telefonszam.trim() !== "" &&
-                formData.forgalmi_szam.trim() !== ""
-            );
-        }
-
-        if (regStep === 2) {
-            return (
-                formData.email.trim() !== "" &&
-                formData.jelszo.trim() !== "" &&
-                formData.jelszo2.trim() !== "" &&
-                formData.jelszo === formData.jelszo2
-            );
-        }
-
-        return false;
     };
 
     const handleNextStep = () => {
@@ -268,33 +306,23 @@ function Registration() {
                         <form className="auth_form" onSubmit={(e) => e.preventDefault()}>
                             {regStep === 0 && (
                                 <>
-                                    <label className={`auth_field ${errors.vezeteknev ? "input_error" : ""}`}>
-                                        <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <label className={`auth_field ${errors.teljes_nev ? "input_error" : ""}`}>
+                                        <svg className="auth_icon" viewBox="0 0 24 24">
                                             <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z" />
                                         </svg>
+
                                         <input
                                             type="text"
-                                            name="vezeteknev"
-                                            placeholder="Vezetéknév"
-                                            autoComplete="family-name"
-                                            value={formData.vezeteknev}
+                                            name="teljes_nev"
+                                            placeholder="Teljes név"
+                                            value={formData.teljes_nev}
                                             onChange={handleChange}
                                         />
                                     </label>
 
-                                    <label className={`auth_field ${errors.keresztnev ? "input_error" : ""}`}>
-                                        <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z" />
-                                        </svg>
-                                        <input
-                                            type="text"
-                                            name="keresztnev"
-                                            placeholder="Keresztnév"
-                                            autoComplete="given-name"
-                                            value={formData.keresztnev}
-                                            onChange={handleChange}
-                                        />
-                                    </label>
+                                    {errors.teljes_nev && (
+                                        <div className="error_text">{errors.teljes_nev}</div>
+                                    )}
 
                                     <label className={`auth_field ${errors.szuletesi_datum ? "input_error" : ""}`}>
                                         <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -305,8 +333,13 @@ function Registration() {
                                             name="szuletesi_datum"
                                             value={formData.szuletesi_datum}
                                             onChange={handleChange}
+                                            min="1900-01-01"
+                                            max={new Date().toISOString().split("T")[0]}
                                         />
                                     </label>
+                                    {errors.szuletesi_datum && (
+                                        <div className="error_text">{errors.szuletesi_datum}</div>
+                                    )}
 
                                     <label className={`auth_field ${errors.nem ? "input_error" : ""}`}>
                                         <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -324,6 +357,7 @@ function Registration() {
                                             <option value="egyeb">Egyéb</option>
                                         </select>
                                     </label>
+                                    {errors.nem && <div className="error_text">{errors.nem}</div>}
                                 </>
                             )}
 
@@ -342,6 +376,7 @@ function Registration() {
                                             onChange={handleChange}
                                         />
                                     </label>
+                                    {errors.lakcim && <div className="error_text">{errors.lakcim}</div>}
 
                                     <label className={`auth_field ${errors.telefonszam ? "input_error" : ""}`}>
                                         <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -357,6 +392,7 @@ function Registration() {
                                             onChange={handleChange}
                                         />
                                     </label>
+                                    {errors.telefonszam && <div className="error_text">{errors.telefonszam}</div>}
 
                                     <label className={`auth_field ${errors.forgalmi_szam ? "input_error" : ""}`}>
                                         <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -370,6 +406,7 @@ function Registration() {
                                             onChange={handleChange}
                                         />
                                     </label>
+                                    {errors.forgalmi_szam && <div className="error_text">{errors.forgalmi_szam}</div>}
                                 </>
                             )}
 
@@ -388,6 +425,7 @@ function Registration() {
                                             onChange={handleChange}
                                         />
                                     </label>
+                                    {errors.email && <div className="error_text">{errors.email}</div>}
 
                                     <label className={`auth_field ${errors.jelszo ? "input_error" : ""}`}>
                                         <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -414,6 +452,7 @@ function Registration() {
                                             </svg>
                                         </button>
                                     </label>
+                                    {errors.jelszo && <div className="error_text">{errors.jelszo}</div>}
 
                                     <label className={`auth_field ${errors.jelszo2 ? "input_error" : ""}`}>
                                         <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -440,12 +479,7 @@ function Registration() {
                                             </svg>
                                         </button>
                                     </label>
-
-                                    {formData.jelszo2 !== "" && formData.jelszo !== formData.jelszo2 && (
-                                        <div style={{ color: "red", fontSize: "14px", marginTop: "-8px" }}>
-                                            A két jelszó nem egyezik.
-                                        </div>
-                                    )}
+                                    {errors.jelszo2 && <div className="error_text">{errors.jelszo2}</div>}
                                 </>
                             )}
 

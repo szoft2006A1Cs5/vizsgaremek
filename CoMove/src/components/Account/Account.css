@@ -1,0 +1,54 @@
+.account_root {
+    min-height: 100vh;
+    background: #060631;
+    color: white;
+    overflow-x: hidden;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+
+.account_hero {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffa41b);
+}
+
+.account_page {
+    min-height: 100vh;
+    background: #e6f1ff;
+    padding: 60px 20px;
+}
+
+.account_pageAnim {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+        opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.account_pageAnim.isLoaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.account_root .account_dots {
+    display: none;
+}
+
+.account_root .account_hero::before {
+    display: none;
+}
+
+.map {
+    background-color: #fcbc5d;
+    margin-top: -300px;
+    height: 760px;
+    width: 1200px;
+}
+
+h1 {
+    margin-top: 100px;
+    margin-left: 360px;
+}
