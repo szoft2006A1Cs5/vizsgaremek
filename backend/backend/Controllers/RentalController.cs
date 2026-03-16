@@ -81,6 +81,8 @@ namespace backend.Controllers
                 return Forbid("Nincs megadva jogosítványszám a fiókodban!");
 
             var vehicle = await _context.Vehicles
+                .Include(x => x.Availabilities)
+                .Include(x => x.Rentals)
                 .FirstOrDefaultAsync(x => x.Id == offer.VehicleId);
 
             if (vehicle == null) return NotFound();
@@ -91,7 +93,9 @@ namespace backend.Controllers
 
             if (authUser.Balance < priceOffer.Value.RentalPrice + (priceOffer.Value.RentalPrice * 0.05))
                 return BadRequest();
-           
+
+            authUser.Balance -= (int)(priceOffer.Value.RentalPrice + (priceOffer.Value.RentalPrice * 0.05));
+
             var rental = new Rental
             {
                 Start = offer.Start,
@@ -102,6 +106,7 @@ namespace backend.Controllers
                 RentalPrice = priceOffer.Value.RentalPrice,
                 Renter = authUser,
                 Status = RentalStatus.RenterOffer,
+                PickupLocation = offer.PickupLocation,
             };
 
             await _context.Rentals.AddAsync(rental);

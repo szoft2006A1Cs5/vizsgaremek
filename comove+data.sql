@@ -83,8 +83,7 @@ CREATE TABLE `rentals` (
   `start` datetime NOT NULL,
   `end` datetime NOT NULL,
   `status` int(11) NOT NULL DEFAULT 0,
-  `pickupLatitude` double NOT NULL,
-  `pickupLongtitude` double NOT NULL,
+  `pickupLocation` VARCHAR(512) NOT NULL,
   `fuelLevel` float DEFAULT NULL,
   `renterRating` double DEFAULT NULL,
   `ownerRating` double DEFAULT NULL,
@@ -96,10 +95,10 @@ CREATE TABLE `rentals` (
 -- A tábla adatainak kiíratása `rentals`
 --
 
-INSERT INTO `rentals` (`id`, `rentalPrice`, `start`, `end`, `status`, `pickupLatitude`, `pickupLongtitude`, `fuelLevel`, `renterRating`, `ownerRating`, `renterId`, `vehicleId`) VALUES
-(1, 15000, '2026-01-05 10:00:00', '2026-01-05 18:00:00', 8, 47.1234, 18.4567, 100, 5, 4.5, 3, 1),
-(2, 25000, '2026-01-11 09:00:00', '2026-01-13 17:00:00', 5, 47.4979, 19.0402, 75.5, NULL, NULL, 4, 2),
-(3, 8000, '2026-01-15 08:00:00', '2026-01-15 12:00:00', 1, 47.2345, 16.6321, NULL, NULL, NULL, 1, 3);
+INSERT INTO `rentals` (`id`, `rentalPrice`, `start`, `end`, `status`, `pickupLocation`, `fuelLevel`, `renterRating`, `ownerRating`, `renterId`, `vehicleId`) VALUES
+(1, 15000, '2026-01-05 10:00:00', '2026-01-05 18:00:00', 8, "9700 Szombathely, Zrínyi Ilona utca 12.", 100, 5, 4.5, 3, 1),
+(2, 25000, '2026-01-11 09:00:00', '2026-01-13 17:00:00', 5, "9700 Szombathely, Kéthly Anna utca 12.", 75.5, NULL, NULL, 4, 2),
+(3, 8000, '2026-01-15 08:00:00', '2026-01-15 12:00:00', 1, "9700 Szombathely, Uránia udvar 1.", NULL, NULL, NULL, 1, 3);
 
 -- --------------------------------------------------------
 

@@ -108,6 +108,26 @@ namespace backend.Controllers
             return Ok(user.FilterSerialize(authUser));
         }
 
+        [HttpPut("{id}/Deposit")]
+        public async Task<IActionResult> Deposit(int id, [FromBody] int amount = 0)
+        {
+            var authUser = await _authSrv.GetUser(User, _context);
+
+            if (authUser == null) return Unauthorized();
+            if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
+
+            if (amount < 0) return BadRequest();
+
+            var user = authUser.Id == id ? authUser : await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null) return NotFound();
+
+            user.Balance += amount;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(user.FilterSerialize(authUser));
+        }
+
         [HttpPut("{id}/Image")]
         public async Task<IActionResult> UpdateUserImageById(int id, IFormFile? file)
         {

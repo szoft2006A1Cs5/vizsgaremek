@@ -1,5 +1,6 @@
 ﻿using backend.Common;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -31,23 +32,9 @@ namespace backend.Models
         public DateTime End { get; set; }
 
         public RentalStatus Status { get; set; }
-        public double PickupLatitude { get; set; }
-        public double PickupLongtitude { get; set; }
 
-        [JsonIgnore]
-        [NotMapped]
-        public Tuple<double, double> Pickup
-        {
-            get
-            {
-                return Tuple.Create(PickupLatitude, PickupLongtitude);
-            }
-            set
-            {
-                PickupLatitude = value.Item1;
-                PickupLongtitude = value.Item2;
-            }
-        }
+        [MaxLength(512)]
+        public required string PickupLocation { get; set; }
 
         public double? FuelLevel { get; set; }
         public double? RenterRating { get; set; }
@@ -55,10 +42,10 @@ namespace backend.Models
 
         public int RenterId { get; set; }
         [SwaggerIgnore]
-        public required User Renter { get; set; }
+        public User? Renter { get; set; }
         public int VehicleId { get; set; }
         [SwaggerIgnore]
-        public required Vehicle Vehicle { get; set; }
+        public Vehicle? Vehicle { get; set; }
 
         private void HandleStatusChange(RentalStatus to, User authUser)
         {
@@ -132,8 +119,7 @@ namespace backend.Models
                     nameof(RentalPrice),
                     nameof(Start),
                     nameof(End),
-                    nameof(PickupLatitude),
-                    nameof(PickupLongtitude),
+                    nameof(PickupLocation),
                     nameof(FuelLevel)
                 }.Contains(x.Name)));
 
