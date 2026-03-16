@@ -242,8 +242,7 @@ namespace backend.UnitTests
                     Status = RentalStatus.Finished,
                     RentalPrice = 29 * 600,
                     FuelLevel = 50,
-                    PickupLatitude = 47.228641,
-                    PickupLongtitude = 16.624567,
+                    PickupLocation = "9700 Szombathely, Zrínyi Ilona utca 12.",
                     OwnerRating = 5.0,
                     RenterRating = 4.5
                 },
@@ -259,8 +258,7 @@ namespace backend.UnitTests
                     Status = RentalStatus.OfferAccepted,
                     RentalPrice = 195 * 400,
                     FuelLevel = 45,
-                    PickupLatitude = 47.228641,
-                    PickupLongtitude = 16.624567,
+                    PickupLocation = "9700 Szombathely, Uránia udvar 12.",
                     OwnerRating = null,
                     RenterRating = null
                 }

@@ -1,10 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using backend.Contexts;
 using backend.DTOs.Message;
+using backend.DTOs.Rental;
 using backend.Models;
 using backend.Services;
+using backend.Services.ResourceService;
 using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,11 +19,13 @@ namespace backend.Controllers
     {
         private readonly Context _context;
         private readonly AuthService _authSrv;
+        private readonly IResourceService _resSrv;
         
-        public RentalController(Context context, AuthService authSrv)
+        public RentalController(Context context, AuthService authSrv, IResourceService resSrv)
         {
             _context = context;
             _authSrv = authSrv;
+            _resSrv = resSrv;
         }
         
         // GET: api/<RentalController>
@@ -72,7 +77,7 @@ namespace backend.Controllers
 
         // POST api/<RentalController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Rental offer)
+        public async Task<IActionResult> Post([FromBody] RentalDTO offer)
         {
             var authUser = await _authSrv.GetUser(User, _context);
             if (authUser == null) return Unauthorized();
@@ -114,7 +119,7 @@ namespace backend.Controllers
 
             await Notification.Send(
                 vehicle.OwnerId, 
-                $"Új bérlési kérelem érkezett {vehicle.Manufacturer} {vehicle.Manufacturer} járművedre.",
+                $"Új bérlési kérelem érkezett {vehicle.Manufacturer} {vehicle.Model} járművedre.",
                 _context
             );
 
@@ -123,7 +128,7 @@ namespace backend.Controllers
 
         // PUT api/<RentalController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Rental modifications)
+        public async Task<IActionResult> Put(int id, [FromBody] RentalDTO modifications)
         {
             var authUser = await _authSrv.GetUser(User, _context);
             if (authUser == null) return Unauthorized();
@@ -143,7 +148,7 @@ namespace backend.Controllers
             if (!existingRental.Vehicle.CheckAvailable(modifications.Start, modifications.End))
                 return Conflict(new { Error = "Nem bérelhető a jármű az adott időszakban."});
 
-            existingRental.Update(modifications, authUser);
+            // TODO: State management
             
             return Ok();
         }
@@ -157,31 +162,128 @@ namespace backend.Controllers
         }
         
         [HttpGet("{id}/Message")]
-        public async Task<IActionResult> GetMessages([FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetMessages(
+            int id,
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+
+            var rental = await _context.Rentals
+                .Include(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
+            if (rental == null) return NotFound();
+
+            if (authUser.Role != UserRole.Administrator &&
+                rental.Vehicle.OwnerId != authUser.Id &&
+                rental.RenterId != authUser.Id)
+                return Forbid();
+
+            return Ok(
+                (await _context.Messages
+                    .Where(x => x.RentalId == rental.Id)
+                    .OrderByDescending(x => x.TimeSent)
+                    .Skip((page - 1) * limit)
+                    .Take(limit)
+                    .ToListAsync())
+                    .FilterSerialize(authUser)
+            );
         }
         
         [HttpPost("{id}/Message")]
-        public async Task<IActionResult> SendMessage([FromBody] MessageSendDTO content)
+        public async Task<IActionResult> SendMessage(int id, [FromBody] MessageSendDTO messageSent)
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+
+            var rental = await _context.Rentals
+                .Include(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
+            if (rental == null) return NotFound();
+
+            if (authUser.Role != UserRole.Administrator &&
+                rental.Vehicle.OwnerId != authUser.Id &&
+                rental.RenterId != authUser.Id)
+                return Forbid();
+
+            var message = new Message
+            {
+                Content = messageSent.Content,
+                TimeSent = DateTime.Now,
+                Rental = rental,
+                IsComplaint = messageSent.IsComplaint,
+                IsImage = false,
+                Sender = authUser,
+            };
+            
+            await _context.Messages.AddAsync(message);
+            await _context.SaveChangesAsync();
+
+            return Created($"{Request.GetDisplayUrl()}", message.FilterSerialize(authUser));
         }
         
         [HttpPost("{id}/Message/Image")]
-        public async Task<IActionResult> SendMessageImage(IFormFile file, [FromQuery] bool isComplaint = false)
+        public async Task<IActionResult> SendMessageImage(int id, IFormFile file, [FromQuery] bool isComplaint = false)
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+
+            var rental = await _context.Rentals
+                .Include(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
+            if (rental == null) return NotFound();
+
+            if (authUser.Role != UserRole.Administrator &&
+                rental.Vehicle.OwnerId != authUser.Id &&
+                rental.RenterId != authUser.Id)
+                return Forbid();
+
+            var path = await _resSrv.Store(file);
+            if (path == null) return BadRequest();
+            
+            var message = new Message
+            {
+                Content = path,
+                TimeSent = DateTime.Now,
+                Rental = rental,
+                IsComplaint = isComplaint,
+                IsImage = true,
+                Sender = authUser,
+            };
+            
+            await _context.Messages.AddAsync(message);
+            await _context.SaveChangesAsync();
+
+            return Created($"{Request.GetDisplayUrl()}", message.FilterSerialize(authUser));
         }
 
-        [HttpGet("Offer")]
-        public async Task<IActionResult> GetOffers([FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        [HttpGet("Owned")]
+        public async Task<IActionResult> GetOwned(
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+
+            return Ok(
+                (await _context.Rentals
+                    .AsNoTracking()
+                    .IgnoreAutoIncludes()
+                    .Include(x => x.Renter)
+                    .Include(x => x.Vehicle)
+                    .ThenInclude(x => x.Owner)
+                    .Where(x => x.Vehicle.OwnerId == authUser.Id)
+                    .Skip((page - 1) * limit)
+                    .Take(limit)
+                    .ToListAsync())
+                .FilterSerialize(authUser)
+            );
         }
     }
 }

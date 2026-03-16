@@ -122,7 +122,6 @@ namespace backend.Controllers
             if (user == null) return NotFound();
 
             user.Balance += amount;
-
             await _context.SaveChangesAsync();
 
             return Ok(user.FilterSerialize(authUser));
@@ -156,33 +155,7 @@ namespace backend.Controllers
             return Ok(user.FilterSerialize(authUser));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserById(int id)
-        {
-            var authUser = await _authSrv.GetUser(User, _context);
-
-            if (authUser == null) return Unauthorized();
-            if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
-
-            var user = await _context.Users
-                .Include(x => x.Vehicles)
-                .ThenInclude(x => x.Availabilities)
-                .Include(x => x.Rentals)
-                .Include(x => x.Notifications)
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            // Nem kene, hogy lehetseges legyen
-            if (user == null) return NotFound();
-
-            // TODO: jarmu elerhetosegek torlese, meg nem elfogadott berlesek
-            //       torlese (es rendszerertesitesek kuldese a masik felnek),
-            //       a mar elfogadott berlesek visszamondasa (kiveve nyilvan
-            //       a befejezetteket)
-
-            return NoContent();
-        }
-
-        [HttpGet("{uid}/Notification")]
+        [HttpGet("{userId}/Notification")]
         public async Task<IActionResult> GetNotificationsForUID(
             int userId, 
             [FromQuery, Range(1, int.MaxValue)] int limit = 10, 
@@ -203,7 +176,7 @@ namespace backend.Controllers
             );
         }
 
-        [HttpGet("{uid}/Notification/{notificationId}")]
+        [HttpGet("{userId}/Notification/{notificationId}")]
         public async Task<IActionResult> GetNotificationByIdAndUID(int userId, int notificationId)
         {
             var authUser = await _authSrv.GetUser(User, _context);
@@ -211,30 +184,31 @@ namespace backend.Controllers
             if (authUser == null) return Unauthorized();
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
 
-            var message = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == notificationId);
+            var message = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == userId && x.NotificationId == notificationId);
             if (message == null) return NotFound();
 
             return Ok(message);
         }
 
-        [HttpPut("{uid}/Notification/{notificationId}")]
-        public async Task<IActionResult> SetNotificationReadByUIDAndId(int userId, int notificationId)
+        [HttpPut("{userId}/Notification/{notificationId}")]
+        public async Task<IActionResult> SetNotificationReadByUIDAndId(int userId, int notificationId, bool read = true)
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
             if (authUser == null) return Unauthorized();
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
 
-            var notification = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == notificationId);
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.NotificationId == notificationId);
             if (notification == null) return NotFound();
 
-            notification.Read = true;
+            notification.Read = read;
             await _context.SaveChangesAsync();
 
             return Ok(notification);
         }
 
-        [HttpDelete("{uid}/Notification/{notificationId}")]
+        [HttpDelete("{userId}/Notification/{notificationId}")]
         public async Task<IActionResult> DeleteNotificationByUIDAndId(int userId, int notificationId)
         {
             var authUser = await _authSrv.GetUser(User, _context);
@@ -242,7 +216,8 @@ namespace backend.Controllers
             if (authUser == null) return Unauthorized();
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
 
-            var notification = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == notificationId);
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.NotificationId == notificationId);
             if (notification == null) return NotFound();
 
             _context.Notifications.Remove(notification);
@@ -251,7 +226,7 @@ namespace backend.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{uid}/Notification")]
+        [HttpDelete("{userId}/Notification")]
         public async Task<IActionResult> DeleteNotificationsByUID(int userId)
         {
             var authUser = await _authSrv.GetUser(User, _context);

@@ -7,6 +7,7 @@ namespace backend.Models
 {
     public class Notification
     {
+        [JsonIgnore]
         public int Id { get; set; }
         public int UserId { get; set; }
         public int NotificationId { get; set; }

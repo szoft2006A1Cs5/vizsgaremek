@@ -346,35 +346,6 @@ namespace backend.UnitTests.Tests
             Assert.IsNotNull(result);
         }
 
-        /*
-        [TestMethod]
-        public async Task DeleteUser_NoContent() {}
-        */
-
-        [TestMethod]
-        public async Task DeleteUser_Unauthorized()
-        {
-            _controller.SetAuthUser(null, null);
-            var result = await _controller!.DeleteUserById(1) as UnauthorizedResult;
-            Assert.IsNotNull(result);
-        }
-        
-        [TestMethod]
-        public async Task DeleteUserByIdAdmin_NotFound()
-        {
-            _controller.SetAuthUser(4, UserRole.Administrator);
-            var result = await _controller!.DeleteUserById(5) as NotFoundResult;
-            Assert.IsNotNull(result);
-        }
-        
-        [TestMethod]
-        public async Task DeleteUserById_Forbidden()
-        {
-            _controller.SetAuthUser(1, UserRole.User);
-            var result = await _controller!.DeleteUserById(2) as ForbidResult;
-            Assert.IsNotNull(result);
-        }
-
         [TestMethod]
         public async Task TestAll_Ok()
         {
