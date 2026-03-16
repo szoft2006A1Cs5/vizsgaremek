@@ -30,8 +30,22 @@ namespace backend.Controllers
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authSrv.GetUser(User, _context);
+            if (authUser == null) return Unauthorized();
+
+            return Ok(
+                (await _context.Rentals
+                    .AsNoTracking()
+                    .IgnoreAutoIncludes()
+                    .Include(x => x.Renter)
+                    .Include(x => x.Vehicle)
+                    .ThenInclude(x => x.Owner)
+                    .Where(x => x.RenterId == authUser.Id)
+                    .Skip((page - 1) * limit)
+                    .Take(limit)
+                    .ToListAsync())
+                    .FilterSerialize(authUser)
+            );
         }
 
         // GET api/<RentalController>/5
@@ -58,31 +72,48 @@ namespace backend.Controllers
 
         // POST api/<RentalController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Rental rentalRequest)
+        public async Task<IActionResult> Post([FromBody] Rental offer)
         {
             var authUser = await _authSrv.GetUser(User, _context);
             if (authUser == null) return Unauthorized();
 
-            if (authUser.DriversLicenseNumber == null) return Forbid();
-            
-            var rentedVehicle = await _context.Vehicles
-                .Include(x => x.Rentals)
-                .Include(x => x.Availabilities)
-                .FirstOrDefaultAsync(x => x.Id == rentalRequest.VehicleId);
-            
-            if (rentedVehicle == null ||
-                authUser.Id == rentedVehicle.OwnerId) 
-                return BadRequest();
+            if (authUser.DriversLicenseNumber == null)
+                return Forbid("Nincs megadva jogosítványszám a fiókodban!");
 
-            if (!rentedVehicle.CheckAvailable(rentalRequest.Start, rentalRequest.End))
-                return Conflict(new { Error = "Nem bérelhető a jármű az adott időszakban."});
-            
-            rentalRequest.RenterId = authUser.Id;
-            rentalRequest.Status = RentalStatus.RenterOffer;
-            
-            // TODO: PAYMENT CALCULATION
-            
-            return Ok();
+            var vehicle = await _context.Vehicles
+                .FirstOrDefaultAsync(x => x.Id == offer.VehicleId);
+
+            if (vehicle == null) return NotFound();
+            if (vehicle.OwnerId == authUser.Id) return Forbid();
+
+            var priceOffer = vehicle.GetPriceOffer(offer.Start, offer.End);
+            if (priceOffer == null) return Conflict();
+
+            if (authUser.Balance < priceOffer.Value.RentalPrice + (priceOffer.Value.RentalPrice * 0.05))
+                return BadRequest();
+           
+            var rental = new Rental
+            {
+                Start = offer.Start,
+                End = offer.End,
+                VehicleId = vehicle.Id,
+                Vehicle = vehicle,
+                FuelLevel = offer.FuelLevel,
+                RentalPrice = priceOffer.Value.RentalPrice,
+                Renter = authUser,
+                Status = RentalStatus.RenterOffer,
+            };
+
+            await _context.Rentals.AddAsync(rental);
+            await _context.SaveChangesAsync();
+
+            await Notification.Send(
+                vehicle.OwnerId, 
+                $"Új bérlési kérelem érkezett {vehicle.Manufacturer} {vehicle.Manufacturer} járművedre.",
+                _context
+            );
+
+            return Ok(rental.FilterSerialize(authUser));
         }
 
         // PUT api/<RentalController>/5

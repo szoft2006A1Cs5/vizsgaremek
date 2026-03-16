@@ -1,4 +1,5 @@
 ﻿using backend.Common;
+using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -53,8 +54,10 @@ namespace backend.Models
         public double? OwnerRating { get; set; }
 
         public int RenterId { get; set; }
+        [SwaggerIgnore]
         public required User Renter { get; set; }
         public int VehicleId { get; set; }
+        [SwaggerIgnore]
         public required Vehicle Vehicle { get; set; }
 
         private void HandleStatusChange(RentalStatus to, User authUser)
