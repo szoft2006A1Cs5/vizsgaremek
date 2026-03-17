@@ -15,30 +15,60 @@ function Account() {
   }, []);
 
   return (
-    <div className="account_root account_root">
+    <div className="account_root">
       <section
-        className={`account_hero account_pageAnim ${loaded ? "isLoaded" : ""}`}
+        className={`account_hero account_pageAnim ${
+          loaded ? "isLoaded" : ""
+        }`}
       >
         <img className="account_logo" src={logo} alt="CoMove" />
-        <h1 className="account_focim">Fiókbeállítások</h1>
-        <p className="account_alcim">Módosítsa adatait</p>
+
+        <div className="account_hero_content">
+          <h1 className="account_focim">Fiókbeállítások</h1>
+          <p className="account_alcim">Módosítsa adatait</p>
+        </div>
       </section>
 
       <section
-        className={`account_page account_pageAnim ${loaded ? "isLoaded" : ""}`}
+        className={`account_page account_pageAnim ${
+          loaded ? "isLoaded" : ""
+        }`}
       >
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div>
-            <div className="map">
-              <p className="account_tag">Teljes Név</p>
-              <input type="text" placeholder="Kiss Károly" />
+        <div className="account_card">
+          <div className="account_form">
+            <label>Teljes név</label>
+            <input type="text" placeholder="Kiss Károly" />
 
-              <p className="account_tag">Teljes Név</p>
-              <input type="text" />
+            <label>Születési idő</label>
+            <input type="date" />
 
-              <p className="account_tag">Teljes Név</p>
-              <input type="text" />
+            <label>Lakcím</label>
+            <input type="text" />
+
+            <label>Telefonszám</label>
+            <input type="text" />
+
+            <label>Forgalmiszám</label>
+            <input type="text" />
+
+            <label>E-mail cím</label>
+            <input type="text" />
+
+            <label>Jelszó</label>
+            <input type="password" />
+
+            <label>Jelszó újra</label>
+            <input type="password" />
+
+            <div className="account_buttons">
+              <button className="btn_cancel">Mégse</button>
+              <button className="btn_save">Mentés</button>
             </div>
+          </div>
+
+          <div className="account_avatar">
+            <div className="avatar_circle"></div>
+            <button className="upload_btn">Kép feltöltése</button>
           </div>
         </div>
       </section>
