@@ -36,6 +36,10 @@ function Registration() {
         jelszo: "",
         jelszo2: "",
     });
+    const [loginData, setLoginData] = useState({
+        email: "",
+        password: "",
+    })
 
 
     const isValidAdultBirthDate = (birthDate) => {
@@ -113,6 +117,15 @@ function Registration() {
         return Object.keys(newErrors).length === 0;
     };
 
+    const validateLogin = () => {
+        if (!emailRegex.test(loginData.email)) {
+            setErrors({ loginEmail: "Nem megfelelő email formátum." });
+            return false;
+        }
+
+        return true;
+    };
+
     useEffect(() => {
         if (leaving) return;
         setIsRegisterUI(routeIsRegister);
@@ -186,9 +199,59 @@ function Registration() {
         const valid = validateStep();
         if (!valid) return;
 
-        console.log("Regisztrációs adatok:", formData);
-        navigate("/");
+        fetch("https://localhost:7245/api/Auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: loginData.email,
+                password: loginData.password,
+            })
+        })
+        .then(resp => {
+            if (resp.status !== 200)
+                return null;
+
+            return resp.json();
+        })
+        .then(data => {
+            if (!data)
+                return;
+
+            localStorage.setItem("auth", JSON.stringify(data));
+            navigate("/");
+        })
     };
+
+    const handleLogin = () => {
+        const valid = validateLogin();
+        if (!valid) return;
+
+        fetch("https://localhost:7245/api/Auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: loginData.email,
+                password: loginData.password,
+            })
+        })
+        .then(resp => {
+            if (resp.status !== 200)
+                return null;
+
+            return resp.json();
+        })
+        .then(data => {
+            if (!data)
+                return;
+
+            localStorage.setItem("auth", JSON.stringify(data));
+            navigate("/");
+        })
+    }
 
     return (
         <div className="auth_page">
@@ -239,12 +302,23 @@ function Registration() {
                         <div className="auth_sub">Jelentkezz be a fiókodba:</div>
 
                         <form className="auth_form" onSubmit={(e) => e.preventDefault()}>
-                            <label className="auth_field">
+                            <label className={`auth_field ${errors.loginEmail ? "input_error" : ""}`}>
                                 <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
                                     <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z" />
                                 </svg>
-                                <input type="email" name="email" placeholder="user@gmail.com" autoComplete="email" />
+                                <input 
+                                    type="email" 
+                                    name="email" 
+                                    placeholder="user@gmail.com" 
+                                    autoComplete="email"
+                                    value={loginData.email}
+                                    onInput={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                                />
                             </label>
+
+                            {errors.loginEmail && (
+                                <div className="error_text">{errors.loginEmail}</div>
+                            )}
 
                             <label className="auth_field">
                                 <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -256,6 +330,8 @@ function Registration() {
                                     name="password"
                                     placeholder="Jelszó"
                                     autoComplete="current-password"
+                                    value={loginData.password}
+                                    onInput={(e) => setLoginData({ ...loginData, password: e.target.value })}
                                 />
 
                                 <button
@@ -280,7 +356,7 @@ function Registration() {
                                 </button>
                             </div>
 
-                            <button className="auth_primary" type="button" onClick={() => navigate("/")}>
+                            <button className="auth_primary" type="button" onClick={handleLogin}>
                                 Bejelentkezés
                             </button>
                         </form>
