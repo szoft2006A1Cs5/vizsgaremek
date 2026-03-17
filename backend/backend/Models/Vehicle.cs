@@ -147,6 +147,8 @@ namespace backend.Models
     {
         public List<int> Rates { get; set; }
         public int RentalPrice { get; set; }
+        public int Commission => (int)(RentalPrice * 0.05);
+        public int FullPrice => RentalPrice + Commission;
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
     }

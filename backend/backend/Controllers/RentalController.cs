@@ -96,10 +96,8 @@ namespace backend.Controllers
             var priceOffer = vehicle.GetPriceOffer(offer.Start, offer.End);
             if (priceOffer == null) return Conflict();
 
-            if (authUser.Balance < priceOffer.Value.RentalPrice + (priceOffer.Value.RentalPrice * 0.05))
+            if (authUser.Balance < priceOffer.Value.FullPrice)
                 return BadRequest();
-
-            authUser.Balance -= (int)(priceOffer.Value.RentalPrice + (priceOffer.Value.RentalPrice * 0.05));
 
             var rental = new Rental
             {
@@ -141,7 +139,8 @@ namespace backend.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (existingRental == null) return NotFound();
 
-            if (existingRental.RenterId != authUser.Id &&
+            if (authUser.Role != UserRole.Administrator &&
+                existingRental.RenterId != authUser.Id &&
                 existingRental.Vehicle.OwnerId != authUser.Id)
                 return Forbid();
 
