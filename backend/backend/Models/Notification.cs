@@ -18,7 +18,7 @@ namespace backend.Models
         public DateTime TimeSent { get; set; }
         public bool Read { get; set; }
 
-        public static async Task<Notification> Send(int userId, string content, Context context)
+        public static async Task Send(int userId, string content, Context context)
         {
             var notif = new Notification
             {
@@ -33,8 +33,6 @@ namespace backend.Models
 
             await context.Notifications.AddAsync(notif);
             await context.SaveChangesAsync();
-
-            return notif;
         }
     }
 }

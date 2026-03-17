@@ -201,6 +201,7 @@ CREATE TABLE `vehicles` (
   `horsepower` int(11) NOT NULL,
   `avgFuelConsumption` double NOT NULL,
   `fuelType` varchar(20) NOT NULL,
+  `transmission` varchar(16) NOT NULL,
   `insuranceNumber` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
@@ -208,10 +209,10 @@ CREATE TABLE `vehicles` (
 -- A tábla adatainak kiíratása `vehicles`
 --
 
-INSERT INTO `vehicles` (`id`, `ownerId`, `vin`, `licensePlate`, `manufacturer`, `model`, `year`, `description`, `odometerReading`, `horsepower`, `avgFuelConsumption`, `fuelType`, `insuranceNumber`) VALUES
-(1, 1, 'VF312345678901234', 'ABC-123', 'Toyota', 'Corolla', 2018, 'Megbízható hibrid városi cirkáló.', 85000, 132, 4.5, 'benzin-elektromos', 'KGFB-998877'),
-(2, 2, 'WBA41234567890123', 'SKY-789', 'BMW', '320d', 2015, 'Kényelmes utazóautó hosszabb távra.', 210000, 180, 6.2, 'dízel', 'KGFB-112233'),
-(3, 3, 'TMB51234567890123', 'RNL-456', 'Skoda', 'Octavia', 2020, 'Hatalmas csomagtartó, tiszta belső.', 45000, 150, 5.5, 'benzin', 'KGFB-445566');
+INSERT INTO `vehicles` (`id`, `ownerId`, `vin`, `licensePlate`, `manufacturer`, `model`, `year`, `description`, `odometerReading`, `horsepower`, `avgFuelConsumption`, `fuelType`, `transmission`, `insuranceNumber`) VALUES
+(1, 1, 'VF312345678901234', 'ABC-123', 'Toyota', 'Corolla', 2018, 'Megbízható hibrid városi cirkáló.', 85000, 132, 4.5, 'benzin-elektromos', "automata", 'KGFB-998877'),
+(2, 2, 'WBA41234567890123', 'SKY-789', 'BMW', '320d', 2015, 'Kényelmes utazóautó hosszabb távra.', 210000, 180, 6.2, 'dízel', "manuális", 'KGFB-112233'),
+(3, 3, 'TMB51234567890123', 'RNL-456', 'Skoda', 'Octavia', 2020, 'Hatalmas csomagtartó, tiszta belső.', 45000, 150, 5.5, 'benzin', "manuális", 'KGFB-445566');
 
 --
 -- Indexek a kiírt táblákhoz

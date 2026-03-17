@@ -6,7 +6,6 @@ using backend.Models;
 using backend.Services;
 using backend.Services.ResourceService;
 using backend.VisibilityFiltering;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

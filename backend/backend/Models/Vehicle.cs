@@ -41,6 +41,9 @@ namespace backend.Models
 
         [MaxLength(10)]
         public required string FuelType { get; set; } 
+        
+        [MaxLength(16)]
+        public required string Transmission { get; set; }
 
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(64)]
         public required string InsuranceNumber { get; set; }

@@ -1,11 +1,8 @@
 ﻿using backend.Services;
 using backend.Contexts;
 using backend.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 using backend.DTOs.Auth;
 using backend.DTOs.User;
 

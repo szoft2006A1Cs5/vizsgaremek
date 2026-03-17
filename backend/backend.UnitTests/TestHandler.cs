@@ -152,6 +152,7 @@ namespace backend.UnitTests
                     OdometerReading = 12000,
                     VIN = "ABCDEF123ARS12ABC1",
                     FuelType = "benzin",
+                    Transmission = "manuális",
                 },
                 new Vehicle
                 {
@@ -170,6 +171,7 @@ namespace backend.UnitTests
                     OdometerReading = 72000,
                     VIN = "12ARTC2131KBEBU234",
                     FuelType = "benzin",
+                    Transmission = "manuális",
                 },
             ]);
 
