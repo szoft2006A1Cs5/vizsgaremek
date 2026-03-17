@@ -152,6 +152,7 @@ namespace backend.UnitTests
                     OdometerReading = 12000,
                     VIN = "ABCDEF123ARS12ABC1",
                     FuelType = "benzin",
+                    Transmission = "manuális",
                 },
                 new Vehicle
                 {
@@ -170,6 +171,7 @@ namespace backend.UnitTests
                     OdometerReading = 72000,
                     VIN = "12ARTC2131KBEBU234",
                     FuelType = "benzin",
+                    Transmission = "manuális",
                 },
             ]);
 
@@ -240,11 +242,9 @@ namespace backend.UnitTests
                     Start = new DateTime(2026, 02, 28, 10, 00, 00),
                     End = new DateTime(2026, 03, 01, 15, 00, 00),
                     Status = RentalStatus.Finished,
-                    FullPrice = 29 * 600,
-                    Downpayment = (int)(29 * 600 * 0.3),
+                    RentalPrice = 29 * 600,
                     FuelLevel = 50,
-                    PickupLatitude = 47.228641,
-                    PickupLongtitude = 16.624567,
+                    PickupLocation = "9700 Szombathely, Zrínyi Ilona utca 12.",
                     OwnerRating = 5.0,
                     RenterRating = 4.5
                 },
@@ -258,11 +258,9 @@ namespace backend.UnitTests
                     Start = new DateTime(2026, 03, 11, 12, 00, 00),
                     End = new DateTime(2026, 03, 19, 15, 00, 00),
                     Status = RentalStatus.OfferAccepted,
-                    FullPrice = 195 * 400,
-                    Downpayment = (int)(195 * 400 * 0.3),
+                    RentalPrice = 195 * 400,
                     FuelLevel = 45,
-                    PickupLatitude = 47.228641,
-                    PickupLongtitude = 16.624567,
+                    PickupLocation = "9700 Szombathely, Uránia udvar 12.",
                     OwnerRating = null,
                     RenterRating = null
                 }

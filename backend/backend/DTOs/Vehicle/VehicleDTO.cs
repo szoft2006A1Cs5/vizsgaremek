@@ -15,4 +15,5 @@ public class VehicleDTO
     public double AvgFuelConsumption { get; set; }
     public required string FuelType { get; set; }
     public required string InsuranceNumber { get; set; }
+    public required string Transmission { get; set; }
 }

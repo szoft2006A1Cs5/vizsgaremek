@@ -41,6 +41,9 @@ namespace backend.Models
 
         [MaxLength(10)]
         public required string FuelType { get; set; } 
+        
+        [MaxLength(16)]
+        public required string Transmission { get; set; }
 
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(64)]
         public required string InsuranceNumber { get; set; }
@@ -98,7 +101,7 @@ namespace backend.Models
                    DateTime.Now < intervalStart;
         }
 
-        public VehicleRentalOffer? GetInitialRentalOffer(DateTime? intervalStart, DateTime? intervalEnd)
+        public VehiclePriceOffer? GetPriceOffer(DateTime? intervalStart, DateTime? intervalEnd)
         {
             if (intervalStart == null || intervalEnd == null) return null;
             
@@ -133,20 +136,22 @@ namespace backend.Models
                 fullPrice += (end - start).TotalHours * availability.HourlyRate;
             }
 
-            return new VehicleRentalOffer
+            return new VehiclePriceOffer
             {
                 Start = intervalStart.Value,
                 End = intervalEnd.Value,
                 Rates = relevantAvailabilites.Select(x => x.HourlyRate).ToList(),
-                FullPrice = (int)Math.Round(fullPrice),
+                RentalPrice = (int)Math.Round(fullPrice),
             };
         }
     }
 
-    public struct VehicleRentalOffer
+    public struct VehiclePriceOffer
     {
         public List<int> Rates { get; set; }
-        public int FullPrice { get; set; }
+        public int RentalPrice { get; set; }
+        public int Commission => (int)(RentalPrice * 0.05);
+        public int FullPrice => RentalPrice + Commission;
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
     }

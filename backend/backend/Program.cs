@@ -94,29 +94,16 @@ namespace backend
                              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                          };
                      });
-
-                builder.Services.AddAuthorization(options =>
-                {
-                    options.AddPolicy("OnlyUser", policy => policy.RequireClaim(ClaimTypes.Role, "User"));
-                    options.AddPolicy("OnlyAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
-                    options.AddPolicy("AllowAll", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator", "User"));
-                });
             }
 
-            /*
-            builder.Services.AddCors(o =>
-            {
-                o.AddPolicy("AllowFrontend", x =>
-                {
-                    x
-                        .WithOrigins("https://localhost:5173")
-                        .WithOrigins("https://127.0.0.1:5173")
-                        .WithOrigins("http://localhost:5173")
-                        .WithOrigins("http://127.0.0.1:5173");
-                });
-            });
-            */
-
+            // CORS
+            var allowedOrigins = builder.Configuration
+                .GetSection("CORS")
+                .GetChildren()
+                .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                .Select(x => x.Value!)
+                .ToArray();
+            
             var app = builder.Build();
             
             // Configure the HTTP request pipeline.
@@ -139,12 +126,13 @@ namespace backend
 
             app.MapControllers();
 
-            app.UseCors(policy => 
+            app.UseCors(policy =>
+            {
                 policy
-                    .AllowAnyOrigin()
+                    .WithOrigins(allowedOrigins)
                     .AllowAnyHeader()
-                    .AllowAnyMethod()
-            );
+                    .AllowAnyMethod();
+            });
             
             app.Run();
         }

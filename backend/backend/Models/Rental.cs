@@ -1,4 +1,6 @@
 ﻿using backend.Common;
+using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -23,35 +25,16 @@ namespace backend.Models
     public class Rental
     {
         public int Id { get; set; }
-        public int FullPrice { get; set; }
-        public int Downpayment { get; set; }
+        public int RentalPrice { get; set; }
+        [NotMapped] public int Commission => (int)(RentalPrice * 0.05);
+        [NotMapped] public int FullPrice => RentalPrice + Commission;
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
-        
-        [JsonIgnore]
-        [NotMapped]
-        public DateInterval DateInterval { 
-            get => new DateInterval(Start, End);
-        }
 
         public RentalStatus Status { get; set; }
-        public double PickupLatitude { get; set; }
-        public double PickupLongtitude { get; set; }
 
-        [JsonIgnore]
-        [NotMapped]
-        public Tuple<double, double> Pickup
-        {
-            get
-            {
-                return Tuple.Create(PickupLatitude, PickupLongtitude);
-            }
-            set
-            {
-                PickupLatitude = value.Item1;
-                PickupLongtitude = value.Item2;
-            }
-        }
+        [MaxLength(512)]
+        public required string PickupLocation { get; set; }
 
         public double? FuelLevel { get; set; }
         public double? RenterRating { get; set; }
@@ -131,12 +114,10 @@ namespace backend.Models
                 RentalStatus.OfferAccepted <= this.Status)
                 props = props.Where(x => !(new[]
                 {
-                    nameof(FullPrice),
-                    nameof(Downpayment),
+                    nameof(RentalPrice),
                     nameof(Start),
                     nameof(End),
-                    nameof(PickupLatitude),
-                    nameof(PickupLongtitude),
+                    nameof(PickupLocation),
                     nameof(FuelLevel)
                 }.Contains(x.Name)));
 

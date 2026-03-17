@@ -49,20 +49,6 @@ public class VehicleControllerTests
     }
 
     [TestMethod]
-    public async Task GetVehiclesPublic_BadRequest()
-    {
-        _controller.SetAuthUser(null, null);
-
-        // Forditva vannak a datumok
-        var result = await _controller!.GetVehicles(
-            rentalStart: new DateTime(2026, 02, 11),
-            rentalEnd: new DateTime(2026, 02, 09)
-        ) as BadRequestResult;
-        
-        Assert.IsNotNull(result);
-    }
-    
-    [TestMethod]
     public async Task GetVehicleByIdPublic_Ok()
     {
         _controller.SetAuthUser(null, null);
@@ -156,6 +142,7 @@ public class VehicleControllerTests
             Description = "",
             OdometerReading = 15000,
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as CreatedResult;
         
@@ -186,6 +173,7 @@ public class VehicleControllerTests
             Description = "",
             OdometerReading = 15000,
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as BadRequestResult;
         
@@ -209,6 +197,7 @@ public class VehicleControllerTests
             Description = "",
             OdometerReading = 15000,
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as ConflictResult;
         
@@ -232,6 +221,7 @@ public class VehicleControllerTests
             Description = "",
             OdometerReading = 15000,
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as UnauthorizedResult;
      
@@ -255,6 +245,7 @@ public class VehicleControllerTests
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as OkObjectResult;
         
@@ -282,6 +273,7 @@ public class VehicleControllerTests
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as NotFoundResult;
         
@@ -305,6 +297,7 @@ public class VehicleControllerTests
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1A", // Eggyel tobb betu
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as BadRequestResult;
         
@@ -328,6 +321,7 @@ public class VehicleControllerTests
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as ConflictResult;
         
@@ -352,6 +346,7 @@ public class VehicleControllerTests
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as ForbidResult;
         
@@ -375,6 +370,7 @@ public class VehicleControllerTests
             OdometerReading = 12000,
             VIN = "ABCDEF123ARS12ABC1",
             FuelType = "benzin",
+            Transmission = "manuális",
         }) as OkObjectResult;
         
         Assert.IsNotNull(result);
@@ -858,6 +854,7 @@ public class VehicleControllerTests
             Description = "",
             OdometerReading = 15000,
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as CreatedResult;
         
@@ -962,6 +959,7 @@ public class VehicleControllerTests
             Description = "",
             OdometerReading = 16000,
             FuelType = "benzin",
+            Transmission = "manuális",
             Horsepower = 190
         }) as OkObjectResult;
         Assert.IsNotNull(updateVehicleResult);

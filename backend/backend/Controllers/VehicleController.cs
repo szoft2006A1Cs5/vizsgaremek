@@ -1,20 +1,16 @@
-﻿using backend.Services;
+﻿using System.ComponentModel.DataAnnotations;
+using backend.Services;
 using backend.Contexts;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 using backend.Common;
 using backend.DTOs.Vehicle;
 using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
 using backend.Services.ResourceService;
-using Microsoft.CodeAnalysis.Differencing;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -38,23 +34,21 @@ namespace backend.Controllers
         // GET: api/<VehicleController>
         [HttpGet]
         public async Task<IActionResult> GetVehicles(
-            [FromQuery] DateTime rentalStart,
-            [FromQuery] DateTime rentalEnd,
-            [FromQuery] int limit = 30,
-            [FromQuery] int offset = 0,
+            [FromQuery] DateTime? rentalStart = null,
+            [FromQuery] DateTime? rentalEnd = null,
+            [FromQuery, Range(1, int.MaxValue)] int limit = 30,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1,
             [FromQuery] string? manufacturer = null,
             [FromQuery] string? model = null,
             [FromQuery] int? year = null,
             [FromQuery] string? settlement = null,
             [FromQuery] string? fuelType = null,
+            [FromQuery] string? transmission = null,
             [FromQuery] int? minRate = null,
             [FromQuery] int? maxRate = null,
             [FromQuery] bool showOwned = false
         )
         {
-            if (rentalStart == default || rentalEnd == default || (rentalEnd < rentalStart))
-                return BadRequest();
-            
             var authUser = await _authSrv.GetUser(User, _context);
 
             var vehicles = (await _context.Vehicles
@@ -65,20 +59,23 @@ namespace backend.Controllers
                 .Include(x => x.Rentals)
                 .Include(x => x.Images)
                 .Where(x => 
-                    !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
-                                        !(r.End < rentalStart || rentalEnd < r.Start)) &&
-                    x.Availabilities.Any(a => a.Start <= rentalStart && rentalStart <= a.End) &&
-                    x.Availabilities.Any(a => a.Start <= rentalEnd && rentalEnd <= a.End) &&
-                    // Tsodalatos megoldas, az intervallumon belul, az utolso elerhetoseget kiveve, vegigmegyunk,
-                    // es megnezzuk, hogy van-e olyan elerhetoseg utana, ami akkor kezdodik, amikor az vegez.
-                    x.Availabilities
-                        .Where(a => rentalStart <= a.End && a.End < rentalEnd)
-                        .All(a1 => x.Availabilities.Any(a2 => a1.End == a2.Start && a1.End < a2.End)) &&
+                    ((rentalStart != null && rentalEnd != null && rentalStart < rentalEnd) ?
+                        !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                            !(r.End < rentalStart || rentalEnd < r.Start)) &&
+                        x.Availabilities.Any(a => a.Start <= rentalStart && rentalStart <= a.End) &&
+                        x.Availabilities.Any(a => a.Start <= rentalEnd && rentalEnd <= a.End) &&
+                        // Tsodalatos megoldas, az intervallumon belul, az utolso elerhetoseget kiveve, vegigmegyunk,
+                        // es megnezzuk, hogy van-e olyan elerhetoseg utana, ami akkor kezdodik, amikor az vegez.
+                        x.Availabilities
+                            .Where(a => rentalStart <= a.End && a.End < rentalEnd)
+                            .All(a1 => x.Availabilities.Any(a2 => a1.End == a2.Start && a1.End < a2.End))
+                    : true) &&
                     (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
                     (model != null ? x.Model == model : true) &&
                     (year != null ? x.Year == year : true) &&
                     (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true) &&
                     (fuelType != null ? x.FuelType == fuelType : true) &&
+                    (transmission != null ? x.Transmission == transmission : true) &&
                     (!showOwned && authUser != null ? x.OwnerId != authUser.Id : true) &&
                     (minRate != null ? 
                         x.Availabilities
@@ -91,12 +88,12 @@ namespace backend.Controllers
                             .All(a => a.HourlyRate <= maxRate.Value)
                     : true)
                 )
-                .Skip(offset)
+                .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToListAsync())
                 .Select(x =>
                 {
-                    var offer = x.GetInitialRentalOffer(rentalStart, rentalEnd);
+                    var offer = x.GetPriceOffer(rentalStart, rentalEnd);
                     if (offer != null) x.ExtensionData.Add("offer", offer);
                     
                     return x;
@@ -129,14 +126,17 @@ namespace backend.Controllers
             if (vehicle == null) return NotFound();
 
             if (rentalStart != null && rentalEnd != null && rentalStart < rentalEnd)
-                vehicle.ExtensionData.Add("offer", vehicle.GetInitialRentalOffer(rentalStart, rentalEnd));
+                vehicle.ExtensionData.Add("offer", vehicle.GetPriceOffer(rentalStart, rentalEnd));
 
             return Ok(vehicle.FilterSerialize(authUser));
         }
 
         [Authorize(Roles = "User")]
         [HttpGet("Owned")]
-        public async Task<IActionResult> GetOwnedVehicles([FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetOwnedVehicles(
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10, 
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
 
@@ -152,7 +152,7 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images)
                 .Where(x => x.OwnerId == authUser.Id)
-                .Skip(offset)
+                .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToListAsync();
 
@@ -189,6 +189,7 @@ namespace backend.Controllers
                 Horsepower = vehicleData.Horsepower,
                 AvgFuelConsumption = vehicleData.AvgFuelConsumption,
                 FuelType = vehicleData.FuelType,
+                Transmission = vehicleData.Transmission,
                 InsuranceNumber = vehicleData.InsuranceNumber,
             };
             
@@ -238,7 +239,11 @@ namespace backend.Controllers
         }
         
         [HttpGet("{id}/Availability")]
-        public async Task<IActionResult> GetAvailabilities(int id, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetAvailabilities(
+            int id,
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
             
@@ -247,7 +252,7 @@ namespace backend.Controllers
                     .AsNoTracking()
                     .IgnoreAutoIncludes()
                     .Where(x => x.VehicleId == id)
-                    .Skip(offset)
+                    .Skip((page - 1) * limit)
                     .Take(limit)
                     .ToListAsync())
                     .FilterSerialize(authUser)
@@ -368,14 +373,18 @@ namespace backend.Controllers
         }
 
         [HttpGet("{vehicleId}/Image")]
-        public async Task<IActionResult> GetImages(int vehicleId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
+        public async Task<IActionResult> GetImages(
+            int vehicleId,
+            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
+            [FromQuery, Range(1, int.MaxValue)] int page = 1
+        )
         {
             var authUser = await _authSrv.GetUser(User, _context);
             
             return Ok(
                 (await _context.VehicleImages
                     .Where(x => x.VehicleId == vehicleId)
-                    .Skip(offset)
+                    .Skip((page - 1) * limit)
                     .Take(limit)
                     .OrderBy(x => x.SortIndex)
                     .ToListAsync())
