@@ -31,7 +31,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             var user = await _context.Users
                 .AsNoTracking()
@@ -52,7 +52,7 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAuthUser()
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
 
@@ -65,7 +65,7 @@ namespace backend.Controllers
             if (!dto.CheckValid())
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized(); 
             if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
@@ -107,7 +107,7 @@ namespace backend.Controllers
         [HttpPut("{id}/Deposit")]
         public async Task<IActionResult> Deposit(int id, [FromBody] int amount = 0)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
             if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
@@ -126,7 +126,7 @@ namespace backend.Controllers
         [HttpPut("{id}/Image")]
         public async Task<IActionResult> UpdateUserImageById(int id, IFormFile? file)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
             if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
@@ -158,7 +158,7 @@ namespace backend.Controllers
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
@@ -175,7 +175,7 @@ namespace backend.Controllers
         [HttpGet("{userId}/Notification/{notificationId}")]
         public async Task<IActionResult> GetNotificationByIdAndUID(int userId, int notificationId)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
@@ -189,7 +189,7 @@ namespace backend.Controllers
         [HttpPut("{userId}/Notification/{notificationId}")]
         public async Task<IActionResult> SetNotificationReadByUIDAndId(int userId, int notificationId, bool read = true)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
@@ -207,7 +207,7 @@ namespace backend.Controllers
         [HttpDelete("{userId}/Notification/{notificationId}")]
         public async Task<IActionResult> DeleteNotificationByUIDAndId(int userId, int notificationId)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
@@ -225,7 +225,7 @@ namespace backend.Controllers
         [HttpDelete("{userId}/Notification")]
         public async Task<IActionResult> DeleteNotificationsByUID(int userId)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();

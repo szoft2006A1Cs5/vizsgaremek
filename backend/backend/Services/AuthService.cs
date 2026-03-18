@@ -16,10 +16,12 @@ namespace backend.Services
     public class AuthService
     {
         private readonly IConfiguration _config;
+        private readonly Context _context;
 
-        public AuthService(IConfiguration configuration)
+        public AuthService(IConfiguration configuration, Context context)
         {
             _config = configuration;
+            _context = context;
         }
 
         private byte[] HashPassword(string password, byte[] salt)
@@ -88,13 +90,13 @@ namespace backend.Services
             return uid;
         }
 
-        public async Task<User?> GetUser(ClaimsPrincipal claims, Context context)
+        public async Task<User?> GetUser(ClaimsPrincipal claims)
         {
             var uid = GetUID(claims);
 
             if (uid == null) return null;
 
-            return await context.Users
+            return await _context.Users
                 .Include(x => x.Rentals)
                 .Include(x => x.Vehicles)
                 .FirstOrDefaultAsync(x => x.Id == uid);

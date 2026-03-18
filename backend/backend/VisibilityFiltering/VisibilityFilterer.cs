@@ -6,7 +6,9 @@ using System.Text.Json.Serialization;
 using backend.Models;
 using backend.Contexts;
 using System.Net;
+using System.Security.Claims;
 using System.Text.Encodings.Web;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.VisibilityFiltering
@@ -27,6 +29,12 @@ namespace backend.VisibilityFiltering
         public static string FilterSerialize<T>(this T data, User? authUser)
         {
             AuthUser.Value = authUser;
+            return JsonSerializer.Serialize(data, SerializerOptions);
+        }
+        
+        public static async Task<string> FilterSerialize<T>(this T data, ClaimsPrincipal claims, AuthService authSrv)
+        {
+            AuthUser.Value = await authSrv.GetUser(claims);
             return JsonSerializer.Serialize(data, SerializerOptions);
         }
     }

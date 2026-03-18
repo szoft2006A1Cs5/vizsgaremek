@@ -35,6 +35,13 @@ namespace backend.Services
         public static Result<T> Forbidden() => new(403);
         public static Result<T> BadRequest() => new(400);
         public static Result<T> BadRequest(string message) => new(400, message);
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Result<T> result) return result.StatusCode == StatusCode;
+            
+            return false;
+        }
     }
     
     public class RentalService
@@ -45,10 +52,67 @@ namespace backend.Services
         {
             _context = context;
         }
-        
-        public Result<Rental> Update(Rental rental, User authUser)
+
+        private void HandleStatusChange(Rental curr, Rental change, User authUser)
         {
-            return Result<Rental>.Ok(rental);
+            if (RentalStatus.Finished < change.Status)
+            {
+                curr.Status = change.Status;
+                return;
+            }
+            
+            var bases = new[] { 
+                (int)RentalStatus.RenterOffer,
+                (int)RentalStatus.RenterPickupAccepted,
+                (int)RentalStatus.RenterFinishAccepted,
+            };
+
+            foreach (var b in bases)
+            {
+                if ((int)change.Status != b + 2) continue;
+
+                bool otherWaiting = (int)curr.Status == (authUser.Id == curr.RenterId ? b + 1 : b);
+                curr.Status = otherWaiting
+                    ? (RentalStatus)(b + 2)
+                    : (RentalStatus)(authUser.Id == curr.RenterId ? b : b + 1);
+
+                // TODO: Ha OfferAccepted, akkor itt elmeletileg valahogy torolni
+                //       kene az osszes tobbi erre az idoszakra vontakozo rental offert,
+                //       es kuldeni azok kuldoinek egy ertesitest, hogy nem az o ajanlatukat
+                //       fogadtak el.
+
+                switch (curr.Status)
+                {
+                    case RentalStatus.OfferAccepted:
+                        {
+                            _context.Rentals.RemoveRange(
+                                _context.Rentals
+                                    .Where(x =>
+                                        !(x.End < curr.Start && curr.End < x.Start)
+                                    )
+                            );
+
+                            Notification.Send(
+                                curr.RenterId,
+                                $"",
+                                _context
+                            );
+                        }
+                        break;
+                }
+
+                return;
+            }
+            
+            if (curr.Status < RentalStatus.OfferAccepted)
+                curr.Status = authUser.Id == curr.RenterId ? RentalStatus.RenterOffer : RentalStatus.OwnerOffer;
+        }
+        
+        public Result<Rental> Update(Rental curr, Rental changed, User authUser)
+        {
+            HandleStatusChange(curr, changed, authUser);
+            
+            return Result<Rental>.Ok(curr);
         }
     }
 }

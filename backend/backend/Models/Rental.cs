@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using backend.Contexts;
+using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Models
 {
@@ -80,7 +82,7 @@ namespace backend.Models
                 this.Status = authUser.Id == this.RenterId ? RentalStatus.RenterOffer : RentalStatus.OwnerOffer;
         }
         
-        public bool Update(Rental to, User authUser)
+        public bool Update(Rental to, User authUser, [FromServices] Context context)
         {
             if (this.Status != to.Status)
             {

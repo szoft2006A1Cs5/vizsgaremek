@@ -49,7 +49,7 @@ namespace backend.Controllers
             [FromQuery] bool showOwned = false
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             var vehicles = (await _context.Vehicles
                 .AsNoTracking()
@@ -110,7 +110,7 @@ namespace backend.Controllers
             [FromQuery] DateTime? rentalEnd = null
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             var vehicle = await _context.Vehicles
                 .AsNoTracking()
@@ -138,7 +138,7 @@ namespace backend.Controllers
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             if (authUser == null) return Unauthorized();
 
@@ -163,7 +163,7 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<IActionResult> AddVehicle([FromBody] VehicleDTO vehicleData)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
             if (!Regex.IsMatch(vehicleData.VIN, "^[A-Z0-9]{18}$") ||
@@ -202,7 +202,7 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateVehicle(int id, [FromBody] VehicleDTO vehicleData)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
             if (!Regex.IsMatch(vehicleData.VIN, "^[A-Z0-9]{18}$") ||
@@ -245,7 +245,7 @@ namespace backend.Controllers
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             
             return Ok(
                 (await _context.VehicleAvailabilities
@@ -262,7 +262,7 @@ namespace backend.Controllers
         [HttpPost("{vehicleId}/Availability")]
         public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
             var vehicle = await _context.Vehicles
@@ -298,7 +298,7 @@ namespace backend.Controllers
         [HttpGet("{vehicleId}/Availability/{availabilityId}")]
         public async Task<IActionResult> GetAvailability(int vehicleId, int availabilityId)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             
             var availability = await _context.VehicleAvailabilities
                 .AsNoTracking()
@@ -317,7 +317,7 @@ namespace backend.Controllers
             [FromBody] VehicleAvailability replacement
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             var availability = await _context.VehicleAvailabilities
@@ -355,7 +355,7 @@ namespace backend.Controllers
             int availabilityId
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             var availability = await _context.VehicleAvailabilities
@@ -379,7 +379,7 @@ namespace backend.Controllers
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             
             return Ok(
                 (await _context.VehicleImages
@@ -395,7 +395,7 @@ namespace backend.Controllers
         [HttpPost("{vehicleId}/Image")]
         public async Task<IActionResult> AddImage(int vehicleId, IFormFile file, [FromQuery] int? sortIndex = null)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             var vehicle = await _context.Vehicles
                 .Include(x => x.Images)
@@ -430,7 +430,7 @@ namespace backend.Controllers
         [HttpPut("{vehicleId}/Image/{imageId}")]
         public async Task<IActionResult> UpdateImage(int vehicleId, int imageId, [FromBody] int? sortIndex = null)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             var image = await _context.VehicleImages
                 .Include(x => x.Vehicle)
@@ -453,7 +453,7 @@ namespace backend.Controllers
         [HttpDelete("{vehicleId}/Image/{imageId}")]
         public async Task<IActionResult> DeleteImage(int vehicleId, int imageId)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
 
             var image = await _context.VehicleImages
                 .Include(x => x.Vehicle)

@@ -34,7 +34,7 @@ namespace backend.Controllers
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             return Ok(
@@ -56,7 +56,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
             var rental = await _context.Rentals
@@ -78,7 +78,7 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RentalDTO offer)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             if (authUser.DriversLicenseNumber == null)
@@ -127,7 +127,7 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] RentalDTO modifications)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
             var existingRental = await _context.Rentals
@@ -166,7 +166,7 @@ namespace backend.Controllers
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             var rental = await _context.Rentals
@@ -194,7 +194,7 @@ namespace backend.Controllers
         [HttpPost("{id}/Message")]
         public async Task<IActionResult> SendMessage(int id, [FromBody] MessageSendDTO messageSent)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             var rental = await _context.Rentals
@@ -227,7 +227,7 @@ namespace backend.Controllers
         [HttpPost("{id}/Message/Image")]
         public async Task<IActionResult> SendMessageImage(int id, IFormFile file, [FromQuery] bool isComplaint = false)
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             var rental = await _context.Rentals
@@ -266,7 +266,7 @@ namespace backend.Controllers
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
-            var authUser = await _authSrv.GetUser(User, _context);
+            var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             return Ok(

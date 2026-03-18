@@ -42,8 +42,8 @@ namespace backend.UnitTests
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            AuthService authSrv = new AuthService(config);
             Context context = new Context(GetOptions());
+            AuthService authSrv = new AuthService(config, context);
             MockResourceService resSrv = new MockResourceService();
             context.Database.EnsureCreated();
 
