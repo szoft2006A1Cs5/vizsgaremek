@@ -1,0 +1,132 @@
+.nav_header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    z-index: 9999;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.nav_header:global(.mantine-AppShell-header) {
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.nav_bar {
+    height: 80px;
+    width: 100%;
+    padding: 0 22px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    background: rgba(6, 6, 49, 0.28);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.nav_header.nav_scrolled .nav_bar {
+    background: rgba(6, 6, 49, 0.92);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.nav_links {
+    gap: 18px;
+}
+
+.nav_link {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    border-radius: 8px;
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.nav_link:hover {
+    color: #2136bd;
+    transform: translateY(-1px);
+}
+
+.nav_account {
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.nav_account:hover {
+    background: #2136bd;
+    box-shadow: 0 0 18px rgba(25, 37, 112, 0.7);
+    transform: translateY(-1px);
+}
+
+.nav_popout {
+    margin: 12px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(6, 6, 49, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+    z-index: 10000;
+}
+
+.nav_popout .nav_link {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.nav_navlinkWrap {
+    text-decoration: none;
+    color: inherit;
+}
+
+.mantine-AppShell-header {
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.mantine-AppShell-main {
+    padding-top: 0 !important;
+}
+
+.nav_account_dropdown {
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.nav_account_card {
+    width: 240px;
+    padding: 14px;
+    border-radius: 16px;
+    background: #e6f1ff;
+    box-shadow:
+        0 18px 45px rgba(0, 0, 0, 0.55),
+        0 4px 12px rgba(33, 54, 189, 0.15);
+    animation: dropdownFade 0.18s ease;
+}
+
+.nav_account_card .mantine-NavLink-root {
+    font-size: 15px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 10px;
+    color: #060631;
+    transition: all 0.18s ease;
+}
+
+.nav_account_card .mantine-NavLink-root:hover {
+    background: rgba(33, 54, 189, 0.15);
+    transform: translateX(3px);
+}
