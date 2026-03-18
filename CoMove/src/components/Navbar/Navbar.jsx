@@ -17,6 +17,8 @@ import logo from "../../assets/kepek/logo/comove_logo4.png"
 import { useDisclosure } from "@mantine/hooks"
 import { Link, useLocation } from "react-router-dom"
 import { Popover } from "@mantine/core"
+import NotificationMenu from "../NotificationMenu/NotificationMenu";
+import { useLogout, useUser } from "../../assets/scripts/UseUser";
 
 function Navbar({ children }) {
     const [sideNavOpen, sideNav] = useDisclosure(false)
@@ -48,40 +50,10 @@ function Navbar({ children }) {
         return () => window.removeEventListener("scroll", onScroll)
     }, [])
 
-    const [authUser, setAuthUser] = useState(null)
+    const authUser = useUser();
+    const logout = useLogout();
 
-    useEffect(() => {
-        sideNav.close()
-        authBar.close()
-
-        const token = localStorage.getItem("token")
-        if (!token) {
-            setAuthUser(null)
-            return
-        }
-
-        fetch("https://localhost:7245/api/User", {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then((resp) => {
-                if (resp.status !== 200) {
-                    localStorage.removeItem("token")
-                    setAuthUser(null)
-                    return null
-                }
-                return resp.json()
-            })
-            .then((data) => {
-                if (!data) return
-                setAuthUser(data)
-            })
-            .catch(() => {
-                setAuthUser(null)
-            });
-    }, [location.pathname])
-
-    const isLoadingUser = !!localStorage.getItem("token") && (!authUser || !authUser.name)
+    const isLoadingUser = !!localStorage.getItem("auth") && (!authUser.data || !authUser.data.name)
 
     return (
         <AppShell
@@ -118,6 +90,8 @@ function Navbar({ children }) {
                                 ))}
                             </Group>
 
+                            <NotificationMenu />
+
                             <Popover
                                 opened={authBarOpen}
                                 onChange={(o) => (o ? authBar.open() : authBar.close())}
@@ -153,7 +127,7 @@ function Navbar({ children }) {
                                         <LoadingOverlay visible={isLoadingUser} zIndex={1000} overlayProps={{ radius: "sm", blur: 5 }} />
 
                                         <Stack gap={5} className="nav_authItems">
-                                            {!authUser || !authUser.name ? (
+                                            {!authUser.data || !authUser.data.name ? (
                                                 <>
                                                     <Link to="/login" className="nav_navlinkWrap" onClick={() => authBar.close()}>
                                                         <NavLink label="Bejelentkezés" />
@@ -168,7 +142,7 @@ function Navbar({ children }) {
                                             ) : (
                                                 <>
                                                     <Title size={20} c="white">
-                                                        Üdv {authUser.name}!
+                                                        Üdv {authUser.data.name}!
                                                     </Title>
                                                     <Divider />
 
@@ -190,9 +164,7 @@ function Navbar({ children }) {
                                                     <NavLink
                                                         label="Kijelentkezés"
                                                         onClick={() => {
-                                                            setAuthUser(null);
-                                                            localStorage.removeItem("token");
-                                                            authBar.close();
+                                                            logout()
                                                         }}
                                                     />
                                                 </>

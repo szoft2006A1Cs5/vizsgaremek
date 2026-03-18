@@ -1,0 +1,13 @@
+
+.notif_bellbtn {
+    background: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    width: 40px;
+}
+
+.notif_bellbtn:hover {
+    background: #2136bd;
+    box-shadow: 0 0 18px rgba(25, 37, 112, 0.7);
+    transform: translateY(-1px);
+}

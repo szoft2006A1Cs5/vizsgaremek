@@ -21,8 +21,6 @@ function Account() {
           loaded ? "isLoaded" : ""
         }`}
       >
-        <img className="account_logo" src={logo} alt="CoMove" />
-
         <div className="account_hero_content">
           <h1 className="account_focim">Fiókbeállítások</h1>
           <p className="account_alcim">Módosítsa adatait</p>

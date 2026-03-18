@@ -12,6 +12,11 @@ function Registration() {
         [location.pathname]
     )
 
+    useEffect(() => {
+        if (localStorage.getItem("auth"))
+            navigate("/");
+    }, []);
+
     const nameRegex = /^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+(?: [A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+)+$/;
     const numberRegex = /^\d+$/;
     const passwordRegex = /^(?=.*[A-ZÁÉÍÓÖŐÚÜŰ])(?=.*\d).{8,}$/;

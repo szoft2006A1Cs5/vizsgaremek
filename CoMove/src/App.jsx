@@ -5,6 +5,9 @@ import Searching from "./components/Searching/Searching";
 import Log_Reg from "./components/Log_Reg/Log_Reg";
 import Cards from "./components/Cards/Cards";
 import Account from "./components/Account/Account";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function LayoutWithNavbar() {
   return (
@@ -16,19 +19,21 @@ function LayoutWithNavbar() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* NAVBAR-ral rendelkező oldalak */}
-        <Route element={<LayoutWithNavbar />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/searching" element={<Searching />} />
-          <Route path="/results" element={<Cards />} />
-        </Route>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          {/* NAVBAR-ral rendelkező oldalak */}
+          <Route element={<LayoutWithNavbar />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/searching" element={<Searching />} />
+            <Route path="/results" element={<Cards />} />
+            <Route path="/account" element={<Account />} />
+          </Route>
 
-        <Route path="/login" element={<Log_Reg />} />
-        <Route path="/register" element={<Log_Reg />} />
-        <Route path="/account" element={<Account />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="/login" element={<Log_Reg />} />
+          <Route path="/register" element={<Log_Reg />} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
