@@ -11,9 +11,25 @@ function NotificationMenu() {
 
     const authUser = useUser();
 
-    function Delete(id) {
+    function deleteNotificaton(id) {
         const auth = JSON.parse(localStorage.getItem("auth"));
         fetch(`https://localhost:7245/api/User/${auth.userId}/Notification/${id}`, {
+            method: "DELETE",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${auth.token}` 
+            },
+        })
+        .then((resp) => {
+            if (resp.status === 204)
+                authUser.refetch();
+        })
+        .catch(() => {});
+    }
+
+    function deleteAll() {
+        const auth = JSON.parse(localStorage.getItem("auth"));
+        fetch(`https://localhost:7245/api/User/${auth.userId}/Notification`, {
             method: "DELETE",
             headers: { 
                 "Content-Type": "application/json",
@@ -48,7 +64,7 @@ function NotificationMenu() {
                 }}
             >
                 <Modal.Header>
-                    <Button color='red' disabled={authUser.data.notifications.length <= 0} fullWidth>
+                    <Button color='red' onClick={() => deleteAll()} disabled={authUser.data.notifications.length <= 0} fullWidth>
                         Összes törlése
                     </Button>
                 </Modal.Header>
@@ -57,7 +73,7 @@ function NotificationMenu() {
                     0 < authUser.data.notifications.length ?
                      authUser.data.notifications.map(x => {
                         return (
-                            <Notification key={x.notificationId} notification={x} onDelete={() => Delete(x.notificationId)} />
+                            <Notification key={x.notificationId} notification={x} onDelete={() => deleteNotificaton(x.notificationId)} />
                         )
                     }) :
                     <Center>
