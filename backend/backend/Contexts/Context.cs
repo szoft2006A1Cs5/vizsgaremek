@@ -13,7 +13,6 @@ namespace backend.Contexts
         public DbSet<Rental> Rentals { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<MessageAttachment> MessageAttachments { get; set; }
 
         public Context(DbContextOptions<Context> options) : base(options) { }
 
@@ -23,15 +22,19 @@ namespace backend.Contexts
 
             modelBuilder.Entity<Rental>()
                 .Property(x => x.Status)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<VehicleAvailability>()
-                .Property(x => x.Recurrence)
-                .HasConversion<string>();
+                .HasConversion<int>();
 
             modelBuilder.Entity<User>()
                 .Property(x => x.Role)
                 .HasConversion<string>();
+
+            modelBuilder.Entity<User>()
+                .Property(x => x.DateOfBirth)
+                .HasColumnType("date")
+                .HasConversion(
+                    v => v.ToDateTime(TimeOnly.MinValue),
+                    v => DateOnly.FromDateTime(v)
+                );
         }
     }
 }

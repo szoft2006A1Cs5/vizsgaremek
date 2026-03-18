@@ -1,0 +1,41 @@
+﻿using backend.VisibilityFiltering;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using backend.Models;
+using backend.Contexts;
+using System.Net;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using backend.Services;
+using Microsoft.EntityFrameworkCore;
+
+namespace backend.VisibilityFiltering
+{
+    public static class VisibilityFilterer
+    {
+        public static AsyncLocal<User?> AuthUser { get; } = new();
+        private static JsonSerializerOptions SerializerOptions { get; } = new()
+        {
+            TypeInfoResolver = new JsonVisibilityResolver(),
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true,
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+        };
+        
+        public static string FilterSerialize<T>(this T data, User? authUser)
+        {
+            AuthUser.Value = authUser;
+            return JsonSerializer.Serialize(data, SerializerOptions);
+        }
+        
+        public static async Task<string> FilterSerialize<T>(this T data, ClaimsPrincipal claims, AuthService authSrv)
+        {
+            AuthUser.Value = await authSrv.GetUser(claims);
+            return JsonSerializer.Serialize(data, SerializerOptions);
+        }
+    }
+}
