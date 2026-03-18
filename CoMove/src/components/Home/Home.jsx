@@ -207,9 +207,6 @@ function Home() {
                                     <a href="https://www.facebook.com/profile.php?id=100058838472197" target="_blank" rel="noreferrer" aria-label="Facebook">
                                         <FaFacebookF />
                                     </a>
-                                    <a href="https://www.snapchat.com/" target="_blank" rel="noreferrer" aria-label="Snapchat">
-                                        <FaSnapchatGhost />
-                                    </a>
                                     <a href="https://www.instagram.com/bence_megyeri/" target="_blank" rel="noreferrer" aria-label="Instagram">
                                         <FaInstagram />
                                     </a>
@@ -223,9 +220,6 @@ function Home() {
                                     <a href="https://www.facebook.com/mariah.llianne" target="_blank" rel="noreferrer" aria-label="Facebook">
                                         <FaFacebookF />
                                     </a>
-                                    <a href="https://www.snapchat.com/" target="_blank" rel="noreferrer" aria-label="Snapchat">
-                                        <FaSnapchatGhost />
-                                    </a>
                                     <a href="https://www.instagram.com/yantoyyyy/" target="_blank" rel="noreferrer" aria-label="Instagram">
                                         <FaInstagram />
                                     </a>
@@ -238,9 +232,6 @@ function Home() {
                                 <div className="home_social-linkek">
                                     <a href="https://www.facebook.com/aron.geosits" target="_blank" rel="noreferrer" aria-label="Facebook">
                                         <FaFacebookF />
-                                    </a>
-                                    <a href="https://www.snapchat.com/" target="_blank" rel="noreferrer" aria-label="Snapchat">
-                                        <FaSnapchatGhost />
                                     </a>
                                     <a href="https://www.instagram.com/" target="_blank" rel="noreferrer" aria-label="Instagram">
                                         <FaInstagram />
@@ -283,12 +274,6 @@ function Home() {
                                 <a href="/">Főoldal</a>
                                 <a href="/searching">Autóbérlés</a>
                                 <a href="/login">Fiókom</a>
-                            </div>
-                            <div className="footerCol">
-                                <h4>Kövess minket</h4>
-                                <a href="https://www.facebook.com/profile.php?id=61586242866516" target="_blank" rel="noreferrer">Facebook</a>
-                                <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
-                                <a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a>
                             </div>
                         </div>
                     </div>
