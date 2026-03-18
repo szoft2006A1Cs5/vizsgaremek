@@ -12,26 +12,32 @@ function Registration() {
         [location.pathname]
     )
 
-    const nameRegex = /^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+(?: [A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+)+$/;
-    const numberRegex = /^\d+$/;
-    const passwordRegex = /^(?=.*[A-ZÁÉÍÓÖŐÚÜŰ])(?=.*\d).{8,}$/;
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
-    const today = new Date();
-    const maxBirthDate = new Date(today.setFullYear(today.getFullYear() - 18));
-    const [isRegisterUI, setIsRegisterUI] = useState(routeIsRegister);
+    const nameRegex = /^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+(?: [A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+)+$/
+    const idcardRegex = /^\d{6}[A-Z]{2}$/
+    const passwordRegex = /^(?=.*[A-ZÁÉÍÓÖŐÚÜŰ])(?=.*\d).{8,}$/
+    const drivlicenseRegex = /^[A-Z]{2}\d{6}$/
+    const addresssettlementRegex = /^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]{2,100}$/
+    const addresszipcodeRegex = /^\d{4}$/
+    const phoneRegex = /^(36|06)(94|70|30|20)\d{7}$/
+    const emailRegex = /^[A-z0-9.-]+@([A-z0-9-]+\.)+([A-z]{2,3})$/
+    const today = new Date()
+    const maxBirthDate = new Date(today.setFullYear(today.getFullYear() - 18))
+    const [isRegisterUI, setIsRegisterUI] = useState(routeIsRegister)
     const [leaving, setLeaving] = useState(null)
     const [regStep, setRegStep] = useState(0)
     const [errors, setErrors] = useState({})
-    const [showLoginPass, setShowLoginPass] = useState(false);
-    const [showRegPass1, setShowRegPass1] = useState(false);
-    const [showRegPass2, setShowRegPass2] = useState(false);
+    const [showLoginPass, setShowLoginPass] = useState(false)
+    const [showRegPass1, setShowRegPass1] = useState(false)
+    const [showRegPass2, setShowRegPass2] = useState(false)
     const [formData, setFormData] = useState({
         teljes_nev: "",
         szuletesi_datum: "",
         nem: "",
-        lakcim: "",
+        iranyitoszam: "",
+        telepules: "",
+        utca_hazszam: "",
         telefonszam: "",
-        forgalmi_szam: "",
+        szemelyi_szam: "",
         email: "",
         jelszo: "",
         jelszo2: "",
@@ -72,26 +78,37 @@ function Registration() {
                 newErrors.szuletesi_datum = "A regisztrációhoz legalább 18 évesnek kell lenned.";
             }
 
-            if (!formData.nem) {
-                newErrors.nem = "A nem kiválasztása kötelező.";
+            if (!formData.szemelyi_szam.trim()) {
+                newErrors.szemelyi_szam = "A személyi szám megadása kötelező.";
+            } else if (!idcardRegex.test(formData.szemelyi_szam.trim())) {
+                newErrors.szemelyi_szam = "A személyi szám csak számokat tartalmazhat.";
             }
         }
+
         if (regStep === 1) {
-            if (!formData.lakcim.trim()) {
-                newErrors.lakcim = "A lakcím megadása kötelező.";
+            if (!formData.iranyitoszam.trim()) {
+                newErrors.iranyitoszam = "Add meg az irányítószámot.";
+            } else if (!addresszipcodeRegex.test(formData.iranyitoszam.trim())) {
+                newErrors.iranyitoszam = "Az irányítószám csak 4 számjegyből állhat.";
             }
+
+            if (!formData.telepules.trim()) {
+                newErrors.telepules = "Add meg a település nevét.";
+            } else if (!addresssettlementRegex.test(formData.telepules.trim())) {
+                newErrors.telepules = "A település nem tartalmazhat számot.";
+            }
+
+            if (!formData.utca_hazszam.trim()) {
+                newErrors.utca_hazszam = "Add meg az utca nevet és házszámot.";
+            } 
 
             if (!formData.telefonszam.trim()) {
                 newErrors.telefonszam = "A telefonszám megadása kötelező.";
-            } else if (!numberRegex.test(formData.telefonszam.trim())) {
+            } else if (!phoneRegex.test(formData.telefonszam.trim())) {
                 newErrors.telefonszam = "A telefonszám csak számokat tartalmazhat.";
             }
 
-            if (!formData.forgalmi_szam.trim()) {
-                newErrors.forgalmi_szam = "A forgalmi szám megadása kötelező.";
-            } else if (!numberRegex.test(formData.forgalmi_szam.trim())) {
-                newErrors.forgalmi_szam = "A forgalmi szám csak számokat tartalmazhat.";
-            }
+            
         }
         if (regStep === 2) {
             if (!formData.email.trim()) {
@@ -395,7 +412,6 @@ function Registration() {
                                             onChange={handleChange}
                                         />
                                     </label>
-
                                     {errors.teljes_nev && (
                                         <div className="error_text">{errors.teljes_nev}</div>
                                     )}
@@ -417,38 +433,64 @@ function Registration() {
                                         <div className="error_text">{errors.szuletesi_datum}</div>
                                     )}
 
-                                    <label className={`auth_field ${errors.nem ? "input_error" : ""}`}>
+                                    <label className={`auth_field ${errors.szemelyi_szam ? "input_error" : ""}`}>
                                         <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z" />
+                                            <path d="M3 7h18v10H3V7zm2 2v6h14V9H5z" />
                                         </svg>
-                                        <select
-                                            name="nem"
-                                            className="auth_select"
-                                            value={formData.nem}
+                                        <input
+                                            type="text"
+                                            name="szemelyi_szam"
+                                            placeholder="Személyi szám"
+                                            value={formData.szemelyi_szam}
                                             onChange={handleChange}
-                                        >
-                                            <option value="" disabled>Nem</option>
-                                            <option value="ferfi">Férfi</option>
-                                            <option value="no">Nő</option>
-                                            <option value="egyeb">Egyéb</option>
-                                        </select>
+                                        />
                                     </label>
-                                    {errors.nem && <div className="error_text">{errors.nem}</div>}
+                                    {errors.szemelyi_szam && <div className="error_text">{errors.szemelyi_szam}</div>}
                                 </>
                             )}
 
                             {regStep === 1 && (
                                 <>
-                                    <label className={`auth_field ${errors.lakcim ? "input_error" : ""}`}>
+                                    <label className={`auth_field ${errors.iranyitoszam ? "input_error" : ""}`}>
                                         <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
                                             <path d="M12 2 3 10v12h6v-7h6v7h6V10l-9-8z" />
                                         </svg>
                                         <input
                                             type="text"
-                                            name="lakcim"
-                                            placeholder="Lakcím"
+                                            name="iranyitoszam"
+                                            placeholder="Irányítószám"
+                                            autoComplete="address-ZipCode"
+                                            value={formData.iranyitoszam}
+                                            onChange={handleChange}
+                                        />
+                                    </label>
+                                    {errors.iranyitoszam && <div className="error_text">{errors.iranyitoszam}</div>}
+
+                                    <label className={`auth_field ${errors.telepules ? "input_error" : ""}`}>
+                                        <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M12 2 3 10v12h6v-7h6v7h6V10l-9-8z" />
+                                        </svg>
+                                        <input
+                                            type="text"
+                                            name="telepules"
+                                            placeholder="Település"
+                                            autoComplete="address-settlement"
+                                            value={formData.telepules}
+                                            onChange={handleChange}
+                                        />
+                                    </label>
+                                    {errors.telepules && <div className="error_text">{errors.telepules}</div>}
+
+                                    <label className={`auth_field ${errors.utca_hazszam ? "input_error" : ""}`}>
+                                        <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M12 2 3 10v12h6v-7h6v7h6V10l-9-8z" />
+                                        </svg>
+                                        <input
+                                            type="text"
+                                            name="utca_hazszam"
+                                            placeholder="Utca, házszám"
                                             autoComplete="street-address"
-                                            value={formData.lakcim}
+                                            value={formData.utca_hazszam}
                                             onChange={handleChange}
                                         />
                                     </label>
@@ -470,19 +512,7 @@ function Registration() {
                                     </label>
                                     {errors.telefonszam && <div className="error_text">{errors.telefonszam}</div>}
 
-                                    <label className={`auth_field ${errors.forgalmi_szam ? "input_error" : ""}`}>
-                                        <svg className="auth_icon" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M3 7h18v10H3V7zm2 2v6h14V9H5z" />
-                                        </svg>
-                                        <input
-                                            type="text"
-                                            name="forgalmi_szam"
-                                            placeholder="Forgalmi száma"
-                                            value={formData.forgalmi_szam}
-                                            onChange={handleChange}
-                                        />
-                                    </label>
-                                    {errors.forgalmi_szam && <div className="error_text">{errors.forgalmi_szam}</div>}
+                                    
                                 </>
                             )}
 
