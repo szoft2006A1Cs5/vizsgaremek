@@ -155,6 +155,8 @@ namespace backend.Services.RentalService
                                 nameof(Rental.Renter)
                             }.Contains(x.Name)));
             
+            // TODO: MINDKET OLDAL VALTOZTATGATHATJA
+            //       A MASIK ERTEKELESET, AZ NEM JO
             if (authUser.Role != UserRole.Administrator &&
                 curr.Status != RentalStatus.Finished)
                 props = props.Where(x => !(new[]

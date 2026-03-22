@@ -69,6 +69,10 @@ namespace backend.Controllers
                 .Include(x => x.Vehicle)
                 .ThenInclude(x => x.Owner)
                 .Include(x => x.Renter)
+                .Include(x => x.Vehicle)
+                .ThenInclude(x => x.Availabilities)
+                .Include(x => x.Vehicle)
+                .ThenInclude(x => x.Images)
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (rental == null) return NotFound();
             
