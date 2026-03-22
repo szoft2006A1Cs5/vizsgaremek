@@ -132,7 +132,7 @@ public class VehicleControllerTests
 
         var result = await _controller!.AddVehicle(new VehicleDTO
         {
-            VIN = "ARS213ARS12315AB28",
+            VIN = "ARS213ARS12315A28",
             LicensePlate = "EGH789",
             InsuranceNumber = "KGFB245810587",
             Manufacturer = "Hyundai",
@@ -187,7 +187,7 @@ public class VehicleControllerTests
 
         var result = await _controller!.AddVehicle(new VehicleDTO
         {
-            VIN = "ARS213ARS12315AB28",
+            VIN = "ARS213ARS12315A28",
             LicensePlate = "ABC123", // Mar van ilyen rendszamu jarmu a rendszerben
             InsuranceNumber = "KGFB245810587",
             Manufacturer = "Hyundai",
@@ -243,7 +243,7 @@ public class VehicleControllerTests
             Model = "Corolla",
             Year = 2019,
             OdometerReading = 12000,
-            VIN = "ABCDEF123ARS12ABC1",
+            VIN = "ABCDEF123ARS12AB1",
             FuelType = "benzin",
             Transmission = "manuális",
             Horsepower = 190
@@ -271,7 +271,7 @@ public class VehicleControllerTests
             Model = "Corolla",
             Year = 2019,
             OdometerReading = 12000,
-            VIN = "ABCDEF123ARS12ABC1",
+            VIN = "ABCDEF123ARS12AB1",
             FuelType = "benzin",
             Transmission = "manuális",
             Horsepower = 190
@@ -295,7 +295,7 @@ public class VehicleControllerTests
             Model = "Corolla",
             Year = 2019,
             OdometerReading = 12000,
-            VIN = "ABCDEF123ARS12ABC1A", // Eggyel tobb betu
+            VIN = "ABCDEF123ARS12AB1A", // Eggyel tobb betu
             FuelType = "benzin",
             Transmission = "manuális",
             Horsepower = 190
@@ -319,7 +319,7 @@ public class VehicleControllerTests
             Model = "Corolla",
             Year = 2019,
             OdometerReading = 12000,
-            VIN = "ABCDEF123ARS12ABC1",
+            VIN = "ABCDEF123ARS12AB1",
             FuelType = "benzin",
             Transmission = "manuális",
             Horsepower = 190
@@ -344,7 +344,7 @@ public class VehicleControllerTests
             Model = "Corolla",
             Year = 2019,
             OdometerReading = 12000,
-            VIN = "ABCDEF123ARS12ABC1",
+            VIN = "ABCDEF123ARS12AB1",
             FuelType = "benzin",
             Transmission = "manuális",
             Horsepower = 190
@@ -368,7 +368,7 @@ public class VehicleControllerTests
             Model = "Corolla",
             Year = 2019,
             OdometerReading = 12000,
-            VIN = "ABCDEF123ARS12ABC1",
+            VIN = "ABCDEF123ARS12AB1",
             FuelType = "benzin",
             Transmission = "manuális",
         }) as OkObjectResult;
@@ -844,7 +844,7 @@ public class VehicleControllerTests
 
         var addVehicleResult = await _controller!.AddVehicle(new VehicleDTO
         {
-            VIN = "ARS213ARS12315AB28",
+            VIN = "ARS213ARS12315A28",
             LicensePlate = "EGH789",
             InsuranceNumber = "KGFB245810587",
             Manufacturer = "Hyundai",
@@ -950,7 +950,7 @@ public class VehicleControllerTests
         #region UpdateVehicle
         var updateVehicleResult = await _controller!.UpdateVehicle(vehicleId, new VehicleDTO
         {
-            VIN = "ARS213ARS12315AB28",
+            VIN = "ARS213ARS12315AB2",
             LicensePlate = "EGH789",
             InsuranceNumber = "KGFB245810587",
             Manufacturer = "Hyundai",
