@@ -21,30 +21,21 @@ namespace backend.Controllers
         private readonly AuthService _authSrv;
         private readonly IResourceService _resSrv;
         private readonly RentalService _rentSrv;
-        
-        private Func<DateTime> _getNow;
-        // Teszteleshez
-        public DateTime Now
-        {
-            set
-            {
-                _getNow = () => value;
-            }
-        }
+        private readonly TimeProvider _timePrv;
         
         public RentalController(
             Context context, 
             AuthService authSrv, 
             IResourceService resSrv, 
             RentalService rentSrv,
-            Func<DateTime>? getNow = null
+            TimeProvider timePrv
         )
         {
             _context = context;
             _authSrv = authSrv;
             _resSrv = resSrv;
             _rentSrv = rentSrv;
-            _getNow = getNow ?? (() => DateTime.Now);
+            _timePrv = timePrv;
         }
         
         // GET: api/<RentalController>
@@ -93,7 +84,7 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RentalDTO offer)
         {
-            if (offer.End <= offer.Start || offer.Start <= _getNow())
+            if (offer.End <= offer.Start || offer.Start <= _timePrv.GetUtcNow())
                 return BadRequest();
             
             var authUser = await _authSrv.GetUser(User);
@@ -171,7 +162,7 @@ namespace backend.Controllers
                     modifications.End,
                     existingRental
                 ) &&
-                _getNow() < modifications.Start)
+                _timePrv.GetUtcNow() < modifications.Start)
                 return Conflict(new { Error = "Nem bérelhető a jármű az adott időszakban."});
 
             var result = await _rentSrv.Update(existingRental, modifications, authUser);

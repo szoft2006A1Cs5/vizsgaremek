@@ -17,12 +17,6 @@ namespace backend.UnitTests.Tests
         TestingEnvironment _environment;
         private RentalController? _controller;
 
-        public void SetNow(DateTime now)
-        {
-            _environment.RentalService.Now = now;
-            if (_controller != null) _controller.Now = now;
-        }
-
         [TestInitialize]
         public void Initialize()
         {
@@ -31,7 +25,8 @@ namespace backend.UnitTests.Tests
                 _environment.Context,
                 _environment.AuthService,
                 _environment.ResourceService,
-                _environment.RentalService
+                _environment.RentalService,
+                _environment.FakeTimeProvider
             );
         }
 
@@ -41,7 +36,7 @@ namespace backend.UnitTests.Tests
         public async Task ChainTest()
         {
             // Nem lehet utolag berelni
-            SetNow(new DateTime(2026, 03, 22));
+            _environment.FakeTimeProvider.SetUtcNow(new DateTime(2026, 03, 22));
             // Itt az oradij 400, igy ez 14 + 24 + 10
             // 48 * 400 = 19 200 Ft
             // erre jon meg a szolgaltatas dija ami 5%
@@ -91,7 +86,9 @@ namespace backend.UnitTests.Tests
             Assert.AreEqual(19200, owner.Balance);
             #endregion
 
-            SetNow(rentalStart.AddMinutes(5));
+            _environment.FakeTimeProvider.SetUtcNow(
+                rentalStart.AddMinutes(5)
+            );
 
             #region RenterPickupAccepted
             _controller.SetAuthUser(1, UserRole.User);

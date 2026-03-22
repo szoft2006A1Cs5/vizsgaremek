@@ -9,24 +9,15 @@ namespace backend.Services.RentalService
     public class RentalService
     {
         private readonly Context _context;
+        private readonly TimeProvider _timePrv;
         
-        private Func<DateTime> _getNow;
-        // Teszteleshez
-        public DateTime Now
-        {
-            set
-            {
-                _getNow = () => value;
-            }
-        }
-
         public RentalService(
             Context context,
-            Func<DateTime>? getNow = null
+            TimeProvider timePrv
         ) 
         {
             _context = context;
-            _getNow = getNow ?? (() => DateTime.Now);
+            _timePrv = timePrv;
         }
         
         private async Task<RentalResult> HandleStatusChange(Rental curr, RentalDTO change, User authUser)
@@ -53,7 +44,7 @@ namespace backend.Services.RentalService
             }
 
             if ((RentalStatus)b == RentalStatus.RenterPickupAccepted &&
-                _getNow() < curr.Start)
+                _timePrv.GetUtcNow() < curr.Start)
                 return RentalResult.BadRequest("A bérlés nem kezdődhet meg a megadott időpont előtt!");
                 
             var otherWaiting = (int)curr.Status == (authUser.Id == curr.RenterId ? b + 1 : b);

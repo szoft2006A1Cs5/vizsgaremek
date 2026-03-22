@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using backend.Services.RentalService;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Time.Testing;
 
 namespace backend.UnitTests
 {
@@ -19,6 +20,7 @@ namespace backend.UnitTests
         public AuthService AuthService { get; set; }
         public MockResourceService ResourceService { get; set; }
         public RentalService RentalService { get; set; }
+        public FakeTimeProvider FakeTimeProvider { get; set; }
     };
 
     internal static class TestHandler
@@ -45,8 +47,9 @@ namespace backend.UnitTests
                 .Build();
 
             Context context = new Context(GetOptions());
+            FakeTimeProvider fakeTimeProvider = new FakeTimeProvider();
             AuthService authSrv = new AuthService(config, context);
-            RentalService rentSrv = new RentalService(context);
+            RentalService rentSrv = new RentalService(context, fakeTimeProvider);
             MockResourceService resSrv = new MockResourceService();
             context.Database.EnsureCreated();
 
@@ -57,7 +60,8 @@ namespace backend.UnitTests
                 Context = context,
                 AuthService = authSrv,
                 ResourceService = resSrv,
-                RentalService = rentSrv
+                RentalService = rentSrv,
+                FakeTimeProvider = fakeTimeProvider
             };
         }
 
