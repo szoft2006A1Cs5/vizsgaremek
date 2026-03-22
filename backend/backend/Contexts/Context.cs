@@ -24,6 +24,12 @@ namespace backend.Contexts
                 .Property(x => x.Status)
                 .HasConversion<int>();
 
+            modelBuilder.Entity<Message>()
+                .HasOne(x => x.Rental)
+                .WithMany()
+                .HasForeignKey(x => x.RentalId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<User>()
                 .Property(x => x.Role)
                 .HasConversion<string>();

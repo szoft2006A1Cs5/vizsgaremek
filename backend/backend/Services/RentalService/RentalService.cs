@@ -64,14 +64,14 @@ namespace backend.Services.RentalService
                         
                         var conflict = await _context.Rentals
                             .Include(x => x.Renter)
+                            .Include(x => x.Vehicle)
+                            .ThenInclude(x => x.Owner)
                             .Where(x =>
                                 x.Id != curr.Id &&
                                 x.VehicleId == curr.VehicleId &&
                                 !(x.End < curr.Start || curr.End < x.Start)
                             )
                             .ToListAsync();
-
-                        _context.Rentals.RemoveRange(conflict);
                         
                         await Notification.Send(
                             curr.RenterId,
@@ -87,12 +87,8 @@ namespace backend.Services.RentalService
                             _context
                         );
 
-                        foreach (var renterId in conflict.Select(x => x.RenterId))
-                            await Notification.Send(
-                                renterId,
-                                $"A bérlési javaslatodat a(z) {vehicleName}-ra/re visszautasították.",
-                                _context
-                            );
+                        foreach (var rental in conflict)
+                            await this.TryCancel(rental, curr.Vehicle.Owner!);
                     }
                     break;
                 case RentalStatus.Active:

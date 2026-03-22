@@ -85,7 +85,7 @@ namespace backend.Controllers
         public async Task<IActionResult> Post([FromBody] RentalDTO offer)
         {
             if (offer.End <= offer.Start || offer.Start <= _timePrv.GetUtcNow())
-                return BadRequest();
+                return BadRequest("Nincs elegendő egyenlege ehhez a bérléshez!");
             
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
@@ -157,12 +157,8 @@ namespace backend.Controllers
 
             if ((existingRental.Start != modifications.Start ||
                 existingRental.End != modifications.End) &&
-                !existingRental.Vehicle.CheckAvailable(
-                    modifications.Start,
-                    modifications.End,
-                    existingRental
-                ) &&
-                _timePrv.GetUtcNow() < modifications.Start)
+                existingRental.Vehicle.GetQuote(modifications.Start, modifications.End, existingRental) == null &&
+                modifications.Start <= _timePrv.GetUtcNow())
                 return Conflict(new { Error = "Nem bérelhető a jármű az adott időszakban."});
 
             var result = await _rentSrv.Update(existingRental, modifications, authUser);
