@@ -36,8 +36,6 @@ namespace backend.Controllers
         public async Task<IActionResult> GetVehicles(
             [FromQuery] DateTime? rentalStart = null,
             [FromQuery] DateTime? rentalEnd = null,
-            [FromQuery, Range(1, int.MaxValue)] int limit = 30,
-            [FromQuery, Range(1, int.MaxValue)] int page = 1,
             [FromQuery] string? manufacturer = null,
             [FromQuery] string? model = null,
             [FromQuery] int? year = null,
@@ -46,6 +44,8 @@ namespace backend.Controllers
             [FromQuery] string? transmission = null,
             [FromQuery] int? minRate = null,
             [FromQuery] int? maxRate = null,
+            [FromQuery] int? minPrice = null,
+            [FromQuery] int? maxPrice = null,
             [FromQuery] bool showOwned = false
         )
         {
@@ -57,7 +57,7 @@ namespace backend.Controllers
                 .Include(x => x.Availabilities)
                 .Include(x => x.Owner)
                 .Include(x => x.Rentals)
-                .Include(x => x.Images)
+                .Include(x => x.Images.OrderBy(y => y.SortIndex))
                 .Where(x => 
                     ((rentalStart != null && rentalEnd != null && rentalStart < rentalEnd) ?
                         !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
@@ -70,12 +70,14 @@ namespace backend.Controllers
                             .Where(a => rentalStart <= a.End && a.End < rentalEnd)
                             .All(a1 => x.Availabilities.Any(a2 => a1.End == a2.Start && a1.End < a2.End))
                     : true) &&
-                    (manufacturer != null ? x.Manufacturer == manufacturer : true) &&
-                    (model != null ? x.Model == model : true) &&
+                    (manufacturer != null ? x.Manufacturer.ToLower().Contains(manufacturer.ToLower()) : true) &&
+                    (model != null ? x.Model.ToLower().Contains(model.ToLower()) : true) &&
                     (year != null ? x.Year == year : true) &&
-                    (settlement != null && x.Owner != null ? x.Owner.AddressSettlement == settlement : true) &&
-                    (fuelType != null ? x.FuelType == fuelType : true) &&
-                    (transmission != null ? x.Transmission == transmission : true) &&
+                    (settlement != null && x.Owner != null ? 
+                        x.Owner.AddressSettlement.ToLower().Contains(settlement.ToLower()) 
+                    : true) &&
+                    (fuelType != null ? x.FuelType.ToLower().Contains(fuelType.ToLower()) : true) &&
+                    (transmission != null ? x.Transmission.ToLower().Contains(transmission.ToLower()) : true) &&
                     (!showOwned && authUser != null ? x.OwnerId != authUser.Id : true) &&
                     (minRate != null ? 
                         x.Availabilities
@@ -88,16 +90,18 @@ namespace backend.Controllers
                             .All(a => a.HourlyRate <= maxRate.Value)
                     : true)
                 )
-                .Skip((page - 1) * limit)
-                .Take(limit)
                 .ToListAsync())
                 .Select(x =>
                 {
-                    var offer = x.GetPriceOffer(rentalStart, rentalEnd);
-                    if (offer != null) x.ExtensionData.Add("offer", offer);
+                    var quote = x.GetQuote(rentalStart, rentalEnd);
+                    if (quote != null) x.ExtensionData.Add("quote", quote);
                     
                     return x;
-                });
+                })
+                .Where(x => x.ExtensionData.ContainsKey("quote") && x.ExtensionData["quote"] is VehicleQuote quote ? 
+                                (minPrice != null ? minPrice.Value <= quote.FullPrice : true) &&
+                                (maxPrice != null ? quote.FullPrice <= maxPrice : true) 
+                            : true);
             
             return Ok(vehicles.FilterSerialize(authUser));
         }
@@ -119,24 +123,21 @@ namespace backend.Controllers
                 .Include(x => x.Availabilities)
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Renter)
-                .Include(x => x.Images)
+                .Include(x => x.Images.OrderBy(y => y.SortIndex))
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
             if (vehicle == null) return NotFound();
 
             if (rentalStart != null && rentalEnd != null && rentalStart < rentalEnd)
-                vehicle.ExtensionData.Add("offer", vehicle.GetPriceOffer(rentalStart, rentalEnd));
+                vehicle.ExtensionData.Add("offer", vehicle.GetQuote(rentalStart, rentalEnd));
 
             return Ok(vehicle.FilterSerialize(authUser));
         }
 
         [Authorize(Roles = "User")]
         [HttpGet("Owned")]
-        public async Task<IActionResult> GetOwnedVehicles(
-            [FromQuery, Range(1, int.MaxValue)] int limit = 10, 
-            [FromQuery, Range(1, int.MaxValue)] int page = 1
-        )
+        public async Task<IActionResult> GetOwnedVehicles()
         {
             var authUser = await _authSrv.GetUser(User);
 
@@ -150,10 +151,8 @@ namespace backend.Controllers
                 .Include(x => x.Availabilities)
                 .Include(x => x.Rentals)
                 .ThenInclude(x => x.Renter)
-                .Include(x => x.Images)
+                .Include(x => x.Images.OrderBy(y => y.SortIndex))
                 .Where(x => x.OwnerId == authUser.Id)
-                .Skip((page - 1) * limit)
-                .Take(limit)
                 .ToListAsync();
 
             return Ok(vehicles.FilterSerialize(authUser));
@@ -166,9 +165,7 @@ namespace backend.Controllers
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
-            if (!Regex.IsMatch(vehicleData.VIN, "^[A-Z0-9]{18}$") ||
-                !Regex.IsMatch(vehicleData.LicensePlate, "([A-Z]{4}[0-9]{3})|([A-Z]{3}[0-9]{3})") ||
-                string.IsNullOrWhiteSpace(vehicleData.InsuranceNumber))
+            if (!vehicleData.CheckValid())
                 return BadRequest();
 
             if (_context.Vehicles.Any(x => x.LicensePlate == vehicleData.LicensePlate ||
@@ -205,9 +202,7 @@ namespace backend.Controllers
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
-            if (!Regex.IsMatch(vehicleData.VIN, "^[A-Z0-9]{18}$") ||
-                !Regex.IsMatch(vehicleData.LicensePlate, "([A-Z]{4}[0-9]{3})|([A-Z]{3}[0-9]{3})") ||
-                string.IsNullOrWhiteSpace(vehicleData.InsuranceNumber))
+            if (!vehicleData.CheckValid())
                 return BadRequest();
 
             var vehicle = await _context.Vehicles.FirstOrDefaultAsync(x => x.Id == id);
@@ -237,13 +232,34 @@ namespace backend.Controllers
 
             return Ok(vehicle.FilterSerialize(authUser));
         }
+
+        [HttpGet("{id}/Quote")]
+        public async Task<IActionResult> GetQuote(
+            int id,
+            [FromQuery] DateTime? rentalStart = null,
+            [FromQuery] DateTime? rentalEnd = null
+        )
+        {
+            if (rentalStart == null && rentalEnd == null && rentalEnd <= rentalStart)
+                return BadRequest();
+            
+            var vehicle = await _context.Vehicles
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
+                .Include(x => x.Availabilities)
+                .Include(x => x.Rentals)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
+            if (vehicle == null) return NotFound();
+            
+            var quote = vehicle.GetQuote(rentalStart, rentalEnd);
+            if (quote == null) return Conflict();
+            
+            return Ok(quote);
+        }
         
         [HttpGet("{id}/Availability")]
-        public async Task<IActionResult> GetAvailabilities(
-            int id,
-            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
-            [FromQuery, Range(1, int.MaxValue)] int page = 1
-        )
+        public async Task<IActionResult> GetAvailabilities(int id)
         {
             var authUser = await _authSrv.GetUser(User);
             
@@ -252,8 +268,6 @@ namespace backend.Controllers
                     .AsNoTracking()
                     .IgnoreAutoIncludes()
                     .Where(x => x.VehicleId == id)
-                    .Skip((page - 1) * limit)
-                    .Take(limit)
                     .ToListAsync())
                     .FilterSerialize(authUser)
             );
@@ -373,19 +387,13 @@ namespace backend.Controllers
         }
 
         [HttpGet("{vehicleId}/Image")]
-        public async Task<IActionResult> GetImages(
-            int vehicleId,
-            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
-            [FromQuery, Range(1, int.MaxValue)] int page = 1
-        )
+        public async Task<IActionResult> GetImages(int vehicleId)
         {
             var authUser = await _authSrv.GetUser(User);
             
             return Ok(
                 (await _context.VehicleImages
                     .Where(x => x.VehicleId == vehicleId)
-                    .Skip((page - 1) * limit)
-                    .Take(limit)
                     .OrderBy(x => x.SortIndex)
                     .ToListAsync())
                     .FilterSerialize(authUser)

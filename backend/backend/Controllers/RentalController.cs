@@ -4,6 +4,7 @@ using backend.DTOs.Message;
 using backend.DTOs.Rental;
 using backend.Models;
 using backend.Services;
+using backend.Services.RentalService;
 using backend.Services.ResourceService;
 using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -19,20 +20,36 @@ namespace backend.Controllers
         private readonly Context _context;
         private readonly AuthService _authSrv;
         private readonly IResourceService _resSrv;
+        private readonly RentalService _rentSrv;
         
-        public RentalController(Context context, AuthService authSrv, IResourceService resSrv)
+        private Func<DateTime> _getNow;
+        // Teszteleshez
+        public DateTime Now
+        {
+            set
+            {
+                _getNow = () => value;
+            }
+        }
+        
+        public RentalController(
+            Context context, 
+            AuthService authSrv, 
+            IResourceService resSrv, 
+            RentalService rentSrv,
+            Func<DateTime>? getNow = null
+        )
         {
             _context = context;
             _authSrv = authSrv;
             _resSrv = resSrv;
+            _rentSrv = rentSrv;
+            _getNow = getNow ?? (() => DateTime.Now);
         }
         
         // GET: api/<RentalController>
         [HttpGet]
-        public async Task<IActionResult> Get(
-            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
-            [FromQuery, Range(1, int.MaxValue)] int page = 1
-        )
+        public async Task<IActionResult> Get()
         {
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
@@ -45,8 +62,6 @@ namespace backend.Controllers
                     .Include(x => x.Vehicle)
                     .ThenInclude(x => x.Owner)
                     .Where(x => x.RenterId == authUser.Id)
-                    .Skip((page - 1) * limit)
-                    .Take(limit)
                     .ToListAsync())
                     .FilterSerialize(authUser)
             );
@@ -78,6 +93,9 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RentalDTO offer)
         {
+            if (offer.End <= offer.Start || offer.Start <= _getNow())
+                return BadRequest();
+            
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
@@ -92,7 +110,7 @@ namespace backend.Controllers
             if (vehicle == null) return NotFound();
             if (vehicle.OwnerId == authUser.Id) return Forbid();
 
-            var priceOffer = vehicle.GetPriceOffer(offer.Start, offer.End);
+            var priceOffer = vehicle.GetQuote(offer.Start, offer.End);
             if (priceOffer == null) return Conflict();
 
             if (authUser.Balance < priceOffer.Value.FullPrice)
@@ -131,10 +149,13 @@ namespace backend.Controllers
             if (authUser == null) return Unauthorized();
             
             var existingRental = await _context.Rentals
+                .Include(x => x.Renter)
                 .Include(x => x.Vehicle)
                 .ThenInclude(x => x.Rentals)
                 .Include(x => x.Vehicle)
                 .ThenInclude(x => x.Availabilities)
+                .Include(x => x.Vehicle)
+                .ThenInclude(x => x.Owner)
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (existingRental == null) return NotFound();
 
@@ -143,26 +164,60 @@ namespace backend.Controllers
                 existingRental.Vehicle.OwnerId != authUser.Id)
                 return Forbid();
 
-            if (!existingRental.Vehicle.CheckAvailable(modifications.Start, modifications.End))
+            if ((existingRental.Start != modifications.Start ||
+                existingRental.End != modifications.End) &&
+                !existingRental.Vehicle.CheckAvailable(
+                    modifications.Start,
+                    modifications.End,
+                    existingRental
+                ) &&
+                _getNow() < modifications.Start)
                 return Conflict(new { Error = "Nem bérelhető a jármű az adott időszakban."});
 
-            // TODO: State management
-            
-            return Ok();
+            var result = await _rentSrv.Update(existingRental, modifications, authUser);
+            await _context.SaveChangesAsync();
+
+            return result.StatusCode switch
+            {
+                200 => Ok(existingRental.FilterSerialize(authUser)),
+                400 => BadRequest(result.ErrorMessage),
+                204 => NoContent(),
+                _ => StatusCode(500)
+            };
         }
 
         // DELETE api/<RentalController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            throw new NotImplementedException();
-            return Ok();
+            var authUser = await _authSrv.GetUser(User);
+            if (authUser == null) return Unauthorized();
+            
+            var existingRental = await _context.Rentals
+                .Include(x => x.Vehicle)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
+            if (existingRental == null) return NotFound();
+
+            if (authUser.Role != UserRole.Administrator &&
+                existingRental.RenterId != authUser.Id &&
+                existingRental.Vehicle.OwnerId != authUser.Id)
+                return Forbid();
+
+            var cancelRes = await _rentSrv.TryCancel(existingRental, authUser);
+            await _context.SaveChangesAsync();
+            return cancelRes.StatusCode switch
+            {
+                204 => NoContent(),
+                400 => BadRequest(cancelRes.ErrorMessage),
+                _ => Ok(existingRental.FilterSerialize(authUser))
+            };
         }
         
         [HttpGet("{id}/Message")]
         public async Task<IActionResult> GetMessages(
             int id,
-            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
+            [FromQuery, Range(1, int.MaxValue)] int limit = 50,
             [FromQuery, Range(1, int.MaxValue)] int page = 1
         )
         {
@@ -261,10 +316,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("Owned")]
-        public async Task<IActionResult> GetOwned(
-            [FromQuery, Range(1, int.MaxValue)] int limit = 10,
-            [FromQuery, Range(1, int.MaxValue)] int page = 1
-        )
+        public async Task<IActionResult> GetOwned()
         {
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
@@ -277,8 +329,6 @@ namespace backend.Controllers
                     .Include(x => x.Vehicle)
                     .ThenInclude(x => x.Owner)
                     .Where(x => x.Vehicle.OwnerId == authUser.Id)
-                    .Skip((page - 1) * limit)
-                    .Take(limit)
                     .ToListAsync())
                 .FilterSerialize(authUser)
             );

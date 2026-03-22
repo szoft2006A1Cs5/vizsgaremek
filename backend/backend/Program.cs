@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using backend.Services.RentalService;
 using backend.Services.ResourceService;
 
 namespace backend

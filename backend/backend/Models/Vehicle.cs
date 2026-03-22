@@ -89,25 +89,29 @@ namespace backend.Models
             }
         }
         
-        public bool CheckAvailable(DateTime intervalStart, DateTime intervalEnd)
+        public bool CheckAvailable(
+            DateTime intervalStart, 
+            DateTime intervalEnd,
+            Rental? exclude = null)
         {
             // Ha van mar berles amit elfogadtak es utkozik a megadott datummal,
             // akkor nyilvan nem elerheto az idoszakra, emellett a jarmu tulajdonosa
             // altal meghatarozott berelhetosegi idoszakban van-e a megadott intervallum.
-            return !this.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status && 
+            return !this.Rentals.Any(r => (exclude != null ? exclude.Id != r.Id : true) &&
+                                          RentalStatus.OfferAccepted <= r.Status && 
                                           !(r.End < intervalStart || intervalEnd < r.Start)) &&
                    this.Availabilities.Any(a => a.Start <= intervalStart && intervalEnd <= a.End) &&
-                   intervalStart < intervalEnd &&
-                   DateTime.Now < intervalStart;
+                   intervalStart < intervalEnd;
         }
 
-        public VehiclePriceOffer? GetPriceOffer(DateTime? intervalStart, DateTime? intervalEnd)
+        public VehicleQuote? GetQuote(DateTime? intervalStart, DateTime? intervalEnd, Rental? exclude = null)
         {
             if (intervalStart == null || intervalEnd == null) return null;
             
             // Ha van mar az idoszakban berles, nyilvan nem berelheto
             if (this.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
-                                      !(r.End < intervalStart || intervalEnd < r.Start)))
+                                      !(r.End < intervalStart || intervalEnd < r.Start) &&
+                                      (exclude != null ? exclude.Id != r.Id : true)))
                 return null;
 
             var relevantAvailabilites = this.Availabilities
@@ -136,7 +140,7 @@ namespace backend.Models
                 fullPrice += (end - start).TotalHours * availability.HourlyRate;
             }
 
-            return new VehiclePriceOffer
+            return new VehicleQuote
             {
                 Start = intervalStart.Value,
                 End = intervalEnd.Value,
@@ -146,7 +150,7 @@ namespace backend.Models
         }
     }
 
-    public struct VehiclePriceOffer
+    public struct VehicleQuote
     {
         public List<int> Rates { get; set; }
         public int RentalPrice { get; set; }

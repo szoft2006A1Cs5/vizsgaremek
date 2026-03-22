@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using backend.Services.RentalService;
 using Microsoft.Data.Sqlite;
 
 namespace backend.UnitTests
@@ -17,6 +18,7 @@ namespace backend.UnitTests
         public Context Context { get; set; }
         public AuthService AuthService { get; set; }
         public MockResourceService ResourceService { get; set; }
+        public RentalService RentalService { get; set; }
     };
 
     internal static class TestHandler
@@ -44,6 +46,7 @@ namespace backend.UnitTests
 
             Context context = new Context(GetOptions());
             AuthService authSrv = new AuthService(config, context);
+            RentalService rentSrv = new RentalService(context);
             MockResourceService resSrv = new MockResourceService();
             context.Database.EnsureCreated();
 
@@ -53,7 +56,8 @@ namespace backend.UnitTests
                 Configuration = config,
                 Context = context,
                 AuthService = authSrv,
-                ResourceService = resSrv
+                ResourceService = resSrv,
+                RentalService = rentSrv
             };
         }
 
@@ -74,7 +78,7 @@ namespace backend.UnitTests
                     AddressZipcode = "9700",
                     AddressSettlement = "Szombathely",
                     AddressStreetHouse = "Zrínyi Ilona utca 12.",
-                    Balance = 0,
+                    Balance = 30000,
                     ProfilePicPath = null,
                     Role = UserRole.User
                 },

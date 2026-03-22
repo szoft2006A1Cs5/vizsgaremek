@@ -938,12 +938,13 @@ public class VehicleControllerTests
         #endregion
         
         #region GetImages
-        var getImageRes = await _controller!.GetImages(vehicleId, 1) as OkObjectResult;
+        var getImageRes = await _controller!.GetImages(vehicleId) as OkObjectResult;
         Assert.IsNotNull(getImageRes);
         var imgs = JsonConvert.DeserializeObject<List<VehicleImage>>((string)getImageRes.Value);
         Assert.IsNotNull(imgs);
-        Assert.AreEqual(1, imgs.Count);
-        Assert.AreEqual(123, imgs[0].SortIndex);
+        Assert.AreEqual(2, imgs.Count);
+        Assert.AreEqual(2, imgs[0].SortIndex);
+        Assert.AreEqual(123, imgs[1].SortIndex);
         #endregion
         
         #region UpdateVehicle
