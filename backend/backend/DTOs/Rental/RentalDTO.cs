@@ -13,6 +13,7 @@ namespace backend.DTOs.Rental
         [MaxLength(512)]
         public required string PickupLocation { get; set; }
 
+        [Range(0.0, 100.0)]
         public double? FuelLevel { get; set; }
         public double? RenterRating { get; set; }
         public double? OwnerRating { get; set; }

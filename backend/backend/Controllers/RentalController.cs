@@ -89,7 +89,8 @@ namespace backend.Controllers
         public async Task<IActionResult> Post([FromBody] RentalDTO offer)
         {
             if (offer.End <= offer.Start || offer.Start <= _timePrv.GetUtcNow())
-                return BadRequest("Nincs elegendő egyenlege ehhez a bérléshez!");
+                return BadRequest("Nem lehet a bérlés vége előbb, mint a vége, illetve" +
+                                  "nem kezdhetsz a múltban bérlést!");
             
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
@@ -109,7 +110,7 @@ namespace backend.Controllers
             if (priceOffer == null) return Conflict();
 
             if (authUser.Balance < priceOffer.Value.FullPrice)
-                return BadRequest();
+                return BadRequest("Nincs elegendő egyenleged ehhez a bérléshez!");
 
             var rental = new Rental
             {
@@ -125,13 +126,13 @@ namespace backend.Controllers
             };
 
             await _context.Rentals.AddAsync(rental);
-            await _context.SaveChangesAsync();
-
             await Notification.Send(
                 vehicle.OwnerId, 
                 $"Új bérlési kérelem érkezett {vehicle.Manufacturer} {vehicle.Model} járművedre.",
                 _context
             );
+            
+            await _context.SaveChangesAsync();
 
             return Ok(rental.FilterSerialize(authUser));
         }
@@ -228,6 +229,7 @@ namespace backend.Controllers
 
             return Ok(
                 (await _context.Messages
+                    .Include(x => x.Sender)
                     .Where(x => x.RentalId == rental.Id)
                     .OrderByDescending(x => x.TimeSent)
                     .Skip((page - 1) * limit)

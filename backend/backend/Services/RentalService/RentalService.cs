@@ -155,14 +155,18 @@ namespace backend.Services.RentalService
                                 nameof(Rental.Renter)
                             }.Contains(x.Name)));
             
-            // TODO: MINDKET OLDAL VALTOZTATGATHATJA
-            //       A MASIK ERTEKELESET, AZ NEM JO
-            if (authUser.Role != UserRole.Administrator &&
-                curr.Status != RentalStatus.Finished)
-                props = props.Where(x => !(new[]
-                {
-                    nameof(Rental.OwnerRating), nameof(Rental.RenterRating)
-                }.Contains(x.Name)));
+            if (authUser.Role != UserRole.Administrator)
+                if (curr.Status != RentalStatus.Finished)
+                    props = props.Where(x => !(new[]
+                    {
+                        nameof(Rental.OwnerRating),
+                        nameof(Rental.RenterRating)
+                    }.Contains(x.Name)));
+                else
+                    props = props.Where(x =>
+                        x.Name != (authUser.Id == curr.RenterId
+                            ? nameof(Rental.OwnerRating)
+                            : nameof(Rental.RenterRating)));
 
             if (authUser.Role != UserRole.Administrator &&
                 RentalStatus.OfferAccepted <= curr.Status)

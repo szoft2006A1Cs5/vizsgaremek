@@ -1,5 +1,6 @@
 ﻿using backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Org.BouncyCastle.Asn1.Mozilla;
 
 namespace backend.Contexts
@@ -41,6 +42,15 @@ namespace backend.Contexts
                     v => v.ToDateTime(TimeOnly.MinValue),
                     v => DateOnly.FromDateTime(v)
                 );
+
+            var toUtc = new ValueConverter<DateTime, DateTime>(
+                v => v,
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            );
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+                foreach (var prop in entity.GetProperties())
+                    if (prop.ClrType == typeof(DateTime))
+                        prop.SetValueConverter(toUtc);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace backend.Models
         public DateTime TimeSent { get; set; }
         public bool IsComplaint { get; set; }
         public int SenderId { get; set; }
-        [JsonIgnore]
         public User Sender { get; set; }
         public int RentalId { get; set; }
         [JsonIgnore]

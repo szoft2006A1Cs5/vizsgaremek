@@ -32,7 +32,6 @@ namespace backend.Models
             };
 
             await context.Notifications.AddAsync(notif);
-            await context.SaveChangesAsync();
         }
     }
 }

@@ -53,7 +53,9 @@ namespace backend.Controllers
             if (_context.Users.Any(x => x.Email == registration.Email ||
                                         x.Phone.EndsWith(phone) ||
                                         x.IdCardNumber == registration.IdCardNumber ||
-                                        x.DriversLicenseNumber == registration.DriversLicenseNumber))
+                                        (registration.DriversLicenseNumber != null ? 
+                                            x.DriversLicenseNumber == registration.DriversLicenseNumber :
+                                            false)))
                 return Conflict();
             
             var hashSalt = _authSrv.GeneratePasswordHashSalt(registration.Password);

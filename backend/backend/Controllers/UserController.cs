@@ -81,7 +81,9 @@ namespace backend.Controllers
             if (_context.Users.Any(x => x != user && (x.Email == dto.Email ||
                                                       x.Phone.EndsWith(phone) ||
                                                       x.IdCardNumber == dto.IdCardNumber ||
-                                                      x.DriversLicenseNumber == dto.DriversLicenseNumber)))
+                                                      (dto.DriversLicenseNumber != null ? 
+                                                          x.DriversLicenseNumber == dto.DriversLicenseNumber : 
+                                                          false))))
                 return Conflict();
             
             var userProps = typeof(User).GetProperties();
