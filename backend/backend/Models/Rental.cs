@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Models
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum RentalStatus
     {
         RenterOffer = 0,
@@ -20,8 +21,7 @@ namespace backend.Models
         RenterFinishAccepted = 6,
         OwnerFinishAccepted = 7,
         Finished = 8,
-        RenterCancelled = 9,
-        OwnerCancelled = 10,
+        Cancelled = 9,
     };
 
     public class Rental

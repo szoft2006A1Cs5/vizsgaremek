@@ -22,7 +22,7 @@ namespace backend.Services.RentalService
         
         private async Task<RentalResult> HandleStatusChange(Rental curr, RentalDTO change, User authUser)
         {
-            if (RentalStatus.RenterCancelled <= change.Status)
+            if (RentalStatus.Cancelled == change.Status)
                 return await this.TryCancel(curr, authUser);
             
             var vehicleName = $"{curr.Vehicle.Manufacturer} {curr.Vehicle.Model}";
@@ -129,7 +129,7 @@ namespace backend.Services.RentalService
         
         public async Task<RentalResult> Update(Rental curr, RentalDTO changed, User authUser)
         {
-            if (RentalStatus.RenterCancelled <= curr.Status) return RentalResult.Ok(curr);
+            if (RentalStatus.Cancelled <= curr.Status) return RentalResult.Ok(curr);
             
             var startingStatus = curr.Status;
             
@@ -202,10 +202,8 @@ namespace backend.Services.RentalService
             {
                 rental.Renter.Balance += rental.FullPrice;
                 rental.Vehicle.Owner!.Balance -= rental.RentalPrice;
-                    
-                rental.Status = authUser.Id == rental.RenterId ? 
-                    RentalStatus.RenterCancelled : 
-                    RentalStatus.OwnerCancelled;
+
+                rental.Status = RentalStatus.Cancelled;
 
                 await Notification.Send(
                     rental.RenterId,
