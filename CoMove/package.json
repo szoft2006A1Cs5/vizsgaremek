@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@lottiefiles/dotlottie-react": "^0.18.7",
     "@mantine/core": "^8.3.15",
     "@mantine/dates": "^8.3.15",
     "@mantine/form": "^8.3.15",

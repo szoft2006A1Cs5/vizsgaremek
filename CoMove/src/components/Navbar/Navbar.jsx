@@ -169,7 +169,7 @@ function Navbar({ children }) {
                           <Divider />
 
                           <Link
-                            to="/settings"
+                            to="/account"
                             className="nav_navlinkWrap"
                             onClick={() => authBar.close()}
                           >

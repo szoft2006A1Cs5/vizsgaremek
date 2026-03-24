@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./Log_Reg.css";
 import bluelogo from "../../assets/kepek/logo/comove_logo1.png";
 import whitelogo from "../../assets/kepek/logo/comove_logo4.png";
-import { BeatLoader } from "react-spinners"; //npm install react-spinners
+//import { BeatLoader } from "react-spinners"; //npm install react-spinners
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 function Registration() {
   const navigate = useNavigate();
@@ -303,7 +304,7 @@ function Registration() {
 
         setTimeout(() => {
           navigate("/");
-        }, 1200);
+        }, 2000);
       });
   };
 
@@ -765,9 +766,20 @@ function Registration() {
           </div>
         </section>
       </div>
-      {loading && (
+      {/*{loading && (
         <div className="loading_overlay">
           <BeatLoader color="#192570" size={20} speedMultiplier={1} />
+        </div>
+      )}*/}
+
+      {loading && (
+        <div className="loading_overlay">
+          <DotLottieReact
+            src="https://lottie.host/6a041d38-8522-4fa6-8e64-624de65cc309/XF4Bp6v7E0.lottie"
+            style={{ width: "200px", height: "200px" }}
+            loop
+            autoplay
+          />
         </div>
       )}
     </div>
