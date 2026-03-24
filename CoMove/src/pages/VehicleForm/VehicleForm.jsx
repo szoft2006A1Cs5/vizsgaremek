@@ -1,10 +1,9 @@
 import { useForm } from '@mantine/form';
 import {
     Paper, Grid, Stack, Group,
-    Text, Divider, Button, Alert,
+    Text, Divider, Button,
     TextInput, NumberInput, Select, Textarea,
 } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
 import PageLayout from '../../components/PageLayout/PageLayout';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../assets/scripts/AuthUser';
@@ -13,7 +12,7 @@ import { useEffect } from 'react';
 const FUEL_TYPES = ['Benzin', 'Dízel', 'Elektromos', 'Hibrid', 'LPG'];
 const TRANSMISSIONS = ['Manuális', 'Automata'];
 
-function VehicleForm({ title, subtitle, initialValues, onSubmit, loading, error, extra }) {
+function VehicleForm({ title, subtitle, initialValues, onSubmit, loading, extra }) {
     const vinRegex = /^[A-Z0-9]{17}$/;
     const licenseRegex = /^([A-Z]{4}[0-9]{3}|[A-Z]{3}[0-9]{3})$/;
 
@@ -63,7 +62,7 @@ function VehicleForm({ title, subtitle, initialValues, onSubmit, loading, error,
                         <form onSubmit={form.onSubmit(onSubmit)}>
                             <Stack gap={24}>
                                 <div>
-                                    <Text fz={13} fw={700} c="#060631" mb={12}>Alapadatok</Text>
+                                    <Text fz={13} fw={700} c="var(--background)" mb={12}>Alapadatok</Text>
                                     <Grid>
                                         <Grid.Col span={{ base: 12, sm: 6 }}>
                                             <TextInput label="Gyártó" {...form.getInputProps('manufacturer')} />
@@ -86,7 +85,7 @@ function VehicleForm({ title, subtitle, initialValues, onSubmit, loading, error,
                                 <Divider />
 
                                 <div>
-                                    <Text fz={13} fw={700} c="#060631" mb={12}>Műszaki adatok</Text>
+                                    <Text fz={13} fw={700} c="var(--background)" mb={12}>Műszaki adatok</Text>
                                     <Grid>
                                         <Grid.Col span={{ base: 12, sm: 4 }}>
                                             <NumberInput label="Teljesítmény (LE)" min={1} {...form.getInputProps('horsepower')} />
@@ -103,7 +102,7 @@ function VehicleForm({ title, subtitle, initialValues, onSubmit, loading, error,
                                 <Divider />
 
                                 <div>
-                                    <Text fz={13} fw={700} c="#060631" mb={12}>Jogi adatok</Text>
+                                    <Text fz={13} fw={700} c="var(--background)" mb={12}>Jogi adatok</Text>
                                     <Grid>
                                         <Grid.Col span={{ base: 12, sm: 4 }}>
                                             <TextInput label="Alvázszám (VIN)" {...form.getInputProps('vin')} />
@@ -121,18 +120,12 @@ function VehicleForm({ title, subtitle, initialValues, onSubmit, loading, error,
 
                                 <Textarea label="Leírás" rows={4} {...form.getInputProps('description')} />
 
-                                {error && (
-                                    <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light" radius="md">
-                                        {error}
-                                    </Alert>
-                                )}
-
                                 <Group justify="flex-end">
                                     <Button
                                         type="submit"
                                         loading={loading}
                                         radius="md"
-                                        style={{ background: 'linear-gradient(135deg, #192570, #0b1f66)' }}
+                                        style={{ background: 'var(--button)' }}
                                     >
                                         Mentés
                                     </Button>

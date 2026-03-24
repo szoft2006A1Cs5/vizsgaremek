@@ -3,13 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     Text, Stack, Group, Paper, Loader, Center, Badge, Button, Divider,
-    TextInput, NumberInput, Alert, Rating, ScrollArea, ActionIcon, Box,
+    TextInput, NumberInput, Rating, ScrollArea, ActionIcon, Box,
     Grid, Textarea,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { DateTimePicker } from '@mantine/dates';
 import {
     IconArrowLeft, IconCalendar, IconMapPin, IconGauge, IconCoin,
-    IconSend, IconAlertCircle, IconCheck, IconX, IconCar, IconUser,
+    IconSend, IconCheck, IconX, IconCar, IconUser,
 } from '@tabler/icons-react';
 import PageLayout from '../../components/PageLayout/PageLayout';
 import CarCard from '../../components/CarCard/CarCard';
@@ -101,7 +102,7 @@ function Chat({ rentalId, token, authUser, disabled }) {
         <Stack gap={12}>
             <ScrollArea viewportRef={viewportRef} h={320} className="rd-chat-area" type="auto">
                 {isLoading ? (
-                    <Center h={80}><Loader size="xs" color="#192570" /></Center>
+                    <Center h={80}><Loader size="xs" color="var(--button)" /></Center>
                 ) : messages.length === 0 ? (
                     <Center h={80}><Text fz={12} c="dimmed">Még nincs üzenet.</Text></Center>
                 ) : (
@@ -150,7 +151,7 @@ function Chat({ rentalId, token, authUser, disabled }) {
                     />
                     <ActionIcon
                         size={36} radius="xl"
-                        style={{ background: msg.trim() ? 'linear-gradient(135deg, #192570, #0b1f66)' : '#e9ecef', flexShrink: 0 }}
+                        style={{ background: msg.trim() ? 'var(--button)' : '#e9ecef', flexShrink: 0 }}
                         onClick={() => msg.trim() && sendMutation.mutate(msg.trim())}
                         loading={sendMutation.isPending}
                         disabled={!msg.trim()}
@@ -196,6 +197,7 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
             if (!resp.ok) throw new Error('Ellenjavaslat sikertelen');
         },
         onSuccess: () => qc.invalidateQueries({ queryKey: ['rental', rental.id] }),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
 
     const acceptMutation = useMutation({
@@ -208,6 +210,7 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
             if (!resp.ok) throw new Error('Elfogadás sikertelen');
         },
         onSuccess: () => qc.invalidateQueries({ queryKey: ['rental', rental.id] }),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
 
     const cancelMutation = useMutation({
@@ -219,10 +222,10 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
             if (!resp.ok) throw new Error('Lemondás sikertelen');
         },
         onSuccess: () => navigate('/rentals'),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
 
     const busy = counterMutation.isPending || acceptMutation.isPending || cancelMutation.isPending;
-    const err  = counterMutation.error?.message ?? acceptMutation.error?.message ?? cancelMutation.error?.message;
 
     return (
         <Stack gap={16}>
@@ -267,14 +270,10 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
                     />
 
 
-                    {err && (
-                        <Alert icon={<IconAlertCircle size={14} />} color="red" variant="light" radius="md" py={8}>{err}</Alert>
-                    )}
-
                     <Group gap={8} wrap="wrap">
                         <Button
                             size="sm" radius="md"
-                            style={{ background: 'linear-gradient(135deg, #192570, #0b1f66)' }}
+                            style={{ background: 'var(--button)' }}
                             leftSection={<IconCheck size={14} />}
                             loading={acceptMutation.isPending} disabled={busy}
                             onClick={() => acceptMutation.mutate()}
@@ -314,10 +313,10 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
                             ['Üzemanyag',     rental.fuelLevel != null ? `${rental.fuelLevel}%` : '–', IconGauge],
                         ].map(([lbl, val, Icon]) => (
                             <Group key={lbl} gap={8} align="flex-start">
-                                <Icon size={14} color="#7a7aaa" style={{ marginTop: 2 }} />
+                                <Icon size={14} color="var(--lightpurple)" style={{ marginTop: 2 }} />
                                 <div>
-                                    <Text fz={11} c="#7a7aaa">{lbl}</Text>
-                                    <Text fz={13} fw={600} c="#060631">{val ?? '–'}</Text>
+                                    <Text fz={11} c="var(--lightpurple)">{lbl}</Text>
+                                    <Text fz={13} fw={600} c="var(--background)">{val ?? '–'}</Text>
                                 </div>
                             </Group>
                         ))}
@@ -325,14 +324,10 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
 
                     <Paper radius="md" p="sm" className="rd-price-box">
                         <Group justify="space-between">
-                            <Text fz={13} fw={700} c="#060631">Teljes összeg</Text>
-                            <Text fz={13} fw={700} c="#060631">{fmtPrice(rental.fullPrice)}</Text>
+                            <Text fz={13} fw={700} c="var(--background)">Teljes összeg</Text>
+                            <Text fz={13} fw={700} c="var(--background)">{fmtPrice(rental.fullPrice)}</Text>
                         </Group>
                     </Paper>
-
-                    {err && (
-                        <Alert icon={<IconAlertCircle size={14} />} color="red" variant="light" radius="md" py={8}>{err}</Alert>
-                    )}
 
                     <Button
                         size="sm" radius="md" variant="light" color="red"
@@ -372,6 +367,7 @@ function PickupPanel({ rental, isOwner, token }) {
             if (!resp.ok) throw new Error('Visszaigazolás sikertelen');
         },
         onSuccess: () => qc.invalidateQueries({ queryKey: ['rental', rental.id] }),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
 
     return (
@@ -384,10 +380,10 @@ function PickupPanel({ rental, isOwner, token }) {
                     ['Vége',          fmt(rental.end),         IconCalendar],
                 ].map(([lbl, val, Icon]) => (
                     <Group key={lbl} gap={8} align="flex-start">
-                        <Icon size={14} color="#7a7aaa" style={{ marginTop: 2 }} />
+                        <Icon size={14} color="var(--lightpurple)" style={{ marginTop: 2 }} />
                         <div>
-                            <Text fz={11} c="#7a7aaa">{lbl}</Text>
-                            <Text fz={13} fw={600} c="#060631">{val ?? '–'}</Text>
+                            <Text fz={11} c="var(--lightpurple)">{lbl}</Text>
+                            <Text fz={13} fw={600} c="var(--background)">{val ?? '–'}</Text>
                         </div>
                     </Group>
                 ))}
@@ -416,14 +412,9 @@ function PickupPanel({ rental, isOwner, token }) {
 
             {canConfirm && (
                 <>
-                    {confirmMutation.isError && (
-                        <Alert icon={<IconAlertCircle size={14} />} color="red" variant="light" radius="md" py={8}>
-                            {confirmMutation.error?.message}
-                        </Alert>
-                    )}
                     <Button
                         size="sm" radius="md"
-                        style={{ background: 'linear-gradient(135deg, #192570, #0b1f66)', alignSelf: 'flex-start' }}
+                        style={{ background: 'var(--button)', alignSelf: 'flex-start' }}
                         leftSection={<IconCheck size={14} />}
                         loading={confirmMutation.isPending}
                         onClick={() => confirmMutation.mutate()}
@@ -459,6 +450,7 @@ function ActivePanel({ rental, isOwner, token }) {
             if (!resp.ok) throw new Error('Visszaigazolás sikertelen');
         },
         onSuccess: () => qc.invalidateQueries({ queryKey: ['rental', rental.id] }),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
 
     return (
@@ -469,10 +461,10 @@ function ActivePanel({ rental, isOwner, token }) {
                     ['Vége',   fmt(rental.end),   IconCalendar],
                 ].map(([lbl, val, Icon]) => (
                     <Group key={lbl} gap={8} align="flex-start">
-                        <Icon size={14} color="#7a7aaa" style={{ marginTop: 2 }} />
+                        <Icon size={14} color="var(--lightpurple)" style={{ marginTop: 2 }} />
                         <div>
-                            <Text fz={11} c="#7a7aaa">{lbl}</Text>
-                            <Text fz={13} fw={600} c="#060631">{val}</Text>
+                            <Text fz={11} c="var(--lightpurple)">{lbl}</Text>
+                            <Text fz={13} fw={600} c="var(--background)">{val}</Text>
                         </div>
                     </Group>
                 ))}
@@ -492,14 +484,9 @@ function ActivePanel({ rental, isOwner, token }) {
 
             {canConfirm && !iConfirmed && (
                 <>
-                    {returnMutation.isError && (
-                        <Alert icon={<IconAlertCircle size={14} />} color="red" variant="light" radius="md" py={8}>
-                            {returnMutation.error?.message}
-                        </Alert>
-                    )}
                     <Button
                         size="sm" radius="md"
-                        style={{ background: 'linear-gradient(135deg, #192570, #0b1f66)', alignSelf: 'flex-start' }}
+                        style={{ background: 'var(--button)', alignSelf: 'flex-start' }}
                         leftSection={<IconCheck size={14} />}
                         loading={returnMutation.isPending}
                         onClick={() => returnMutation.mutate()}
@@ -534,6 +521,7 @@ function FinishedPanel({ rental, isOwner, token }) {
             setSubmitted(true);
             qc.invalidateQueries({ queryKey: ['rental', rental.id] });
         },
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
 
     return (
@@ -546,10 +534,10 @@ function FinishedPanel({ rental, isOwner, token }) {
                     ['Összeg',        fmtPrice(rental.fullPrice), IconCoin],
                 ].map(([lbl, val, Icon]) => (
                     <Group key={lbl} gap={8} align="flex-start">
-                        <Icon size={14} color="#7a7aaa" style={{ marginTop: 2 }} />
+                        <Icon size={14} color="var(--lightpurple)" style={{ marginTop: 2 }} />
                         <div>
-                            <Text fz={11} c="#7a7aaa">{lbl}</Text>
-                            <Text fz={13} fw={600} c="#060631">{val ?? '–'}</Text>
+                            <Text fz={11} c="var(--lightpurple)">{lbl}</Text>
+                            <Text fz={13} fw={600} c="var(--background)">{val ?? '–'}</Text>
                         </div>
                     </Group>
                 ))}
@@ -560,7 +548,7 @@ function FinishedPanel({ rental, isOwner, token }) {
             {hasRated || submitted ? (
                 <Group gap={8} align="center" p="sm" className="rd-rating-done">
                     <Rating value={existingRating ?? ratingValue} readOnly fractions={2} size="sm" color="#ffc219" />
-                    <Text fz={12} c="#060631" fw={600}>{(existingRating ?? ratingValue).toFixed(1)}</Text>
+                    <Text fz={12} c="var(--background)" fw={600}>{(existingRating ?? ratingValue).toFixed(1)}</Text>
                 </Group>
             ) : (
                 <Stack gap={10}>
@@ -568,13 +556,10 @@ function FinishedPanel({ rental, isOwner, token }) {
                         {isOwner ? 'Értékeld a bérlőt' : 'Értékeld a járművet és a tulajdonost'}
                     </Text>
                     <Rating value={ratingValue} onChange={setRatingValue} fractions={2} size="lg" color="#ffc219" />
-                    {ratingMutation.isError && (
-                        <Text fz={11} c="red">{ratingMutation.error?.message}</Text>
-                    )}
                     <Button
                         size="sm" radius="md" disabled={ratingValue === 0}
                         loading={ratingMutation.isPending}
-                        style={{ background: ratingValue > 0 ? 'linear-gradient(135deg, #192570, #0b1f66)' : undefined, alignSelf: 'flex-start' }}
+                        style={{ background: ratingValue > 0 ? 'var(--button)' : undefined, alignSelf: 'flex-start' }}
                         onClick={() => ratingMutation.mutate()}
                     >
                         Értékelés elküldése
@@ -607,7 +592,7 @@ function RentalDetail() {
 
     if (isLoading) return (
         <PageLayout title="Bérlés részletei" subtitle="">
-            <Center pt={80}><Loader color="#192570" /></Center>
+            <Center pt={80}><Loader color="var(--button)" /></Center>
         </PageLayout>
     );
 
@@ -671,19 +656,19 @@ function RentalDetail() {
 
                         <Paper radius="md" withBorder p="md">
                             <Stack gap={12}>
-                                <Text fz={11} fw={700} c="#7a7aaa" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Résztvevők</Text>
+                                <Text fz={11} fw={700} c="var(--lightpurple)" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Résztvevők</Text>
                                 <Group gap={10}>
                                     <Box className="rd-avatar"><IconUser size={16} /></Box>
                                     <div>
-                                        <Text fz={11} c="#7a7aaa">Bérlő</Text>
-                                        <Text fz={13} fw={600} c="#060631">{rental.renter?.name ?? '–'}</Text>
+                                        <Text fz={11} c="var(--lightpurple)">Bérlő</Text>
+                                        <Text fz={13} fw={600} c="var(--background)">{rental.renter?.name ?? '–'}</Text>
                                     </div>
                                 </Group>
                                 <Group gap={10}>
                                     <Box className="rd-avatar"><IconCar size={16} /></Box>
                                     <div>
-                                        <Text fz={11} c="#7a7aaa">Tulajdonos</Text>
-                                        <Text fz={13} fw={600} c="#060631">{vehicle?.owner?.name ?? '–'}</Text>
+                                        <Text fz={11} c="var(--lightpurple)">Tulajdonos</Text>
+                                        <Text fz={13} fw={600} c="var(--background)">{vehicle?.owner?.name ?? '–'}</Text>
                                     </div>
                                 </Group>
                             </Stack>
@@ -691,7 +676,7 @@ function RentalDetail() {
 
                         <Paper radius="md" withBorder p="md">
                             <Stack gap={8}>
-                                <Text fz={11} fw={700} c="#7a7aaa" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Pénzügy</Text>
+                                <Text fz={11} fw={700} c="var(--lightpurple)" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Pénzügy</Text>
                                 {[
                                     ['Bérleti díj', fmtPrice(rental.rentalPrice)],
                                     ['Jutalék',      fmtPrice(rental.commission)],
@@ -699,7 +684,7 @@ function RentalDetail() {
                                 ].map(([l, v]) => (
                                     <Group key={l} justify="space-between">
                                         <Text fz={12} c="dimmed">{l}</Text>
-                                        <Text fz={12} fw={700} c="#060631">{v}</Text>
+                                        <Text fz={12} fw={700} c="var(--background)">{v}</Text>
                                     </Group>
                                 ))}
                             </Stack>
@@ -711,7 +696,7 @@ function RentalDetail() {
                     <Stack gap={16}>
                         <Paper radius="md" withBorder p="md">
                             <Stack gap={16}>
-                                <Text fz={13} fw={700} c="#060631" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
+                                <Text fz={13} fw={700} c="var(--background)" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
                                     {panelTitle}
                                 </Text>
 
@@ -735,7 +720,7 @@ function RentalDetail() {
                         {!isCancelled && (
                             <Paper radius="md" withBorder p="md">
                                 <Stack gap={12}>
-                                    <Text fz={13} fw={700} c="#060631" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
+                                    <Text fz={13} fw='bold' c="var(--background)" tt="uppercase">
                                         Üzenetek
                                     </Text>
                                     <Chat

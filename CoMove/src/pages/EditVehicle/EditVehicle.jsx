@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { Center, Loader } from '@mantine/core';
 import VehicleForm from '../VehicleForm/VehicleForm';
 import VehicleImageManager from '../../components/VehicleImageManager/VehicleImageManager';
@@ -11,8 +11,6 @@ import { useUser } from '../../assets/scripts/AuthUser';
 function EditVehicle() {
     const { carId } = useParams();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const { data: authUser, isLoading: userLoading } = useUser();
 
     const auth = JSON.parse(localStorage.getItem('auth'));
@@ -29,33 +27,21 @@ function EditVehicle() {
         },
     });
 
-    async function handleSubmit(values) {
-        setLoading(true);
-        setError(null);
-        try {
+    const mutation = useMutation({
+        mutationFn: async (values) => {
             const resp = await fetch(`${API_URL}/Vehicle/${carId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(values),
             });
-            if (resp.status === 409) {
-                setError('A megadott VIN, rendszám vagy biztosítási szám már foglalt.');
-                return;
-            }
-            if (!resp.ok) {
-                setError('Hiba történt a jármű mentésekor.');
-                return;
-            }
-            navigate('/vehicles');
-        } finally {
-            setLoading(false);
-        }
-    }
+            if (resp.status === 409) throw new Error('A megadott VIN, rendszám vagy biztosítási szám már foglalt.');
+            if (!resp.ok) throw new Error('Hiba történt a jármű mentésekor.');
+        },
+        onSuccess: () => navigate('/vehicles'),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
 
-    if (isLoading) return <Center pt={80}><Loader color="#192570" /></Center>;
+    if (isLoading) return <Center pt={80}><Loader color="var(--button)" /></Center>;
     if (!isLoading && !userLoading && authUser.id !== vehicle.ownerId) navigate("/vehicles");
 
     return (
@@ -77,9 +63,8 @@ function EditVehicle() {
                 insuranceNumber: vehicle.insuranceNumber ?? '',
                 transmission: vehicle.transmission ?? '',
             } : undefined}
-            onSubmit={handleSubmit}
-            loading={loading}
-            error={error}
+            onSubmit={(values) => mutation.mutate(values)}
+            loading={mutation.isPending}
             extra={
                 <>
                     <VehicleAvailabilityManager vehicleId={carId} token={token} />

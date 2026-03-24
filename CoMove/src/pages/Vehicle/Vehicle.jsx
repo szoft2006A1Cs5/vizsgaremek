@@ -325,7 +325,7 @@ function Vehicle() {
 
                                         {vehicle.rentals && vehicle.rentals.length > 0 && (
                                             <Stack gap={10}>
-                                                <Text fz={14} fw={700} c="#060631">Bérlések</Text>
+                                                <Text fz={14} fw={700} c="var(--background)">Bérlések</Text>
                                                 <Table striped highlightOnHover withTableBorder>
                                                     <Table.Thead>
                                                         <Table.Tr>

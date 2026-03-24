@@ -57,7 +57,7 @@ function RentalRow({ rental }) {
                     <img src={imgSrc} alt="Jármű" className="rentals-row-thumb" />
                     <Stack gap={3} style={{ minWidth: 0 }}>
                         <Group gap={8} align="center">
-                            <Text fz={14} fw={700} c="#060631" truncate>
+                            <Text fz={14} fw={700} c="var(--background)" truncate>
                                 {vehicle ? `${vehicle.manufacturer} ${vehicle.model}` : `Bérlés #${rental.id}`}
                             </Text>
                             {needsAction && (
@@ -66,12 +66,12 @@ function RentalRow({ rental }) {
                         </Group>
                         <Group gap={12} wrap="nowrap">
                             <Group gap={4}>
-                                <IconCalendar size={11} color="#7a7aaa" />
+                                <IconCalendar size={11} color="var(--lightpurple)" />
                                 <Text fz={11} c="dimmed">{formatDate(rental.start)} – {formatDate(rental.end)}</Text>
                             </Group>
                             {rental.fullPrice != null && (
                                 <Group gap={4}>
-                                    <IconCoin size={11} color="#7a7aaa" />
+                                    <IconCoin size={11} color="var(--lightpurple)" />
                                     <Text fz={11} c="dimmed">{formatPrice(rental.fullPrice)}</Text>
                                 </Group>
                             )}
@@ -111,7 +111,7 @@ function Rentals() {
     return (
         <PageLayout title="Bérléseim" subtitle="Az Ön által indított bérlések">
             {isLoading ? (
-                <Center pt={80}><Loader color="#192570" /></Center>
+                <Center pt={80}><Loader color="var(--button)" /></Center>
             ) : isError ? (
                 <Center pt={80}><Text c="dimmed" fz={14}>Hiba történt a bérlések betöltésekor.</Text></Center>
             ) : !rentals || rentals.length === 0 ? (

@@ -1,13 +1,12 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import VehicleForm from '../VehicleForm/VehicleForm';
 import { API_URL } from '../../assets/scripts/Config';
 import { useUser } from '../../assets/scripts/AuthUser';
 
 function AddVehicle() {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const { data: authUser, isLoading: userLoading } = useUser();
 
     const auth = JSON.parse(localStorage.getItem('auth'));
@@ -15,40 +14,27 @@ function AddVehicle() {
 
     if (!token || (!userLoading && !authUser)) navigate("/login")
 
-    async function handleSubmit(values) {
-        setLoading(true);
-        setError(null);
-        try {
+    const mutation = useMutation({
+        mutationFn: async (values) => {
             const resp = await fetch(`${API_URL}/Vehicle`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(values),
             });
-            if (resp.status === 409) {
-                setError('A megadott VIN, rendszám vagy biztosítási szám már foglalt.');
-                return;
-            }
-            if (!resp.ok) {
-                setError('Hiba történt a jármű mentésekor.');
-                return;
-            }
-            const vehicle = await resp.json();
-            navigate(`/vehicle/${vehicle.id}/edit`);
-        } finally {
-            setLoading(false);
-        }
-    }
+            if (resp.status === 409) throw new Error('A megadott VIN, rendszám vagy biztosítási szám már foglalt.');
+            if (!resp.ok) throw new Error('Hiba történt a jármű mentésekor.');
+            return resp.json();
+        },
+        onSuccess: (vehicle) => navigate(`/vehicle/${vehicle.id}/edit`),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
 
     return (
         <VehicleForm
             title="Jármű hozzáadása"
             subtitle="Adja meg az új jármű adatait"
-            onSubmit={handleSubmit}
-            loading={loading}
-            error={error}
+            onSubmit={(values) => mutation.mutate(values)}
+            loading={mutation.isPending}
         />
     );
 }

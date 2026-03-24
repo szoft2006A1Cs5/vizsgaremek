@@ -19,7 +19,7 @@
 }
 
 .rd-bubble-own {
-    background: linear-gradient(135deg, #192570, #0b1f66);
+    background: var(--button);
     border-bottom-right-radius: 4px;
 }
 
@@ -71,8 +71,8 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: #eef4ff;
-    color: #192570;
+    background: var(--secondary);
+    color: var(--button);
     display: flex;
     align-items: center;
     justify-content: center;

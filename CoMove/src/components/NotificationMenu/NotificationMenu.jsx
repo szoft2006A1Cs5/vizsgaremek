@@ -1,5 +1,6 @@
 import { Button, ActionIcon, Modal, Center, Text, ScrollArea } from "@mantine/core"
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Notification from '../Notification/Notification'
 import { useUser } from '../../assets/scripts/AuthUser';
 import { API_URL } from '../../assets/scripts/Config';
@@ -9,60 +10,35 @@ import { notifications } from "@mantine/notifications";
 function NotificationMenu() {
     const [opened, { open, close }] = useDisclosure(false);
     const isMobile = useMediaQuery('(max-width: 50em)');
+    const qc = useQueryClient();
 
     const { data: authUser, isLoading: isLoading, isSuccess: isSuccess} = useUser();
 
-    function deleteNotificaton(id) {
-        const auth = JSON.parse(localStorage.getItem("auth"));
-        fetch(`${API_URL}/User/${auth.userId}/Notification/${id}`, {
-            method: "DELETE",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${auth.token}` 
-            },
-        })
-        .then((resp) => {
-            if (resp.status === 204)
-                authUser.refetch();
-            else
-                throw new Error("Nem sikerült törölni az értesítést!")
-        })
-        .catch(err => {
-            notifications.show({
-                title: "Hiba!",
-                message: err,
-                style: {
-                    backgroundColor: 'red'
-                }
-            })
-        });
-    }
+    const auth = JSON.parse(localStorage.getItem("auth"));
 
-    function deleteAll() {
-        const auth = JSON.parse(localStorage.getItem("auth"));
-        fetch(`${API_URL}/User/${auth.userId}/Notification`, {
-            method: "DELETE",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${auth.token}` 
-            },
-        })
-        .then((resp) => {
-            if (resp.status === 204)
-                authUser.refetch();
-            else
-                throw new Error("Nem sikerült törölni az értesítéseket!")
-        })
-        .catch(err => {
-            notifications.show({
-                title: "Hiba!",
-                message: err,
-                style: {
-                    backgroundColor: 'red'
-                }
-            })
-        });
-    }
+    const deleteMutation = useMutation({
+        mutationFn: async (id) => {
+            const resp = await fetch(`${API_URL}/User/${auth.userId}/Notification/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${auth.token}` },
+            });
+            if (!resp.ok) throw new Error("Nem sikerült törölni az értesítést!");
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['authUser'] }),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
+
+    const deleteAllMutation = useMutation({
+        mutationFn: async () => {
+            const resp = await fetch(`${API_URL}/User/${auth.userId}/Notification`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${auth.token}` },
+            });
+            if (!resp.ok) throw new Error("Nem sikerült törölni az értesítéseket!");
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['authUser'] }),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
 
     if (!isSuccess)
         return <></>
@@ -89,9 +65,10 @@ function NotificationMenu() {
                 }}
             >
                 <Modal.Body>
-                    <Button 
-                        color='red' 
-                        onClick={() => deleteAll()} 
+                    <Button
+                        color='red'
+                        onClick={() => deleteAllMutation.mutate()}
+                        loading={deleteAllMutation.isPending}
                         disabled={authUser.notifications.length <= 0}
                         mb={30}
                         fullWidth
@@ -104,7 +81,7 @@ function NotificationMenu() {
                                 <Notification 
                                     key={x.notificationId} 
                                     notification={x} 
-                                    onDelete={() => deleteNotificaton(x.notificationId)} 
+                                    onDelete={() => deleteMutation.mutate(x.notificationId)}
                                 />
                             )
                         })

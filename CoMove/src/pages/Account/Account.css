@@ -1,6 +1,6 @@
 .account_root {
   min-height: 100vh;
-  background: #060631;
+  background: var(--background);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
     Helvetica, Arial;
 }
@@ -8,7 +8,7 @@
 
 .account_hero {
   height: 500px;
-  background: linear-gradient(135deg, #060631);
+  background: linear-gradient(135deg, var(--background));
   position: relative;
   overflow: visible; 
 }
@@ -40,7 +40,7 @@
 
 
 .account_page {
-  background: #eef4ff;
+  background: var(--secondary);
   min-height: 100vh;
   padding-bottom: 40px;
 }
@@ -74,7 +74,7 @@
   font-size: 13px;
   margin-top: 18px;
   margin-bottom: 6px;
-  color: #060631;
+  color: var(--background);
   font-weight: 800;
   letter-spacing: 0.5px;
 }
@@ -90,7 +90,7 @@
 }
 
 .account_form input:focus {
-  border-color: #060631;
+  border-color: var(--background);
 }
 
 .account_avatar {
@@ -110,7 +110,7 @@
 }
 
 .upload_btn {
-  background: #060631;
+  background: var(--background);
   color: white;
   padding: 10px 20px;
   border-radius: 6px;
@@ -133,7 +133,7 @@
 }
 
 .btn_save {
-  background: #060631;
+  background: var(--background);
   color: white;
   border: none;
   padding: 10px 20px;

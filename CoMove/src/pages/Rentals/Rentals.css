@@ -6,12 +6,12 @@
 }
 
 .rentals-row:hover {
-    border-color: #192570 !important;
+    border-color: var(--button) !important;
     box-shadow: 0 2px 12px rgba(25, 37, 112, 0.08) !important;
 }
 
 .rentals-row-action {
-    border-left: 3px solid #192570 !important;
+    border-left: 3px solid var(--button) !important;
 }
 
 .rentals-row-thumb {
@@ -26,7 +26,7 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #192570;
+    background: var(--button);
     flex-shrink: 0;
     animation: rentals-pulse 2s infinite;
 }

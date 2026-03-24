@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import {
     Paper, Stack, Group, Text, ActionIcon, Modal,
     Button, Center, Loader, NumberInput, Table, Badge,
@@ -22,7 +23,6 @@ function VehicleAvailabilityManager({ vehicleId, token }) {
     const [editTarget, setEditTarget] = useState(null); // availabilityId being edited
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [form, setForm] = useState(EMPTY_FORM);
-    const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
 
     const { data: availabilities = [], isLoading } = useQuery({
@@ -56,59 +56,52 @@ function VehicleAvailabilityManager({ vehicleId, token }) {
         setModalOpen(true);
     }
 
-    async function handleSave() {
+    const saveMutation = useMutation({
+        mutationFn: async (body) => {
+            const url = editTarget !== null
+                ? `${API_URL}/Vehicle/${vehicleId}/Availability/${editTarget}`
+                : `${API_URL}/Vehicle/${vehicleId}/Availability`;
+            const resp = await fetch(url, {
+                method: editTarget !== null ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify(body),
+            });
+            if (resp.status === 409) throw new Error('Ez az időszak ütközik egy meglévő elérhetőséggel.');
+            if (!resp.ok) throw new Error('Hiba történt a mentés során.');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-availabilities', vehicleId] });
+            setModalOpen(false);
+        },
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id) => {
+            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Availability/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!resp.ok) throw new Error('Törlés sikertelen');
+        },
+        onSuccess: () => {
+            setDeleteTarget(null);
+            queryClient.invalidateQueries({ queryKey: ['vehicle-availabilities', vehicleId] });
+        },
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
+
+    function handleSave() {
         const { start, end } = form;
         if (!start || !end) { setError('Add meg a kezdési és befejezési időpontot.'); return; }
         if (new Date(end) <= new Date(start)) { setError('A befejezés időpontjának a kezdés után kell lennie.'); return; }
         if (form.hourlyRate <= 0) { setError('Az óradíjnak pozitívnak kell lennie.'); return; }
-
-        setSaving(true);
         setError(null);
-        try {
-            const body = {
-                start: new Date(form.start).toISOString(),
-                end: new Date(form.end).toISOString(),
-                hourlyRate: form.hourlyRate,
-            };
-
-            let resp;
-            if (editTarget !== null) {
-                resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Availability/${editTarget}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify(body),
-                });
-            } else {
-                resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Availability`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify(body),
-                });
-            }
-
-            if (resp.status === 409) {
-                setError('Ez az időszak ütközik egy meglévő elérhetőséggel.');
-                return;
-            }
-            if (!resp.ok) {
-                setError('Hiba történt a mentés során.');
-                return;
-            }
-
-            queryClient.invalidateQueries({ queryKey: ['vehicle-availabilities', vehicleId] });
-            setModalOpen(false);
-        } finally {
-            setSaving(false);
-        }
-    }
-
-    async function handleDelete() {
-        await fetch(`${API_URL}/Vehicle/${vehicleId}/Availability/${deleteTarget}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
+        saveMutation.mutate({
+            start: new Date(form.start).toISOString(),
+            end: new Date(form.end).toISOString(),
+            hourlyRate: form.hourlyRate,
         });
-        setDeleteTarget(null);
-        queryClient.invalidateQueries({ queryKey: ['vehicle-availabilities', vehicleId] });
     }
 
     return (
@@ -122,7 +115,7 @@ function VehicleAvailabilityManager({ vehicleId, token }) {
                 <Text fz={14}>Biztosan törli ezt az elérhetőségi időszakot?</Text>
                 <Group justify="flex-end" mt={20}>
                     <Button variant="default" onClick={() => setDeleteTarget(null)}>Mégsem</Button>
-                    <Button color="red" onClick={handleDelete}>Törlés</Button>
+                    <Button color="red" loading={deleteMutation.isPending} onClick={() => deleteMutation.mutate(deleteTarget)}>Törlés</Button>
                 </Group>
             </Modal>
 
@@ -168,10 +161,10 @@ function VehicleAvailabilityManager({ vehicleId, token }) {
                     <Group justify="flex-end">
                         <Button variant="default" onClick={() => setModalOpen(false)}>Mégsem</Button>
                         <Button
-                            loading={saving}
+                            loading={saveMutation.isPending}
                             onClick={handleSave}
                             radius="md"
-                            style={{ background: 'linear-gradient(135deg, #192570, #0b1f66)' }}
+                            style={{ background: 'var(--button)' }}
                         >
                             Mentés
                         </Button>
@@ -182,19 +175,19 @@ function VehicleAvailabilityManager({ vehicleId, token }) {
             <Paper shadow="md" radius="md" p={32}>
                 <Stack gap={16}>
                     <Group justify="space-between">
-                        <Text fz={15} fw={700} c="#060631">Elérhetőség</Text>
+                        <Text fz={15} fw={700} c="var(--background)">Elérhetőség</Text>
                         <Button
                             leftSection={<IconPlus size={16} />}
                             onClick={openAdd}
                             radius="md"
-                            style={{ background: 'linear-gradient(135deg, #192570, #0b1f66)' }}
+                            style={{ background: 'var(--button)' }}
                         >
                             Időszak hozzáadása
                         </Button>
                     </Group>
 
                     {isLoading ? (
-                        <Center py={40}><Loader color="#192570" /></Center>
+                        <Center py={40}><Loader color="var(--button)" /></Center>
                     ) : sorted.length === 0 ? (
                         <Center py={40}><Text c="dimmed" fz={14}>Még nincs megadott elérhetőség.</Text></Center>
                     ) : (

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import {
     Paper, Stack, SimpleGrid, Group, Text,
     ActionIcon, Modal, Button, Center, Loader, FileButton, Image,
@@ -11,7 +12,6 @@ import defaultImage from '../../assets/kepek/egyeb/default.png';
 function VehicleImageManager({ vehicleId, token }) {
     const queryClient = useQueryClient();
     const [deleteTarget, setDeleteTarget] = useState(null);
-    const [uploading, setUploading] = useState(false);
 
     const { data: images = [], isLoading } = useQuery({
         queryKey: ['vehicle-images', vehicleId],
@@ -26,52 +26,57 @@ function VehicleImageManager({ vehicleId, token }) {
 
     const sorted = [...images].sort((a, b) => a.sortIndex - b.sortIndex);
 
-    async function handleUpload(file) {
-        if (!file) return;
-        setUploading(true);
-        try {
+    const uploadMutation = useMutation({
+        mutationFn: async (file) => {
             const formData = new FormData();
             formData.append('file', file);
-            await fetch(`${API_URL}/Vehicle/${vehicleId}/Image`, {
+            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,
             });
+            if (!resp.ok) throw new Error('Feltöltés sikertelen');
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] }),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id) => {
+            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!resp.ok) throw new Error('Törlés sikertelen');
+        },
+        onSuccess: () => {
+            setDeleteTarget(null);
             queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] });
-        } finally {
-            setUploading(false);
-        }
-    }
+        },
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
 
-    async function handleDelete() {
-        await fetch(`${API_URL}/Vehicle/${vehicleId}/Image/${deleteTarget}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        setDeleteTarget(null);
-        queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] });
-    }
-
-    async function reorder(imageId, newSortIndex) {
-        return fetch(`${API_URL}/Vehicle/${vehicleId}/Image/${imageId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(newSortIndex),
-        });
-    }
+    const reorderMutation = useMutation({
+        mutationFn: async ({ imageId, newSortIndex }) => {
+            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image/${imageId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify(newSortIndex),
+            });
+            if (!resp.ok) throw new Error('Átrendezés sikertelen');
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] }),
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
 
     async function moveUp(index) {
         if (index === 0) return;
         const curr = sorted[index];
         const prev = sorted[index - 1];
         await Promise.all([
-            reorder(curr.imageId, prev.sortIndex),
-            reorder(prev.imageId, curr.sortIndex),
+            reorderMutation.mutateAsync({ imageId: curr.imageId, newSortIndex: prev.sortIndex }),
+            reorderMutation.mutateAsync({ imageId: prev.imageId, newSortIndex: curr.sortIndex }),
         ]);
-        queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] });
     }
 
     async function moveDown(index) {
@@ -79,10 +84,9 @@ function VehicleImageManager({ vehicleId, token }) {
         const curr = sorted[index];
         const next = sorted[index + 1];
         await Promise.all([
-            reorder(curr.imageId, next.sortIndex),
-            reorder(next.imageId, curr.sortIndex),
+            reorderMutation.mutateAsync({ imageId: curr.imageId, newSortIndex: next.sortIndex }),
+            reorderMutation.mutateAsync({ imageId: next.imageId, newSortIndex: curr.sortIndex }),
         ]);
-        queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] });
     }
 
     return (
@@ -96,22 +100,22 @@ function VehicleImageManager({ vehicleId, token }) {
                 <Text fz={14}>Biztosan törli ezt a képet?</Text>
                 <Group justify="flex-end" mt={20}>
                     <Button variant="default" onClick={() => setDeleteTarget(null)}>Mégsem</Button>
-                    <Button color="red" onClick={handleDelete}>Törlés</Button>
+                    <Button color="red" loading={deleteMutation.isPending} onClick={() => deleteMutation.mutate(deleteTarget)}>Törlés</Button>
                 </Group>
             </Modal>
 
             <Paper shadow="md" radius="md" p={32}>
                 <Stack gap={16}>
                     <Group justify="space-between">
-                        <Text fz={15} fw={700} c="#060631">Képek</Text>
-                        <FileButton onChange={handleUpload} accept="image/*">
+                        <Text fz={15} fw={700} c="var(--background)">Képek</Text>
+                        <FileButton onChange={(f) => f && uploadMutation.mutate(f)} accept="image/*">
                             {(props) => (
                                 <Button
                                     {...props}
-                                    loading={uploading}
+                                    loading={uploadMutation.isPending}
                                     leftSection={<IconUpload size={16} />}
                                     radius="md"
-                                    style={{ background: 'linear-gradient(135deg, #192570, #0b1f66)' }}
+                                    style={{ background: 'var(--button)' }}
                                 >
                                     Kép hozzáadása
                                 </Button>
@@ -120,7 +124,7 @@ function VehicleImageManager({ vehicleId, token }) {
                     </Group>
 
                     {isLoading ? (
-                        <Center py={40}><Loader color="#192570" /></Center>
+                        <Center py={40}><Loader color="var(--button)" /></Center>
                     ) : sorted.length === 0 ? (
                         <Center py={40}><Text c="dimmed" fz={14}>Még nincs feltöltött kép.</Text></Center>
                     ) : (

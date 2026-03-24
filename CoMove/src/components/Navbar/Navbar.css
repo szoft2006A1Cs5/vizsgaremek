@@ -122,7 +122,7 @@
     font-weight: 700;
     padding: 5px 10px;
     border-radius: 10px;
-    color: #060631;
+    color: var(--background);
     transition: all 0.18s ease;
 }
 
