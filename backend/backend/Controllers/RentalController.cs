@@ -91,6 +91,9 @@ namespace backend.Controllers
             if (offer.End <= offer.Start || offer.Start <= _timePrv.GetUtcNow())
                 return BadRequest("Nem lehet a bérlés vége előbb, mint a vége, illetve" +
                                   "nem kezdhetsz a múltban bérlést!");
+
+            if (string.IsNullOrEmpty(offer.PickupLocation))
+                return BadRequest("Nem javasoltál átvételi helyet!");
             
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
@@ -141,6 +144,13 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] RentalDTO modifications)
         {
+            if (modifications.End <= modifications.Start || modifications.Start <= _timePrv.GetUtcNow())
+                return BadRequest("Nem lehet a bérlés vége előbb, mint a vége, illetve" +
+                                  "nem kezdhetsz a múltban bérlést!");
+
+            if (string.IsNullOrEmpty(modifications.PickupLocation))
+                return BadRequest("Nem javasoltál átvételi helyet!");
+            
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
