@@ -400,6 +400,20 @@ namespace backend.Controllers
             );
         }
         
+        [HttpGet("{vehicleId}/Image/{imageId}")]
+        public async Task<IActionResult> GetImageById(int vehicleId, int imageId)
+        {
+            var authUser = await _authSrv.GetUser(User);
+
+            var image = await _context.VehicleImages
+                .FirstOrDefaultAsync(x =>
+                    x.VehicleId == vehicleId &&
+                    x.ImageId == imageId
+                );
+            
+            return Ok(image.FilterSerialize(authUser));
+        }
+        
         [HttpPost("{vehicleId}/Image")]
         public async Task<IActionResult> AddImage(int vehicleId, IFormFile file, [FromQuery] int? sortIndex = null)
         {

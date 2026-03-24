@@ -27,16 +27,40 @@ class ComoveAPILoadTest(HttpUser):
         self.client.get("/api/Vehicle", verify=False)
 
     @task
+    def getOwnedVehicles(self):
+        self.client.get(f"/api/Vehicle/Owned", verify=False)
+
+    @task
     def getVehicle(self):
         self.client.get(f"/api/Vehicle/{random.randint(1, 3)}", verify=False)
 
     @task
     def getAvailabilities(self):
-        self.client.get(f"/api/Vehicle/{random.randint(1, 3)}/availability", verify=False)
+        self.client.get(f"/api/Vehicle/1/Availability", verify=False)
 
     @task
     def getAvailability(self):
-        self.client.get(f"/api/Vehicle/{random.randint(1, 3)}/availability/1", verify=False)
+        self.client.get(f"/api/Vehicle/1/Availability/1", verify=False)
+
+    @task
+    def getImages(self):
+        self.client.get(f"/api/Vehicle/{random.randint(1, 3)}/Image", verify=False)
+
+    @task
+    def getImage(self):
+        self.client.get(f"/api/Vehicle/1/Image/1", verify=False)
+
+    @task
+    def getRentals(self):
+        self.client.get(f"/api/Rental", verify=False)
+
+    @task 
+    def getOwnedRentals(self):
+        self.client.get(f"/api/Rental/Owned", verify=False)
+
+    @task
+    def getNotifications(self):
+        self.client.get(f"/api/User/1/Notification", verify=False)
 
     @task
     def postLogin(self):
