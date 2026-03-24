@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using backend.VisibilityFiltering;
 
 namespace backend.Models
@@ -34,11 +35,11 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(64)]
         public required string Email { get; set; }
 
-        [VisibleTo(VisibilityLevel.AdminOnly)]
-        public required byte[] Password { get; set; } // HASH
+        [JsonIgnore]
+        public byte[] Password { get; set; } // HASH
 
-        [VisibleTo(VisibilityLevel.AdminOnly)]
-        public required byte[] Salt { get; set; }
+        [JsonIgnore]
+        public byte[] Salt { get; set; }
 
         [VisibleTo(VisibilityLevel.AdminOnly)]
         public UserRole Role { get; set; }

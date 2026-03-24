@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react'
-import { Popover, Button, ActionIcon, Drawer, Modal, ScrollArea, Stack, Center, Text } from "@mantine/core"
-import BellIcon from '../icons/Bell';
+import { Button, ActionIcon, Modal, Center, Text, ScrollArea } from "@mantine/core"
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import Notification from '../Notification/Notification'
-import { useUser } from '../../assets/scripts/UseUser';
+import { useUser } from '../../assets/scripts/AuthUser';
+import { API_URL } from '../../assets/scripts/Config';
+import { FaBell } from 'react-icons/fa';
+import { notifications } from "@mantine/notifications";
 
 function NotificationMenu() {
     const [opened, { open, close }] = useDisclosure(false);
     const isMobile = useMediaQuery('(max-width: 50em)');
 
-    const authUser = useUser();
+    const { data: authUser, isLoading: isLoading, isSuccess: isSuccess} = useUser();
 
     function deleteNotificaton(id) {
         const auth = JSON.parse(localStorage.getItem("auth"));
-        fetch(`https://localhost:7245/api/User/${auth.userId}/Notification/${id}`, {
+        fetch(`${API_URL}/User/${auth.userId}/Notification/${id}`, {
             method: "DELETE",
             headers: { 
                 "Content-Type": "application/json",
@@ -23,13 +24,23 @@ function NotificationMenu() {
         .then((resp) => {
             if (resp.status === 204)
                 authUser.refetch();
+            else
+                throw new Error("Nem sikerült törölni az értesítést!")
         })
-        .catch(() => {});
+        .catch(err => {
+            notifications.show({
+                title: "Hiba!",
+                message: err,
+                style: {
+                    backgroundColor: 'red'
+                }
+            })
+        });
     }
 
     function deleteAll() {
         const auth = JSON.parse(localStorage.getItem("auth"));
-        fetch(`https://localhost:7245/api/User/${auth.userId}/Notification`, {
+        fetch(`${API_URL}/User/${auth.userId}/Notification`, {
             method: "DELETE",
             headers: { 
                 "Content-Type": "application/json",
@@ -39,17 +50,27 @@ function NotificationMenu() {
         .then((resp) => {
             if (resp.status === 204)
                 authUser.refetch();
+            else
+                throw new Error("Nem sikerült törölni az értesítéseket!")
         })
-        .catch(() => {});
+        .catch(err => {
+            notifications.show({
+                title: "Hiba!",
+                message: err,
+                style: {
+                    backgroundColor: 'red'
+                }
+            })
+        });
     }
 
-    if (!authUser.data)
+    if (!isSuccess)
         return <></>
 
     return (
         <>
             <ActionIcon onClick={open} color='transparent'>
-                <BellIcon />
+                <FaBell />
             </ActionIcon>
 
             <Modal 
@@ -59,30 +80,42 @@ function NotificationMenu() {
                 fullScreen={isMobile}
                 styles={{
                     content: {
-                        marginTop: isMobile ? 80 : 0
+                        marginTop: isMobile ? 80 : 0,
+                    },
+                    body: {
+                        overflow: 'hidden',
+                        marginBottom: isMobile ? 50 : 0
                     }
                 }}
             >
-                <Modal.Header>
-                    <Button color='red' onClick={() => deleteAll()} disabled={authUser.data.notifications.length <= 0} fullWidth>
+                <Modal.Body>
+                    <Button 
+                        color='red' 
+                        onClick={() => deleteAll()} 
+                        disabled={authUser.notifications.length <= 0}
+                        mb={30}
+                        fullWidth
+                    >
                         Összes törlése
                     </Button>
-                </Modal.Header>
-                <Modal.Stack>
-                    {
-                    0 < authUser.data.notifications.length ?
-                     authUser.data.notifications.map(x => {
-                        return (
-                            <Notification key={x.notificationId} notification={x} onDelete={() => deleteNotificaton(x.notificationId)} />
-                        )
-                    }) :
-                    <Center>
-                        <Text>
-                            Nincsenek értesítései
-                        </Text>
-                    </Center>
+                    { 0 < authUser.notifications.length ?
+                        authUser.notifications.map(x => {
+                            return (
+                                <Notification 
+                                    key={x.notificationId} 
+                                    notification={x} 
+                                    onDelete={() => deleteNotificaton(x.notificationId)} 
+                                />
+                            )
+                        })
+                    :
+                        <Center>
+                            <Text>
+                                Nincsenek értesítései
+                            </Text>
+                        </Center>
                     }
-                </Modal.Stack>
+                </Modal.Body>
             </Modal>
         </>
     )

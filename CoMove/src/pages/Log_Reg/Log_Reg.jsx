@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./Log_Reg.css";
 import bluelogo from "../../assets/kepek/logo/comove_logo1.png";
 import whitelogo from "../../assets/kepek/logo/comove_logo4.png";
+import { API_URL } from "../../assets/scripts/Config";
 
 function Registration() {
     const navigate = useNavigate();
@@ -221,14 +222,21 @@ function Registration() {
         const valid = validateStep();
         if (!valid) return;
 
-        fetch("https://localhost:7245/api/Auth/register", {
+        fetch(`${API_URL}/Auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                email: loginData.email,
-                password: loginData.password,
+                name: formData.teljes_nev,
+                idCardNumber: formData.szemelyi_szam,
+                addressZipcode: formData.iranyitoszam,
+                addressSettlement: formData.telepules,
+                addressStreetHouse: formData.utca_hazszam,
+                dateOfBirth: formData.szuletesi_datum,
+                phone: formData.telefonszam,
+                email: formData.email,
+                password: formData.jelszo
             })
         })
         .then(resp => {
@@ -244,13 +252,14 @@ function Registration() {
             localStorage.setItem("auth", JSON.stringify(data));
             navigate("/");
         })
+        .catch(err => console.error(err))
     };
 
     const handleLogin = () => {
         const valid = validateLogin();
         if (!valid) return;
 
-        fetch("https://localhost:7245/api/Auth/login", {
+        fetch(`${API_URL}/Auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -273,6 +282,7 @@ function Registration() {
             localStorage.setItem("auth", JSON.stringify(data));
             navigate("/");
         })
+        .catch(err => console.error(err))
     }
 
     return (

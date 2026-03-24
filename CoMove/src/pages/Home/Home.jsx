@@ -79,7 +79,7 @@ function Home() {
                                     Találd meg az igényeidnek megfelelő autót, mellyel élvezet lesz a vezetés minden perce.
                                 </p>
 
-                                <button className="home_btn" type="button" onClick={() => navigate("/searching")}>
+                                <button className="home_btn" type="button" onClick={() => navigate("/search")}>
                                     Béreljen itt
                                 </button>
                             </div>

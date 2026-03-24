@@ -1,0 +1,19 @@
+
+.notifBox {
+    margin: 5px;
+    background-color: var(--background);
+    border-radius: 10px;
+}
+
+.notifText {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    word-break: normal;
+    white-space: normal;
+}
+
+.notifDate {
+    color: rgb(200, 200, 200);
+    font-size: 12px;
+}

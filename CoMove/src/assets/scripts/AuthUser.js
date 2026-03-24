@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-
 export function useUser() {
     const auth = JSON.parse(localStorage.getItem("auth"));
     const token = auth?.token;
@@ -26,6 +25,7 @@ export function useUser() {
         enabled: !!token,
         refetchInterval: token ? 60000 : false,
         staleTime: 60000,
+        refetchOnWindowFocus: true,
     })
 }
 

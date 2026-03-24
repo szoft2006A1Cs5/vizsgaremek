@@ -1,0 +1,37 @@
+.rentals-row {
+    background: #fff;
+    border-color: #e9ecef !important;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.rentals-row:hover {
+    border-color: #192570 !important;
+    box-shadow: 0 2px 12px rgba(25, 37, 112, 0.08) !important;
+}
+
+.rentals-row-action {
+    border-left: 3px solid #192570 !important;
+}
+
+.rentals-row-thumb {
+    width: 60px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.rentals-action-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #192570;
+    flex-shrink: 0;
+    animation: rentals-pulse 2s infinite;
+}
+
+@keyframes rentals-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}

@@ -1,0 +1,93 @@
+.rd-vehicle-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Chat */
+.rd-chat-area {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+}
+
+.rd-bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    word-break: break-word;
+}
+
+.rd-bubble-own {
+    background: linear-gradient(135deg, #192570, #0b1f66);
+    border-bottom-right-radius: 4px;
+}
+
+.rd-bubble-other {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-bottom-left-radius: 4px;
+}
+
+/* Price box */
+.rd-price-box {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef !important;
+}
+
+/* Confirmation circles */
+.rd-check-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.rd-check-circle.confirmed {
+    background: #ebfbee;
+    color: #2f9e44;
+    border: 2px solid #2f9e44;
+}
+
+.rd-check-circle.pending {
+    background: #f8f9fa;
+    color: #adb5bd;
+    border: 2px solid #dee2e6;
+}
+
+/* Rating done */
+.rd-rating-done {
+    background: #fffbea;
+    border: 1px solid #ffe066;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+/* Avatar */
+.rd-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #eef4ff;
+    color: #192570;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Cancelled */
+.rd-cancelled-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #fff5f5;
+    border: 2px solid #ff6b6b;
+    color: #ff6b6b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

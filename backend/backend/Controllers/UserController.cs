@@ -40,7 +40,9 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Vehicle)
                 .Include(x => x.Vehicles)
                 .ThenInclude(x => x.Rentals)
-                .Include(x => x.Notifications)
+                .Include(x => x.Notifications
+                    .OrderByDescending(y => y.TimeSent)
+                )
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(x => x.Id == id);
             

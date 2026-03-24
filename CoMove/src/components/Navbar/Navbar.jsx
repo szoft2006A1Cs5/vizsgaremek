@@ -18,7 +18,7 @@ import { useDisclosure } from "@mantine/hooks"
 import { Link, useLocation } from "react-router-dom"
 import { Popover } from "@mantine/core"
 import NotificationMenu from "../NotificationMenu/NotificationMenu";
-import { useLogout, useUser } from "../../assets/scripts/UseUser";
+import { useLogout, useUser } from "../../assets/scripts/AuthUser";
 
 function Navbar({ children }) {
     const [sideNavOpen, sideNav] = useDisclosure(false)
@@ -27,7 +27,7 @@ function Navbar({ children }) {
 
     const links = [
         { to: "/", name: "Főoldal" },
-        { to: "/searching", name: "Autók keresése" },
+        { to: "/search", name: "Autók keresése" },
     ]
 
     const [scrolled, setScrolled] = useState(false)
@@ -49,6 +49,11 @@ function Navbar({ children }) {
         window.addEventListener("scroll", onScroll, { passive: true })
         return () => window.removeEventListener("scroll", onScroll)
     }, [])
+
+    useEffect(() => {
+        sideNav.close();
+        authBar.close();
+    }, [location.pathname])
 
     const authUser = useUser();
     const logout = useLogout();
@@ -141,7 +146,7 @@ function Navbar({ children }) {
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Title size={20} c="white">
+                                                    <Title size={20} c="black">
                                                         Üdv {authUser.data.name}!
                                                     </Title>
                                                     <Divider />
@@ -189,8 +194,6 @@ function Navbar({ children }) {
                     </Stack>
                 </div>
             </AppShell.Navbar>
-
-
 
             <AppShell.Main>{children}</AppShell.Main>
         </AppShell>

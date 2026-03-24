@@ -7,6 +7,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --background: #060631;
+  --secondary: #eef4ff;
+  --button: #0b1f66;
+  --lightpurple: #7a7aaa;
 }
 
 * {

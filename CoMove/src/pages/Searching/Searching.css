@@ -398,6 +398,11 @@ body,
     min-width: 120px;
 }
 
+.searching_fieldDate {
+    flex: 1.5 1 210px;
+    min-width: 200px;
+}
+
 .searching_label {
     font-size: 10px;
     color: rgba(13, 20, 27, .55);
@@ -932,10 +937,12 @@ select.searching_input {
 
 .searching_results {
     margin-top: 26px;
+    margin-left: 10px;
 }
 
 .searching_resultsTitle {
-    margin: 50px 100px 20px;
+    margin-top: 50px;
+    margin-bottom: 20px;
     color: #060631;
     font-size: 20px;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
