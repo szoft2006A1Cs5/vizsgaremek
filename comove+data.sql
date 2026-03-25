@@ -59,17 +59,16 @@ CREATE TABLE `notifications` (
   `userId` int(11) NOT NULL,
   `notificationId` int(11) NOT NULL,
   `content` varchar(512) NOT NULL,
-  `timeSent` datetime NOT NULL,
-  `read` tinyint(1) NOT NULL DEFAULT 0
+  `timeSent` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
 -- A tábla adatainak kiíratása `notifications`
 --
 
-INSERT INTO `notifications` (`id`, `userId`, `notificationId`, `content`, `timeSent`, `read`) VALUES
-(1, 2, 1, 'Új üzeneted érkezett Teszt Teréztől a BMW bérléssel kapcsolatban.', '2026-01-11 08:55:05', 1),
-(2, 3, 1, 'Új bérlési ajánlatod érkezett a Skodára Teszt Elektől!', '2026-01-12 00:05:00', 0);
+INSERT INTO `notifications` (`id`, `userId`, `notificationId`, `content`, `timeSent`) VALUES
+(1, 2, 1, 'Új üzeneted érkezett Teszt Teréztől a BMW bérléssel kapcsolatban.', '2026-01-11 08:55:05'),
+(2, 3, 1, 'Új bérlési ajánlatod érkezett a Skodára Teszt Elektől!', '2026-01-12 00:05:00');
 
 -- --------------------------------------------------------
 

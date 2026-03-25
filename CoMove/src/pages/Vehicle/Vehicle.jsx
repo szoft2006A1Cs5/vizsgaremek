@@ -244,6 +244,7 @@ function Vehicle() {
                                                                 onChange={e => setPickupLocation(e.target.value)}
                                                                 radius="md"
                                                                 size="sm"
+                                                                minLength={1}
                                                                 maxLength={512}
                                                             />
                                                             <NumberInput
@@ -261,7 +262,7 @@ function Vehicle() {
                                                                     {quote.fullPrice?.toLocaleString('hu-HU')} Ft
                                                                 </Text>
                                                             </Text>
-                                                            {!token ? (
+                                                            {!token || (userSuccess && !authUser) ? (
                                                                 <Button
                                                                     fullWidth size="md" radius="md"
                                                                     style={{ background: 'var(--button)' }}

@@ -279,9 +279,9 @@ namespace backend.UnitTests
                 {
                     Id = 1,
                     Content = "A bérlési kérelmed elutasították és így törölve lett!",
-                    Read = false,
                     TimeSent = new DateTime(2026, 03, 02, 11, 12, 23),
-                    UserId = 1
+                    UserId = 1,
+                    NotificationId = 1
                 }
             ]);
             

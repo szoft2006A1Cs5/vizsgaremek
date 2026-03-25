@@ -91,7 +91,7 @@ namespace backend.Controllers
             if (offer.End <= offer.Start || offer.Start <= _timePrv.GetUtcNow())
                 return BadRequest(new
                 {
-                    Error = "Nem lehet a bérlés vége előbb, mint a vége, illetve" +
+                    Error = "Nem lehet a bérlés vége előbb, mint a kezdete, illetve" +
                             "nem kezdhetsz a múltban bérlést!"
                 });
 
@@ -147,13 +147,6 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] RentalDTO modifications)
         {
-            if (modifications.End <= modifications.Start || modifications.Start <= _timePrv.GetUtcNow())
-                return BadRequest(new
-                {
-                    Error = "Nem lehet a bérlés vége előbb, mint a vége, illetve" +
-                            "nem kezdhetsz a múltban bérlést!"
-                });
-
             if (string.IsNullOrEmpty(modifications.PickupLocation))
                 return BadRequest(new { Error = "Nem javasoltál átvételi helyet!" });
 
@@ -170,6 +163,15 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Owner)
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (existingRental == null) return NotFound();
+
+            if (existingRental.Status < RentalStatus.OfferAccepted &&
+                (modifications.End <= modifications.Start ||
+                modifications.Start <= _timePrv.GetUtcNow()))
+                return BadRequest(new
+                {
+                    Error = "Nem lehet a bérlés vége előbb, mint a kezdete, illetve" +
+                            "nem kezdhetsz a múltban bérlést!"
+                });
 
             if (authUser.Role != UserRole.Administrator &&
                 existingRental.RenterId != authUser.Id &&

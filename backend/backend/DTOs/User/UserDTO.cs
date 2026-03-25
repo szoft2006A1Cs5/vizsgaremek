@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using backend.Contexts;
+using backend.Models;
 
 namespace backend.DTOs.User
 {
@@ -15,6 +16,7 @@ namespace backend.DTOs.User
         public required string AddressZipcode { get; set; }
         public required string AddressSettlement { get; set; }
         public required string AddressStreetHouse { get; set; }
+        public UserRole? Role { get; set; }
 
         public bool CheckValid()
         {

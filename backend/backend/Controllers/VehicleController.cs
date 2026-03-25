@@ -23,12 +23,14 @@ namespace backend.Controllers
         private readonly Context _context;
         private readonly AuthService _authSrv;
         private readonly IResourceService _resSrv;
+        private readonly TimeProvider _timePrv;
 
-        public VehicleController(Context ctx, AuthService authSrv, IResourceService resSrv)
+        public VehicleController(Context ctx, AuthService authSrv, IResourceService resSrv, TimeProvider timePrv)
         {
             _context = ctx;
             _authSrv = authSrv;
             _resSrv = resSrv;
+            _timePrv = timePrv;
         }
 
         // GET: api/<VehicleController>
@@ -240,7 +242,9 @@ namespace backend.Controllers
             [FromQuery] DateTime? rentalEnd = null
         )
         {
-            if (rentalStart == null && rentalEnd == null && rentalEnd <= rentalStart)
+            if ((rentalStart == null || rentalEnd == null) ||
+                rentalEnd <= rentalStart ||
+                rentalStart <= _timePrv.GetUtcNow())
                 return BadRequest();
             
             var vehicle = await _context.Vehicles
@@ -276,6 +280,14 @@ namespace backend.Controllers
         [HttpPost("{vehicleId}/Availability")]
         public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
         {
+            if (availability.End <= availability.Start ||
+                availability.HourlyRate < 0)
+                return BadRequest(new
+                    {
+                        Error = "A bérelhetőség kezdete nem lehet később a végénél, illetve " +
+                                "a beállított ár nem lehet 0 vagy kevesebb!"
+                    });
+
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
@@ -289,13 +301,6 @@ namespace backend.Controllers
             if (vehicle == null) return NotFound();
             if (vehicle.OwnerId != authUser.Id 
                 && authUser.Role != UserRole.Administrator) return Forbid();
-
-            if (availability.End <= availability.Start || availability.HourlyRate <= 0)
-                return BadRequest(new
-                {
-                    Error = "A bérelhetőség kezdete nem lehet később a végénél," +
-                            " és a beállított ár nem lehet 0 vagy kevesebb!"
-                });
             
             if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(availability.DateInterval)))
                 return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
@@ -331,6 +336,14 @@ namespace backend.Controllers
             [FromBody] VehicleAvailability replacement
         )
         {
+            if (replacement.End <= replacement.Start ||
+                replacement.HourlyRate < 0)
+                return BadRequest(new
+                {
+                    Error = "A bérelhetőség kezdete nem lehet később a végénél, illetve " +
+                            "a beállított ár nem lehet 0 vagy kevesebb!"
+                });
+
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
@@ -342,13 +355,6 @@ namespace backend.Controllers
             if (availability == null || availability.Vehicle == null) return NotFound();
             if (availability.Vehicle.OwnerId != authUser.Id &&
                 authUser.Role != UserRole.Administrator) return Forbid();
-
-            if (replacement.End <= replacement.Start || replacement.HourlyRate < 0)
-                return BadRequest(new
-                {
-                    Error = "A bérelhetőség kezdete nem lehet később a végénél," +
-                            " és a beállított ár nem lehet 0 vagy kevesebb!"
-                });
             
             if (availability.Vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(replacement.DateInterval) &&
                                                              x.AvailabilityId != availabilityId))

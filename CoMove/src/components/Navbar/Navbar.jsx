@@ -140,9 +140,6 @@ function Navbar({ children }) {
                                                     <Link to="/register" className="nav_navlinkWrap" onClick={() => authBar.close()}>
                                                         <NavLink label="Regisztráció" />
                                                     </Link>
-                                                    <Link to="/account" className="nav_navlinkWrap" onClick={() => authBar.close()}>
-                                                        <NavLink label="Fiókom" />
-                                                    </Link>
                                                 </>
                                             ) : (
                                                 <>

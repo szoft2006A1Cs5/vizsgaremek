@@ -108,7 +108,7 @@ namespace backend.UnitTests.Tests
             Assert.AreEqual(user.Id, 1);
             Assert.AreEqual("36201234567", user.Phone); // In Relation
             Assert.IsNotNull(user.IdCardNumber); // Owner Only
-            Assert.IsNotNull(user.Password); // Admin Only
+            Assert.IsNotNull(user.Role); // Admin Only
         }
 
         [TestMethod]
@@ -342,6 +342,135 @@ namespace backend.UnitTests.Tests
             _controller.SetAuthUser(2, UserRole.User);
 
             var result = await _controller!.UpdateUserImageById(1, new FormFile(null, 0, 0, "test", "test.jpg")) as ForbidResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetNotificationsForUID_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = await _controller!.GetNotificationsForUID(1) as OkObjectResult;
+
+            Assert.IsNotNull(result);
+            var notifications = JsonConvert.DeserializeObject<List<Notification>>((string)result.Value);
+            Assert.IsNotNull(notifications);
+
+            Assert.AreEqual(1, notifications.Count());
+        }
+
+        [TestMethod]
+        public async Task GetNotificationsForUID_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+
+            var result = await _controller!.GetNotificationsForUID(1) as UnauthorizedResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetNotificationsForUID_Forbidden()
+        {
+            _controller.SetAuthUser(2, UserRole.User);
+
+            var result = await _controller!.GetNotificationsForUID(1) as ForbidResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetNotificationByUIDAndId_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = await _controller!.GetNotificationByUIDAndId(1, 1) as OkObjectResult;
+
+            Assert.IsNotNull(result);
+            var notification = JsonConvert.DeserializeObject<Notification>((string)result.Value);
+            Assert.IsNotNull(notification);
+
+            Assert.AreEqual("A bérlési kérelmed elutasították és így törölve lett!", notification.Content);
+        }
+
+        [TestMethod]
+        public async Task GetNotificationByUIDAndId_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+
+            var result = await _controller!.GetNotificationByUIDAndId(1, 1) as UnauthorizedResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetNotificationByUIDAndId_Forbidden()
+        {
+            _controller.SetAuthUser(2, UserRole.User);
+
+            var result = await _controller!.GetNotificationByUIDAndId(1, 1) as ForbidResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task DeleteNotificationByUIDAndId_NoContent()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = await _controller!.DeleteNotificationByUIDAndId(1, 1) as NoContentResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task DeleteNotificationByUIDAndId_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+
+            var result = await _controller!.DeleteNotificationByUIDAndId(1, 1) as UnauthorizedResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task DeleteNotificationByUIDAndId_Forbidden()
+        {
+            _controller.SetAuthUser(2, UserRole.User);
+
+            var result = await _controller!.DeleteNotificationByUIDAndId(1, 1) as ForbidResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task DeleteNotificationsByUID_NoContent()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = await _controller!.DeleteNotificationsByUID(1) as NoContentResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, _environment.Context.Notifications.Where(x => x.Id == 1).Count());
+        }
+
+        [TestMethod]
+        public async Task DeleteNotificationsByUID_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+
+            var result = await _controller!.DeleteNotificationsByUID(1) as UnauthorizedResult;
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task DeleteNotificationsByUID_Forbidden()
+        {
+            _controller.SetAuthUser(2, UserRole.User);
+
+            var result = await _controller!.DeleteNotificationsByUID(1) as ForbidResult;
 
             Assert.IsNotNull(result);
         }

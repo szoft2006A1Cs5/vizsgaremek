@@ -40,7 +40,7 @@ function NotificationMenu() {
         onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
 
-    if (!isSuccess)
+    if (!isSuccess && !authUser)
         return <></>
 
     return (

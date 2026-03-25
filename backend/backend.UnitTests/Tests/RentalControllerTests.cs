@@ -164,11 +164,11 @@ namespace backend.UnitTests.Tests
                 FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Finished,
-                OwnerRating = 5.0,
+                RenterRating = 5.0,
             }) as OkObjectResult;
             Assert.IsNotNull(renterRatingResult);
 
-            Assert.AreEqual(5.0, rental.OwnerRating);
+            Assert.AreEqual(5.0, rental.RenterRating);
             #endregion
 
             #region OwnerRating 
@@ -181,11 +181,11 @@ namespace backend.UnitTests.Tests
                 FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Finished,
-                RenterRating = 4.5,
+                OwnerRating = 4.5,
             }) as OkObjectResult;
             Assert.IsNotNull(ownerRatingResult);
 
-            Assert.AreEqual(4.5, rental.RenterRating);
+            Assert.AreEqual(4.5, rental.OwnerRating);
             #endregion
         }
     }

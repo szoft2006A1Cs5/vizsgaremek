@@ -168,16 +168,17 @@ namespace backend.Controllers
             if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
 
             return Ok(
-                await _context.Notifications
-                .Where(x => x.UserId == userId)
-                .Skip((page - 1) * limit)
-                .Take(limit)
-                .ToListAsync()
+                (await _context.Notifications
+                    .Where(x => x.UserId == userId)
+                    .Skip((page - 1) * limit)
+                    .Take(limit)
+                    .ToListAsync())
+                .FilterSerialize(authUser)
             );
         }
 
         [HttpGet("{userId}/Notification/{notificationId}")]
-        public async Task<IActionResult> GetNotificationByIdAndUID(int userId, int notificationId)
+        public async Task<IActionResult> GetNotificationByUIDAndId(int userId, int notificationId)
         {
             var authUser = await _authSrv.GetUser(User);
 
@@ -187,25 +188,7 @@ namespace backend.Controllers
             var message = await _context.Notifications.FirstOrDefaultAsync(x => x.UserId == userId && x.NotificationId == notificationId);
             if (message == null) return NotFound();
 
-            return Ok(message);
-        }
-
-        [HttpPut("{userId}/Notification/{notificationId}")]
-        public async Task<IActionResult> SetNotificationReadByUIDAndId(int userId, int notificationId, bool read = true)
-        {
-            var authUser = await _authSrv.GetUser(User);
-
-            if (authUser == null) return Unauthorized();
-            if (authUser.Id != userId && authUser.Role != UserRole.Administrator) return Forbid();
-
-            var notification = await _context.Notifications
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.NotificationId == notificationId);
-            if (notification == null) return NotFound();
-
-            notification.Read = read;
-            await _context.SaveChangesAsync();
-
-            return Ok(notification);
+            return Ok(message.FilterSerialize(authUser));
         }
 
         [HttpDelete("{userId}/Notification/{notificationId}")]
