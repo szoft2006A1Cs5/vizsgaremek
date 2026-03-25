@@ -89,17 +89,20 @@ namespace backend.Controllers
         public async Task<IActionResult> Post([FromBody] RentalDTO offer)
         {
             if (offer.End <= offer.Start || offer.Start <= _timePrv.GetUtcNow())
-                return BadRequest("Nem lehet a bérlés vége előbb, mint a vége, illetve" +
-                                  "nem kezdhetsz a múltban bérlést!");
+                return BadRequest(new
+                {
+                    Error = "Nem lehet a bérlés vége előbb, mint a vége, illetve" +
+                            "nem kezdhetsz a múltban bérlést!"
+                });
 
             if (string.IsNullOrEmpty(offer.PickupLocation))
-                return BadRequest("Nem javasoltál átvételi helyet!");
+                return BadRequest(new { Error = "Nem javasoltál átvételi helyet!" });
             
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
             if (authUser.DriversLicenseNumber == null)
-                return Forbid("Nincs megadva jogosítványszám a fiókodban!");
+                return Forbid();
 
             var vehicle = await _context.Vehicles
                 .Include(x => x.Availabilities)
@@ -113,7 +116,7 @@ namespace backend.Controllers
             if (priceOffer == null) return Conflict();
 
             if (authUser.Balance < priceOffer.Value.FullPrice)
-                return BadRequest("Nincs elegendő egyenleged ehhez a bérléshez!");
+                return BadRequest(new { Error = "Nincs elegendő egyenleged ehhez a bérléshez!" });
 
             var rental = new Rental
             {
@@ -145,12 +148,15 @@ namespace backend.Controllers
         public async Task<IActionResult> Put(int id, [FromBody] RentalDTO modifications)
         {
             if (modifications.End <= modifications.Start || modifications.Start <= _timePrv.GetUtcNow())
-                return BadRequest("Nem lehet a bérlés vége előbb, mint a vége, illetve" +
-                                  "nem kezdhetsz a múltban bérlést!");
+                return BadRequest(new
+                {
+                    Error = "Nem lehet a bérlés vége előbb, mint a vége, illetve" +
+                            "nem kezdhetsz a múltban bérlést!"
+                });
 
             if (string.IsNullOrEmpty(modifications.PickupLocation))
-                return BadRequest("Nem javasoltál átvételi helyet!");
-            
+                return BadRequest(new { Error = "Nem javasoltál átvételi helyet!" });
+
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
@@ -182,7 +188,7 @@ namespace backend.Controllers
             return result.StatusCode switch
             {
                 200 => Ok(existingRental.FilterSerialize(authUser)),
-                400 => BadRequest(result.ErrorMessage),
+                400 => BadRequest(new { Error = result.ErrorMessage }),
                 204 => NoContent(),
                 _ => StatusCode(500)
             };
@@ -211,7 +217,7 @@ namespace backend.Controllers
             return cancelRes.StatusCode switch
             {
                 204 => NoContent(),
-                400 => BadRequest(cancelRes.ErrorMessage),
+                400 => BadRequest(new { Error = cancelRes.ErrorMessage }),
                 _ => Ok(existingRental.FilterSerialize(authUser))
             };
         }
@@ -300,7 +306,7 @@ namespace backend.Controllers
                 return Forbid();
 
             var path = await _resSrv.Store(file);
-            if (path == null) return BadRequest();
+            if (path == null) return StatusCode(500);
             
             var message = new Message
             {
