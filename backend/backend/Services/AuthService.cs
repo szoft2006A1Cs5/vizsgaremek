@@ -7,9 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
 
 namespace backend.Services
 {

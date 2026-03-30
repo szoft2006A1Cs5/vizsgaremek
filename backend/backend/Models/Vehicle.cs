@@ -88,21 +88,6 @@ namespace backend.Models
                     return (_, _) => false;
             }
         }
-        
-        public bool CheckAvailable(
-            DateTime intervalStart, 
-            DateTime intervalEnd,
-            Rental? exclude = null)
-        {
-            // Ha van mar berles amit elfogadtak es utkozik a megadott datummal,
-            // akkor nyilvan nem elerheto az idoszakra, emellett a jarmu tulajdonosa
-            // altal meghatarozott berelhetosegi idoszakban van-e a megadott intervallum.
-            return !this.Rentals.Any(r => (exclude != null ? exclude.Id != r.Id : true) &&
-                                          RentalStatus.OfferAccepted <= r.Status && 
-                                          !(r.End < intervalStart || intervalEnd < r.Start)) &&
-                   this.Availabilities.Any(a => a.Start <= intervalStart && intervalEnd <= a.End) &&
-                   intervalStart < intervalEnd;
-        }
 
         public VehicleQuote? GetQuote(DateTime? intervalStart, DateTime? intervalEnd, Rental? exclude = null)
         {
@@ -110,6 +95,7 @@ namespace backend.Models
             
             // Ha van mar az idoszakban berles, nyilvan nem berelheto
             if (this.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                      r.Status < RentalStatus.Finished &&
                                       !(r.End < intervalStart || intervalEnd < r.Start) &&
                                       (exclude != null ? exclude.Id != r.Id : true)))
                 return null;

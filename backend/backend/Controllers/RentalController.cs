@@ -38,7 +38,6 @@ namespace backend.Controllers
             _timePrv = timePrv;
         }
         
-        // GET: api/<RentalController>
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -58,7 +57,6 @@ namespace backend.Controllers
             );
         }
 
-        // GET api/<RentalController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -84,7 +82,6 @@ namespace backend.Controllers
             return Ok(rental.FilterSerialize(authUser));
         }
 
-        // POST api/<RentalController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RentalDTO offer)
         {
@@ -143,7 +140,6 @@ namespace backend.Controllers
             return Ok(rental.FilterSerialize(authUser));
         }
 
-        // PUT api/<RentalController>/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] RentalDTO modifications)
         {
@@ -196,7 +192,6 @@ namespace backend.Controllers
             };
         }
 
-        // DELETE api/<RentalController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

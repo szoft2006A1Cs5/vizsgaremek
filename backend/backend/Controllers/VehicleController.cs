@@ -12,8 +12,6 @@ using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
 using backend.Services.ResourceService;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace backend.Controllers
 {
     [Route("api/[controller]")]
@@ -33,7 +31,30 @@ namespace backend.Controllers
             _timePrv = timePrv;
         }
 
-        // GET: api/<VehicleController>
+        /// <summary>
+        /// Visszaadja az adatbazisban talalhato jarmuveket
+        /// (opcionalisan szurve)
+        /// </summary>
+        /// <param name="rentalStart">Opcionalis, a berles kezdeti idopontja</param>
+        /// <param name="rentalEnd">
+        /// Opcionalis, a berles vegenek idopontja
+        /// (mindenkeppen a berles kezdete utan kell kovetkeznie)
+        /// </param>
+        /// <param name="manufacturer">Opcionalis, jarmu gyarto/marka</param>
+        /// <param name="model">Opcionalis, jarmu tipus/modell</param>
+        /// <param name="year">Opcionalis, jarmu gyartasi eve</param>
+        /// <param name="settlement">Opcionalis, a telepules ahol jarmuvet keresunk</param>
+        /// <param name="fuelType">Opcionalis, jarmu uzemanyaganak tipusa</param>
+        /// <param name="transmission">Opcionalis, jarmu sebessegvaltojanak tipusa</param>
+        /// <param name="minRate">Opcionalis, minimum oradij</param>
+        /// <param name="maxRate">Opcionalis, maximum oradij</param>
+        /// <param name="minPrice">Opcionalis, minimum teljes ar</param>
+        /// <param name="maxPrice">Opcionalis, maximum teljes ar</param>
+        /// <param name="showOwned">
+        /// Visszaadja-e a bejelentkezett felhasznalo
+        /// jarmuveit? Alapvetoen false/hamis
+        /// </param>
+        /// <returns>(Szurt) jarmuvek</returns>
         [HttpGet]
         public async Task<IActionResult> GetVehicles(
             [FromQuery] DateTime? rentalStart = null,
@@ -63,6 +84,7 @@ namespace backend.Controllers
                 .Where(x => 
                     ((rentalStart != null && rentalEnd != null && rentalStart < rentalEnd) ?
                         !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                            r.Status < RentalStatus.Finished &&
                                             !(r.End < rentalStart || rentalEnd < r.Start)) &&
                         x.Availabilities.Any(a => a.Start <= rentalStart && rentalStart <= a.End) &&
                         x.Availabilities.Any(a => a.Start <= rentalEnd && rentalEnd <= a.End) &&
@@ -108,7 +130,16 @@ namespace backend.Controllers
             return Ok(vehicles.FilterSerialize(authUser));
         }
 
-        // GET api/<VehicleController>/5
+        /// <summary>
+        /// Visszaadja a megadott id-ju jarmu adatait
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="rentalStart">Opcionalis, a berles kezdeti idopontja</param>
+        /// <param name="rentalEnd">
+        /// Opcionalis, a berles vegso idopontja,
+        /// nem lehet elobb, mint a kezdeti idopont
+        /// </param>
+        /// <returns>A megadott jarmu adatai</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVehicleById(
             int id, 
@@ -132,11 +163,18 @@ namespace backend.Controllers
             if (vehicle == null) return NotFound();
 
             if (rentalStart != null && rentalEnd != null && rentalStart < rentalEnd)
-                vehicle.ExtensionData.Add("offer", vehicle.GetQuote(rentalStart, rentalEnd));
+                vehicle.ExtensionData.Add("quote", vehicle.GetQuote(rentalStart, rentalEnd));
 
             return Ok(vehicle.FilterSerialize(authUser));
         }
 
+        /// <summary>
+        /// Visszaadja a bejelentkezett felhasznalo jarmuveinek adatait.
+        /// </summary>
+        /// <returns>
+        /// 401, ha a felhasznalo nincs bejelentkezve
+        /// 200 + jarmuvek listaja, ha a felhasznalo be van jelentkezve
+        /// </returns>
         [Authorize(Roles = "User")]
         [HttpGet("Owned")]
         public async Task<IActionResult> GetOwnedVehicles()
@@ -244,7 +282,8 @@ namespace backend.Controllers
         {
             if ((rentalStart == null || rentalEnd == null) ||
                 rentalEnd <= rentalStart ||
-                rentalStart <= _timePrv.GetUtcNow())
+                rentalStart.Value.AddMinutes(5) <= _timePrv.GetUtcNow()) // 5 perc arbitrary,
+                                                                         // csak egy kiss buffer spacenek kell
                 return BadRequest();
             
             var vehicle = await _context.Vehicles

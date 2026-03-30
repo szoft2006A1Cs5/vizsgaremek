@@ -1,16 +1,8 @@
-﻿using backend.Services;
-using backend.Contexts;
-using backend.Controllers;
+﻿using backend.Controllers;
 using backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using NuGet.ContentModel;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Tasks;
 using backend.DTOs.User;
 
 namespace backend.UnitTests.Tests
