@@ -61,33 +61,7 @@ namespace backend
             
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.AddSecurityDefinition("JWTBearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "JWT Token for authentication",
-                    Name = "Authentication",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "bearer"
-                });
-
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Id = "JWTBearer",
-                                Type = ReferenceType.SecurityScheme,
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
-            });
+            builder.Services.AddSwaggerGen();
 
             // Kulon scope, hogy a titkos adatok azonnal droppoljanak
             {
@@ -113,6 +87,17 @@ namespace backend
                              ValidIssuer = iss,
                              ValidAudience = aud,
                              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+                         };
+
+                         options.Events = new JwtBearerEvents
+                         {
+                             OnMessageReceived = context =>
+                             {
+                                 if (context.Request.Cookies.TryGetValue("auth", out var token))
+                                     context.Token = token;
+                                 
+                                 return Task.CompletedTask;
+                             }
                          };
                      });
             }
@@ -152,7 +137,8 @@ namespace backend
                 policy
                     .WithOrigins(allowedOrigins)
                     .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
             
             app.Run();

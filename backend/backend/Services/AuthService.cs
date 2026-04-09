@@ -75,13 +75,29 @@ namespace backend.Services
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ]),
                 SigningCredentials = signingCreds,
-                IssuedAt = DateTime.UtcNow,
+                IssuedAt = _timePrv.GetUtcNow().UtcDateTime,
                 Issuer = iss,
                 Audience = aud,
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = _timePrv.GetUtcNow().UtcDateTime.AddHours(Config.JWTExpirationHours),
             };
 
             return new JsonWebTokenHandler().CreateToken(token);
+        }
+
+        public bool AddJWTCookie(User user, HttpResponse response)
+        {
+            var jwt = GenerateJWT(user);
+            if (jwt == null) return false;
+            
+            response.Cookies.Append("auth", jwt, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = _timePrv.GetUtcNow().UtcDateTime.AddHours(Config.JWTExpirationHours),
+            });
+
+            return true;
         }
 
         public int? GetUID(ClaimsPrincipal claims)

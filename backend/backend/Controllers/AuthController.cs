@@ -42,8 +42,7 @@ namespace backend.Controllers
             if (!_authSrv.VerifyPassword(credentials.Password, user))
                 return Unauthorized();
             
-            var jwt = _authSrv.GenerateJWT(user);
-            return jwt != null ? Ok(new { UserId = user.Id, Token = jwt }) : StatusCode(500);
+            return _authSrv.AddJWTCookie(user, Response) ? Ok(new { UserId = user.Id }) : StatusCode(500);
         }
 
         [HttpPost("Register")]
@@ -61,15 +60,15 @@ namespace backend.Controllers
                                             false)))
                 return Conflict();
             
-            var hashSalt = _authSrv.GeneratePasswordHashSalt(registration.Password);
+            var (pass, salt) = _authSrv.GeneratePasswordHashSalt(registration.Password);
             
             var user = new User {
                 Name = registration.Name,
                 Phone = registration.Phone,
                 DateOfBirth = registration.DateOfBirth,
                 Email = registration.Email,
-                Password = hashSalt.Item1,
-                Salt = hashSalt.Item2,
+                Password = pass,
+                Salt = salt,
                 IdCardNumber = registration.IdCardNumber,
                 DriversLicenseNumber = registration.DriversLicenseNumber,
                 Role = UserRole.User,
@@ -83,14 +82,20 @@ namespace backend.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            var jwt = _authSrv.GenerateJWT(user);
-            return jwt != null ? Ok(new { UserId = user.Id, Token = jwt }) : StatusCode(500);
+            return _authSrv.AddJWTCookie(user, Response) ? Ok(new { UserId = user.Id }) : StatusCode(500);
         }
 
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
-            if (_emailSrv == null) return StatusCode(500);
+            if (_emailSrv == null) 
+                return StatusCode(500, 
+                    new
+                    {
+                        Error = "Sajnos most nem tudtunk e-mailt küldeni! " +
+                                "Lépjen kapcsolatba velünk a contact@comove.app e-mail címen!"
+                    }
+                );
             
             var emailUser = await _context.Users
                 .FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower());
@@ -110,7 +115,8 @@ namespace backend.Controllers
             var resetUser = await _context.Users
                 .FirstOrDefaultAsync(x => x.Email.ToLower() == dto.Email.ToLower());
 
-            if (resetUser == null) return BadRequest();
+            const string badRequestError = "Hibás kód vagy e-mail cím!";
+            if (resetUser == null) return BadRequest(new { Error = badRequestError });
 
             if (await _authSrv.VerifyToken(resetUser, dto.Token, TokenType.PasswordReset))
             {
@@ -124,7 +130,7 @@ namespace backend.Controllers
                 return Ok();
             }
 
-            return BadRequest();
+            return BadRequest(new { Error = badRequestError});
         }
     }
 }

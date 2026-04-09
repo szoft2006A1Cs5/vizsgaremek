@@ -97,9 +97,9 @@ namespace backend.Controllers
                     userProp.SetValue(user, dtoProp.GetValue(dto));
             }
             
-            var pwdSalt = _authSrv.GeneratePasswordHashSalt(dto.Password);
-            user.Password = pwdSalt.Item1;
-            user.Salt = pwdSalt.Item2;
+            var (pass, salt) = _authSrv.GeneratePasswordHashSalt(dto.Password);
+            user.Password = pass;
+            user.Salt = salt;
 
             await _context.SaveChangesAsync();
             

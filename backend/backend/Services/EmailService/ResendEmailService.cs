@@ -16,11 +16,11 @@ public class ResendEmailService : IEmailService
     {
         var message = new EmailMessage();
         
-        message.From = "CoMove <noreply@comove.app>";
+        message.From = "CoMove <comove@comove.app>";
         message.To.Add(address);
         message.Subject = "CoMove - Jelszó visszaállítása";
-        message.HtmlBody = "<h1>Állítsd vissza a jelszavadat az alábbi kóddal:</h1>" +
-                           $"<h2>{token}</h2>" +
+        message.HtmlBody = "<h2>Állítsd vissza a jelszavadat az alábbi kóddal:</h2>" +
+                           $"<h1>{token}</h1>" +
                            $"<p>A kód csak a következő {Config.TokenValidMins} percben érvényes!</p>";
 
         await _resend.EmailSendAsync(message);
@@ -28,6 +28,15 @@ public class ResendEmailService : IEmailService
 
     public async Task SendConfirmEmailAsync(string address, string token)
     {
+        var message = new EmailMessage();
         
+        message.From = "CoMove <comove@comove.app>";
+        message.To.Add(address);
+        message.Subject = "CoMove - E-Mail megerősítése";
+        message.HtmlBody = "<h2>Erősítsd meg az e-mailed az alábbi kóddal:</h2>" +
+                           $"<h1>{token}</h1>" +
+                           $"<p>A kód csak a következő {Config.TokenValidMins} percben érvényes!</p>";
+
+        await _resend.EmailSendAsync(message);
     }
 }
