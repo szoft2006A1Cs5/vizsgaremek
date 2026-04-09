@@ -11,8 +11,10 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using backend.Services.EmailService;
 using backend.Services.RentalService;
 using backend.Services.ResourceService;
+using Resend;
 
 namespace backend
 {
@@ -35,6 +37,19 @@ namespace backend
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<RentalService>();
             builder.Services.AddSingleton<IResourceService, LocalResourceService>();
+
+            if (builder.Configuration["Auth:Mail:Resend:Token"] is string resendToken)
+            {
+                builder.Services.AddOptions();
+                builder.Services.AddHttpClient<ResendClient>();
+                builder.Services.Configure<ResendClientOptions>(o =>
+                {
+                    o.ApiToken = resendToken;
+                });
+                builder.Services.AddTransient<IResend, ResendClient>();
+
+                builder.Services.AddScoped<IEmailService, ResendEmailService>();
+            }
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options => {

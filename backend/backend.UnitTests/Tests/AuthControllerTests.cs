@@ -15,7 +15,11 @@ public class AuthControllerTests
     public void Initialize()
     {
         _environment = TestHandler.CreateEnvironment();
-        _controller = new AuthController(_environment.Context, _environment.AuthService);
+        _controller = new AuthController(
+            _environment.Context, 
+            _environment.AuthService,
+            null
+        );
     }
 
     [TestCleanup]

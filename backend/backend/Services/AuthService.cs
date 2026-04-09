@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using backend.Common;
 
 namespace backend.Services
 {
@@ -14,11 +15,17 @@ namespace backend.Services
     {
         private readonly IConfiguration _config;
         private readonly Context _context;
+        private readonly TimeProvider _timePrv;
 
-        public AuthService(IConfiguration configuration, Context context)
+        public AuthService(
+            IConfiguration configuration, 
+            Context context, 
+            TimeProvider timePrv
+        )
         {
             _config = configuration;
             _context = context;
+            _timePrv = timePrv;
         }
 
         private byte[] HashPassword(string password, byte[] salt)
@@ -27,7 +34,7 @@ namespace backend.Services
                 password,
                 salt,
                 KeyDerivationPrf.HMACSHA512,
-                10000,
+                100000,
                 64
             );
         }
@@ -97,6 +104,35 @@ namespace backend.Services
                 .Include(x => x.Rentals)
                 .Include(x => x.Vehicles)
                 .FirstOrDefaultAsync(x => x.Id == uid);
+        }
+
+        public async Task<string> CreateToken(User user, TokenType type)
+        {
+            var token = RandomNumberGenerator.GetInt32(100_000, 1_000_000).ToString();
+
+            await _context.UserTokens.AddAsync(new UserToken
+            {
+                UserId = user.Id,
+                User = user,
+                Token = token,
+                Type = type,
+                TimeCreated = _timePrv.GetUtcNow().UtcDateTime,
+            });
+            await _context.SaveChangesAsync();
+
+            return token;
+        }
+
+        public async Task<bool> VerifyToken(User user, string token, TokenType type)
+        {
+            var userToken = await _context.UserTokens
+                .FirstOrDefaultAsync(x => x.UserId == user.Id && x.Token == token && x.Type == type);
+            
+            if (userToken == null) return false;
+            _context.UserTokens.Remove(userToken);
+            await _context.SaveChangesAsync();
+
+            return _timePrv.GetUtcNow().UtcDateTime <= userToken.TimeCreated.AddMinutes(Config.TokenValidMins);
         }
     }
 }
