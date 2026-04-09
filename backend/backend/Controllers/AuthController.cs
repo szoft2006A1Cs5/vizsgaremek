@@ -45,6 +45,13 @@ namespace backend.Controllers
             return _authSrv.AddJWTCookie(user, Response) ? Ok(new { UserId = user.Id }) : StatusCode(500);
         }
 
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            Response.Cookies.Delete("auth");
+            return Ok();
+        }
+
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] UserDTO registration)
         {
