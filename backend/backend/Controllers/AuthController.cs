@@ -1,4 +1,5 @@
-﻿using backend.Services;
+﻿using backend.Common;
+using backend.Services;
 using backend.Contexts;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,14 @@ namespace backend.Controllers
         private readonly AuthService _authSrv;
         private readonly Context _context;
         private readonly IEmailService? _emailSrv;
+        private readonly TimeProvider _timePrv;
 
-        public AuthController(Context ctx, AuthService authSrv, IEmailService? emailSrv)
+        public AuthController(Context ctx, AuthService authSrv, TimeProvider timePrv, IEmailService? emailSrv = null)
         {
             _context = ctx;
             _authSrv = authSrv;
             _emailSrv = emailSrv;
+            _timePrv = timePrv;
         }
         
         /// <summary>
@@ -48,7 +51,12 @@ namespace backend.Controllers
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {
-            Response.Cookies.Delete("auth");
+            Response.Cookies.Delete("auth", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Config.CookieSecure,
+                SameSite = Config.CookieSameSite,
+            });
             return Ok();
         }
 
@@ -100,7 +108,7 @@ namespace backend.Controllers
                     new
                     {
                         Error = "Sajnos most nem tudtunk e-mailt küldeni! " +
-                                "Lépjen kapcsolatba velünk a contact@comove.app e-mail címen!"
+                                $"Lépjen kapcsolatba velünk a {Config.SupportEmail} e-mail címen!"
                     }
                 );
             

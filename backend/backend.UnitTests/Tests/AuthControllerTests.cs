@@ -18,6 +18,7 @@ public class AuthControllerTests
         _controller = new AuthController(
             _environment.Context, 
             _environment.AuthService,
+            _environment.FakeTimeProvider,
             null
         );
     }

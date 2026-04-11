@@ -78,7 +78,7 @@ namespace backend.Services
                 IssuedAt = _timePrv.GetUtcNow().UtcDateTime,
                 Issuer = iss,
                 Audience = aud,
-                Expires = _timePrv.GetUtcNow().UtcDateTime.AddHours(Config.JWTExpirationHours),
+                Expires = _timePrv.GetUtcNow().UtcDateTime.AddHours(Config.CookieExpirationHours),
             };
 
             return new JsonWebTokenHandler().CreateToken(token);
@@ -92,9 +92,9 @@ namespace backend.Services
             response.Cookies.Append("auth", jwt, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = _timePrv.GetUtcNow().UtcDateTime.AddHours(Config.JWTExpirationHours),
+                Secure = Config.CookieSecure,
+                SameSite = Config.CookieSameSite,
+                Expires = _timePrv.GetUtcNow().UtcDateTime.AddHours(Config.CookieExpirationHours),
             });
 
             return true;

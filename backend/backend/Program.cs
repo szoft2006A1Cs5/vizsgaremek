@@ -127,11 +127,6 @@ namespace backend
                 RequestPath = "/res",
             });
 
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapControllers();
-
             app.UseCors(policy =>
             {
                 policy
@@ -140,6 +135,11 @@ namespace backend
                     .AllowAnyMethod()
                     .AllowCredentials();
             });
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
             
             app.Run();
         }
