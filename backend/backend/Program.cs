@@ -32,7 +32,10 @@ namespace backend
             }
             
             // Add services to the container.
-            builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr));
+            builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr, options =>
+            {
+                options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            }));
             builder.Services.AddSingleton(TimeProvider.System);
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<RentalService>();

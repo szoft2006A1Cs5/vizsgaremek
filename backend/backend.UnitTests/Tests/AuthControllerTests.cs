@@ -21,6 +21,8 @@ public class AuthControllerTests
             _environment.FakeTimeProvider,
             null
         );
+        
+        _environment.FakeTimeProvider.SetUtcNow(DateTime.UtcNow);
     }
 
     [TestCleanup]

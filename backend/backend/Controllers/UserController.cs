@@ -16,13 +16,15 @@ namespace backend.Controllers
     {
         private readonly Context _context;
         private readonly AuthService _authSrv;
+        private readonly TimeProvider _timePrv;
         private readonly IResourceService _resSrv;
 
-        public UserController(Context ctx, AuthService authSrv, IResourceService resSrv)
+        public UserController(Context ctx, AuthService authSrv, IResourceService resSrv, TimeProvider timePrv)
         {
             _context = ctx;
             _authSrv = authSrv;
             _resSrv = resSrv;
+            _timePrv = timePrv;
         }
 
         // GET api/<UserController>/5
@@ -62,7 +64,7 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUserById(int id, [FromBody] UserModificationDTO dto)
         {
-            if (!dto.CheckValid())
+            if (!dto.CheckValid(_timePrv))
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
             
             var authUser = await _authSrv.GetUser(User);

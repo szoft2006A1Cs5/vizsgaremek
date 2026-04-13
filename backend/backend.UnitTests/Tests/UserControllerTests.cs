@@ -20,8 +20,11 @@ namespace backend.UnitTests.Tests
             _controller = new UserController(
                 _environment.Context, 
                 _environment.AuthService, 
-                _environment.ResourceService
+                _environment.ResourceService,
+                _environment.FakeTimeProvider
             );
+            
+            _environment.FakeTimeProvider.SetUtcNow(DateTime.UtcNow);
         }
 
         [TestCleanup]

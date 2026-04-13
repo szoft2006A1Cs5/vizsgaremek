@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "NODE_OPTIONS=--use-system-ca vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -20,6 +20,7 @@
     "@mantine/notifications": "^8.3.18",
     "@tabler/icons-react": "^3.38.0",
     "@tanstack/react-query": "^5.91.0",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "dayjs": "^1.11.19",
     "embla-carousel-react": "^8.6.0",
     "react": "^19.2.0",

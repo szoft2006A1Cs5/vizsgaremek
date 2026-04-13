@@ -14,13 +14,11 @@ function NotificationMenu() {
 
     const { data: authUser, isLoading: isLoading, isSuccess: isSuccess} = useUser();
 
-    const auth = JSON.parse(localStorage.getItem("auth"));
-
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
-            const resp = await fetch(`${API_URL}/User/${auth.userId}/Notification/${id}`, {
+            const resp = await fetch(`${API_URL}/User/${authUser.id}/Notification/${id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${auth.token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error("Nem sikerült törölni az értesítést!");
         },
@@ -30,9 +28,9 @@ function NotificationMenu() {
 
     const deleteAllMutation = useMutation({
         mutationFn: async () => {
-            const resp = await fetch(`${API_URL}/User/${auth.userId}/Notification`, {
+            const resp = await fetch(`${API_URL}/User/${authUser.id}/Notification`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${auth.token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error("Nem sikerült törölni az értesítéseket!");
         },
@@ -40,7 +38,7 @@ function NotificationMenu() {
         onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
 
-    if (!isSuccess && !authUser)
+    if (!authUser)
         return <></>
 
     return (

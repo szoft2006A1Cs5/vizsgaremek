@@ -9,16 +9,14 @@ function AddVehicle() {
     const navigate = useNavigate();
     const { data: authUser, isLoading: userLoading } = useUser();
 
-    const auth = JSON.parse(localStorage.getItem('auth'));
-    const token = auth?.token;
-
-    if (!token || (!userLoading && !authUser)) navigate("/login")
+    if (!userLoading && !authUser) navigate("/login")
 
     const mutation = useMutation({
         mutationFn: async (values) => {
             const resp = await fetch(`${API_URL}/Vehicle`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(values),
             });
             if (resp.status === 409) throw new Error('A megadott VIN, rendszám vagy biztosítási szám már foglalt.');

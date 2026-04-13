@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
-import { Stack, ActionIcon, Group, Text, Box, Tooltip } from '@mantine/core';
+import { useState } from 'react'
+import { Stack, ActionIcon, Group, Text, Box } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import style from './Notification.module.css'
 
 function Notification({ notification, onDelete }) {
-    const [notif, setNotif] = useState(notification);
+    const [notif] = useState(notification);
 
     return (
         <Box p="md" className={style.notifBox} >

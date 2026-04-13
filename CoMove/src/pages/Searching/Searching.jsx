@@ -72,21 +72,18 @@ function Searching() {
 
         setIsLoading(true);
 
-        const auth = JSON.parse(localStorage.getItem("auth"));
-        const endpoint = new URL(`${API_URL}/Vehicle`);
+        const params = new URLSearchParams();
 
-        if (startDate && !isNaN(startDate)) endpoint.searchParams.set("rentalStart", startDate.toISOString());
-        if (startDate && !isNaN(endDate)) endpoint.searchParams.set("rentalEnd", endDate.toISOString());
-        if (fBrand) endpoint.searchParams.set("manufacturer", fBrand);
-        if (fType) endpoint.searchParams.set("model", fType);
-        if (fPickup) endpoint.searchParams.set("settlement", fPickup);
-        if (filters.minPrice && !isNaN(filters.minPrice)) endpoint.searchParams.set("minRate", filters.minPrice);
-        if (filters.maxPrice && !isNaN(filters.maxPrice)) endpoint.searchParams.set("maxRate", filters.maxPrice);
+        if (startDate && !isNaN(startDate)) params.set("rentalStart", startDate.toISOString());
+        if (startDate && !isNaN(endDate)) params.set("rentalEnd", endDate.toISOString());
+        if (fBrand) params.set("manufacturer", fBrand);
+        if (fType) params.set("model", fType);
+        if (fPickup) params.set("settlement", fPickup);
+        if (filters.minPrice && !isNaN(filters.minPrice)) params.set("minRate", filters.minPrice);
+        if (filters.maxPrice && !isNaN(filters.maxPrice)) params.set("maxRate", filters.maxPrice);
 
-        fetch(endpoint.toString(), {
-            headers: {
-                Authorization: `Bearer ${auth?.token}`
-            }
+        fetch(`${API_URL}/Vehicle?${params}`, {
+            credentials: "include",
         })
         .then(resp => {
             setIsLoading(false);

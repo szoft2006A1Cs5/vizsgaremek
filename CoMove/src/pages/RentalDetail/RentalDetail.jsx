@@ -59,7 +59,7 @@ function buildBody(rental, overrides) {
     };
 }
 
-function Chat({ rentalId, token, authUser, disabled }) {
+function Chat({ rentalId, authUser, disabled }) {
     const [msg, setMsg] = useState('');
     const qc = useQueryClient();
     const viewportRef = useRef(null);
@@ -68,7 +68,7 @@ function Chat({ rentalId, token, authUser, disabled }) {
         queryKey: ['rental-messages', rentalId],
         queryFn: async () => {
             const resp = await fetch(`${API_URL}/Rental/${rentalId}/Message?limit=100`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (!resp.ok) return [];
             const data = await resp.json();
@@ -82,7 +82,8 @@ function Chat({ rentalId, token, authUser, disabled }) {
         mutationFn: async (content) => {
             const resp = await fetch(`${API_URL}/Rental/${rentalId}/Message`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content }),
             });
             if (!resp.ok) throw new Error();
@@ -166,7 +167,7 @@ function Chat({ rentalId, token, authUser, disabled }) {
 
 // ─── Offer stage panel ────────────────────────────────────────────────────────
 
-function OfferPanel({ rental, isOwner, token, authUser }) {
+function OfferPanel({ rental, isOwner, authUser }) {
     const qc = useQueryClient();
     const navigate = useNavigate();
 
@@ -185,7 +186,8 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
         mutationFn: async () => {
             const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(buildBody(rental, {
                     start: new Date(start).toISOString(),
                     end:   new Date(end).toISOString(),
@@ -204,7 +206,8 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
         mutationFn: async () => {
             const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(buildBody(rental, { status: 'offerAccepted' })),
             });
             if (!resp.ok) throw new Error('Elfogadás sikertelen');
@@ -217,7 +220,7 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
         mutationFn: async () => {
             const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
                 method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error('Lemondás sikertelen');
         },
@@ -344,7 +347,7 @@ function OfferPanel({ rental, isOwner, token, authUser }) {
     );
 }
 
-function PickupPanel({ rental, isOwner, token }) {
+function PickupPanel({ rental, isOwner }) {
     const qc = useQueryClient();
 
     const iConfirmed = isOwner
@@ -361,7 +364,8 @@ function PickupPanel({ rental, isOwner, token }) {
         mutationFn: async () => {
             const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(buildBody(rental, { status: newStatus })),
             });
             if (!resp.ok) throw new Error('Visszaigazolás sikertelen');
@@ -427,7 +431,7 @@ function PickupPanel({ rental, isOwner, token }) {
     );
 }
 
-function ActivePanel({ rental, isOwner, token }) {
+function ActivePanel({ rental, isOwner }) {
     const qc = useQueryClient();
 
     const iConfirmed = isOwner
@@ -444,7 +448,8 @@ function ActivePanel({ rental, isOwner, token }) {
         mutationFn: async () => {
             const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(buildBody(rental, { status: newStatus })),
             });
             if (!resp.ok) throw new Error('Visszaigazolás sikertelen');
@@ -499,7 +504,7 @@ function ActivePanel({ rental, isOwner, token }) {
     );
 }
 
-function FinishedPanel({ rental, isOwner, token }) {
+function FinishedPanel({ rental, isOwner }) {
     const qc = useQueryClient();
     const [ratingValue, setRatingValue] = useState(0);
     const [submitted, setSubmitted] = useState(false);
@@ -512,7 +517,8 @@ function FinishedPanel({ rental, isOwner, token }) {
             const extra = isOwner ? { ownerRating: ratingValue } : { renterRating: ratingValue };
             const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
                 method: 'PUT',
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(buildBody(rental, extra)),
             });
             if (!resp.ok) throw new Error('Értékelés sikertelen');
@@ -573,20 +579,18 @@ function FinishedPanel({ rental, isOwner, token }) {
 function RentalDetail() {
     const { rentalId } = useParams();
     const navigate     = useNavigate();
-    const auth         = JSON.parse(localStorage.getItem('auth'));
-    const token        = auth?.token;
     const { data: authUser } = useUser();
 
     const { data: rental, isLoading, isError } = useQuery({
         queryKey: ['rental', Number(rentalId)],
         queryFn: async () => {
             const resp = await fetch(`${API_URL}/Rental/${rentalId}`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error('Not found');
             return resp.json();
         },
-        enabled: !!token && !!rentalId,
+        enabled: !!rentalId,
         refetchInterval: 15000,
     });
 
@@ -706,13 +710,13 @@ function RentalDetail() {
                                         <Text fz={13} c="red.7">{statusInfo.label}</Text>
                                     </Group>
                                 ) : showOffer ? (
-                                    <OfferPanel rental={rental} isOwner={isOwner} token={token} authUser={authUser} />
+                                    <OfferPanel rental={rental} isOwner={isOwner} authUser={authUser} />
                                 ) : showPickup ? (
-                                    <PickupPanel rental={rental} isOwner={isOwner} token={token} />
+                                    <PickupPanel rental={rental} isOwner={isOwner} />
                                 ) : showActive ? (
-                                    <ActivePanel rental={rental} isOwner={isOwner} token={token} />
+                                    <ActivePanel rental={rental} isOwner={isOwner} />
                                 ) : showFinish ? (
-                                    <FinishedPanel rental={rental} isOwner={isOwner} token={token} />
+                                    <FinishedPanel rental={rental} isOwner={isOwner} />
                                 ) : null}
                             </Stack>
                         </Paper>
@@ -725,7 +729,6 @@ function RentalDetail() {
                                     </Text>
                                     <Chat
                                         rentalId={rental.id}
-                                        token={token}
                                         authUser={authUser}
                                         disabled={rental.status === 'finished'}
                                     />

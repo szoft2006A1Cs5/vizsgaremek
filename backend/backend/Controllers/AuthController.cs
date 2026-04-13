@@ -49,7 +49,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("Logout")]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
             Response.Cookies.Delete("auth", new CookieOptions
             {
@@ -57,13 +57,14 @@ namespace backend.Controllers
                 Secure = Config.CookieSecure,
                 SameSite = Config.CookieSameSite,
             });
+            
             return Ok();
         }
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] UserDTO registration)
         {
-            if (!registration.CheckValid())
+            if (!registration.CheckValid(_timePrv))
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });
 
             var phone = registration.Phone.Substring(2);
@@ -103,8 +104,8 @@ namespace backend.Controllers
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
-            if (_emailSrv == null) 
-                return StatusCode(500, 
+            if (_emailSrv == null)
+                return StatusCode(503, 
                     new
                     {
                         Error = "Sajnos most nem tudtunk e-mailt küldeni! " +
@@ -145,7 +146,7 @@ namespace backend.Controllers
                 return Ok();
             }
 
-            return BadRequest(new { Error = badRequestError});
+            return BadRequest(new { Error = badRequestError });
         }
     }
 }

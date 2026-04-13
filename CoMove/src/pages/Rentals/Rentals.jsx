@@ -92,17 +92,13 @@ function RentalRow({ rental }) {
 }
 
 function Rentals() {
-    const auth  = JSON.parse(localStorage.getItem('auth'));
-    const token = auth?.token;
-
     const { data: rentals, isLoading, isError } = useQuery({
         queryKey: ['rentals-renter'],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Rental`, { headers: { Authorization: `Bearer ${token}` } });
+            const resp = await fetch(`${API_URL}/Rental`, { credentials: "include" });
             if (!resp.ok) throw new Error('Failed');
             return resp.json();
         },
-        enabled: !!token,
     });
 
     const active   = (rentals ?? []).filter(r => r.status !== 'finished' && r.status !== 'renterCancelled' && r.status !== 'ownerCancelled');

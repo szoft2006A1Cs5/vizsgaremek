@@ -58,7 +58,7 @@ function Navbar({ children }) {
     const authUser = useUser();
     const logout = useLogout();
 
-    const isLoadingUser = !!localStorage.getItem("auth") && (!authUser.data || !authUser.data.name)
+    const isLoadingUser = authUser.isLoading
 
     return (
         <AppShell

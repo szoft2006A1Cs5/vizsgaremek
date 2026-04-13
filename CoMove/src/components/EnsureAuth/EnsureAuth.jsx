@@ -8,11 +8,6 @@ function EnsureAuth() {
     const { data: authUser, isLoading: isLoading, isSuccess: isSuccess } = useUser();
 
     useEffect(() => {
-        const auth = JSON.parse(localStorage.getItem("auth"));
-        if (!auth) navigate("/login");
-    }, []);
-
-    useEffect(() => {
         if (isSuccess && !authUser) navigate("/login")
     }, [authUser])
     

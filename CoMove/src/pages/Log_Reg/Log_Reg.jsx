@@ -4,6 +4,8 @@ import "./Log_Reg.css";
 import bluelogo from "../../assets/kepek/logo/comove_logo1.png";
 import whitelogo from "../../assets/kepek/logo/comove_logo4.png";
 import { API_URL } from "../../assets/scripts/Config";
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
 function Registration() {
     const navigate = useNavigate();
@@ -12,11 +14,7 @@ function Registration() {
         () => location.pathname === "/register",
         [location.pathname]
     )
-
-    useEffect(() => {
-        if (localStorage.getItem("auth"))
-            navigate("/");
-    }, []);
+    const queryClient = useQueryClient();
 
     const nameRegex = /^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+(?: [A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+)+$/
     const idcardRegex = /^\d{6}[A-Z]{2}$/
@@ -224,6 +222,7 @@ function Registration() {
 
         fetch(`${API_URL}/Auth/register`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -249,11 +248,28 @@ function Registration() {
             if (!data)
                 return;
 
-            localStorage.setItem("auth", JSON.stringify(data));
             navigate("/");
         })
         .catch(err => console.error(err))
     };
+
+    const loginMutation = useMutation({
+        mutationFn: async (credentials) => {
+            const resp = await fetch(`${API_URL}/Auth/Login`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(credentials)
+            });
+            if (resp.status === 401) throw new Error("Hibás e-mail cím vagy jelszó!");
+            if (!resp.ok) throw new Error("Váratlan hiba történt a bejelentkezéskor!");
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['authUser'] });
+            navigate("/");
+        },
+        onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
+    });
 
     const handleLogin = () => {
         const valid = validateLogin();
@@ -261,6 +277,7 @@ function Registration() {
 
         fetch(`${API_URL}/Auth/login`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -279,7 +296,6 @@ function Registration() {
             if (!data)
                 return;
 
-            localStorage.setItem("auth", JSON.stringify(data));
             navigate("/");
         })
         .catch(err => console.error(err))
@@ -388,7 +404,7 @@ function Registration() {
                                 </button>
                             </div>
 
-                            <button className="auth_primary" type="button" onClick={handleLogin}>
+                            <button className="auth_primary" type="button" onClick={() => loginMutation.mutate(loginData)}>
                                 Bejelentkezés
                             </button>
                         </form>

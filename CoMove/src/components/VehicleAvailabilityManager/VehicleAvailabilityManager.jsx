@@ -17,7 +17,7 @@ function formatDateTime(str) {
     return new Date(str).toLocaleString('hu-HU', { dateStyle: 'short', timeStyle: 'short' });
 }
 
-function VehicleAvailabilityManager({ vehicleId, token }) {
+function VehicleAvailabilityManager({ vehicleId }) {
     const queryClient = useQueryClient();
     const [modalOpen, setModalOpen] = useState(false);
     const [editTarget, setEditTarget] = useState(null); // availabilityId being edited
@@ -29,7 +29,7 @@ function VehicleAvailabilityManager({ vehicleId, token }) {
         queryKey: ['vehicle-availabilities', vehicleId],
         queryFn: async () => {
             const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Availability`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error('Failed');
             return resp.json();
@@ -63,7 +63,8 @@ function VehicleAvailabilityManager({ vehicleId, token }) {
                 : `${API_URL}/Vehicle/${vehicleId}/Availability`;
             const resp = await fetch(url, {
                 method: editTarget !== null ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
             if (resp.status === 409) throw new Error('Ez az időszak ütközik egy meglévő elérhetőséggel.');
@@ -80,7 +81,7 @@ function VehicleAvailabilityManager({ vehicleId, token }) {
         mutationFn: async (id) => {
             const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Availability/${id}`, {
                 method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error('Törlés sikertelen');
         },

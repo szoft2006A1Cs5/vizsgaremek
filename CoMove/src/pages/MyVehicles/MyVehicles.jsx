@@ -8,19 +8,15 @@ import PageLayout from "../../components/PageLayout/PageLayout";
 function MyVehicles() {
     const navigate = useNavigate();
 
-    const auth = JSON.parse(localStorage.getItem("auth"));
-    const token = auth?.token;
-
     const { data: vehicles, isLoading, isError } = useQuery({
         queryKey: ["ownedVehicles"],
         queryFn: async () => {
             const resp = await fetch(`${API_URL}/Vehicle/Owned`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (resp.status !== 200) return null;
             return resp.json();
         },
-        enabled: !!token,
     });
 
     return (

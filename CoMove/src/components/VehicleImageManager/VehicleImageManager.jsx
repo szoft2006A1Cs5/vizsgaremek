@@ -9,7 +9,7 @@ import { IconTrash, IconChevronUp, IconChevronDown, IconUpload } from '@tabler/i
 import { API_URL, BACKEND_URL } from '../../assets/scripts/Config';
 import defaultImage from '../../assets/kepek/egyeb/default.png';
 
-function VehicleImageManager({ vehicleId, token }) {
+function VehicleImageManager({ vehicleId }) {
     const queryClient = useQueryClient();
     const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -17,7 +17,7 @@ function VehicleImageManager({ vehicleId, token }) {
         queryKey: ['vehicle-images', vehicleId],
         queryFn: async () => {
             const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error('Failed');
             return resp.json();
@@ -32,7 +32,7 @@ function VehicleImageManager({ vehicleId, token }) {
             formData.append('file', file);
             const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
                 body: formData,
             });
             if (!resp.ok) throw new Error('Feltöltés sikertelen');
@@ -45,7 +45,7 @@ function VehicleImageManager({ vehicleId, token }) {
         mutationFn: async (id) => {
             const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image/${id}`, {
                 method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error('Törlés sikertelen');
         },
@@ -60,7 +60,8 @@ function VehicleImageManager({ vehicleId, token }) {
         mutationFn: async ({ imageId, newSortIndex }) => {
             const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image/${imageId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newSortIndex),
             });
             if (!resp.ok) throw new Error('Átrendezés sikertelen');

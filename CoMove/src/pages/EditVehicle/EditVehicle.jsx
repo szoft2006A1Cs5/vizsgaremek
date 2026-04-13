@@ -13,14 +13,11 @@ function EditVehicle() {
     const navigate = useNavigate();
     const { data: authUser, isLoading: userLoading } = useUser();
 
-    const auth = JSON.parse(localStorage.getItem('auth'));
-    const token = auth?.token;
-
     const { data: vehicle, isLoading } = useQuery({
         queryKey: ['vehicle', carId],
         queryFn: async () => {
             const resp = await fetch(`${API_URL}/Vehicle/${carId}`, {
-                headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
             });
             if (!resp.ok) throw new Error('Not found');
             return resp.json();
@@ -31,7 +28,8 @@ function EditVehicle() {
         mutationFn: async (values) => {
             const resp = await fetch(`${API_URL}/Vehicle/${carId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                credentials: "include",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(values),
             });
             if (resp.status === 409) throw new Error('A megadott VIN, rendszám vagy biztosítási szám már foglalt.');
@@ -67,8 +65,8 @@ function EditVehicle() {
             loading={mutation.isPending}
             extra={
                 <>
-                    <VehicleAvailabilityManager vehicleId={carId} token={token} />
-                    <VehicleImageManager vehicleId={carId} token={token} />
+                    <VehicleAvailabilityManager vehicleId={carId} />
+                    <VehicleImageManager vehicleId={carId} />
                 </>
             }
         />

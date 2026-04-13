@@ -54,16 +54,13 @@ function Vehicle() {
     const [pickupLocation, setPickupLocation] = useState('');
     const [fuelLevel, setFuelLevel] = useState(50);
 
-    const auth = JSON.parse(localStorage.getItem('auth'));
-    const token = auth?.token;
-
     const { data: authUser, isSuccess: userSuccess } = useUser();
 
     const { data: vehicle, isLoading, isError } = useQuery({
         queryKey: ['vehicle', carId],
         queryFn: async () => {
             const resp = await fetch(`${API_URL}/Vehicle/${carId}`, {
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                credentials: "include",
             });
             if (!resp.ok) throw new Error('Not found');
             return resp.json();
@@ -73,11 +70,12 @@ function Vehicle() {
     const { data: quote, isFetching: quoteFetching } = useQuery({
         queryKey: ['vehicle-quote', carId, start ? new Date(start).toISOString() : null, end ? new Date(end).toISOString() : null],
         queryFn: async () => {
-            const endpoint = new URL(`${API_URL}/Vehicle/${carId}/Quote`);
-            endpoint.searchParams.set('rentalStart', new Date(start).toISOString());
-            endpoint.searchParams.set('rentalEnd', new Date(end).toISOString());
-            const resp = await fetch(endpoint.toString(), {
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            const params = new URLSearchParams({
+                rentalStart: new Date(start).toISOString(),
+                rentalEnd: new Date(end).toISOString(),
+            });
+            const resp = await fetch(`${API_URL}/Vehicle/${carId}/Quote?${params}`, {
+                credentials: "include",
             });
             if (resp.status === 409) return null;
             if (!resp.ok) throw new Error('Quote failed');
@@ -90,8 +88,8 @@ function Vehicle() {
         mutationFn: async () => {
             const resp = await fetch(`${API_URL}/Rental`, {
                 method: 'POST',
+                credentials: "include",
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -104,7 +102,7 @@ function Vehicle() {
             });
             if (!resp.ok) {
                 const err = await resp.json().catch(() => ({}));
-                throw new Error(err?.message ?? err?.title ?? 'Hiba történt a bérlés létrehozásakor.');
+                throw new Error(err?.error ?? 'Hiba történt a bérlés létrehozásakor.');
             }
             return resp.json();
         },
@@ -262,7 +260,7 @@ function Vehicle() {
                                                                     {quote.fullPrice?.toLocaleString('hu-HU')} Ft
                                                                 </Text>
                                                             </Text>
-                                                            {!token || (userSuccess && !authUser) ? (
+                                                            {userSuccess && !authUser ? (
                                                                 <Button
                                                                     fullWidth size="md" radius="md"
                                                                     style={{ background: 'var(--button)' }}
