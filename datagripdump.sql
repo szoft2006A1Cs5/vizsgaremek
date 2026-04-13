@@ -18,7 +18,7 @@
 DROP DATABASE IF EXISTS `comove`;
 CREATE DATABASE `comove`
 DEFAULT CHARACTER SET utf8
-COLLATE utf8mb4_hungarian_ci;
+COLLATE utf8_hungarian_ci;
 
 USE `comove`;
 
