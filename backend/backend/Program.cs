@@ -131,6 +131,21 @@ namespace backend
                 RequestPath = "/res",
             });
 
+            if (!app.Environment.IsDevelopment())
+            {
+                // Igy nem kell minden metodust try catchbe rakni, hanem ha exception van,
+                // szepen irjuk ki innen.
+                app.UseExceptionHandler(error =>
+                {
+                    error.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(new { Error = "Szerverhiba!" }));
+                    });
+                });
+            }
+
             app.UseCors(policy =>
             {
                 policy

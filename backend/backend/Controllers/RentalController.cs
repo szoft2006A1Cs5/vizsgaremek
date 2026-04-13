@@ -59,6 +59,8 @@ namespace backend.Controllers
                     .Include(x => x.Renter)
                     .Include(x => x.Vehicle)
                     .ThenInclude(x => x.Owner)
+                    .Include(x => x.Vehicle)
+                    .ThenInclude(x => x.Images)
                     .Where(x => x.RenterId == authUser.Id)
                     .ToListAsync())
                     .FilterSerialize(authUser)
