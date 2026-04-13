@@ -31,7 +31,6 @@ namespace backend
                 return;
             }
             
-            // Add services to the container.
             builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr, options =>
             {
                 options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
@@ -41,6 +40,8 @@ namespace backend
             builder.Services.AddScoped<RentalService>();
             builder.Services.AddSingleton<IResourceService, LocalResourceService>();
 
+            // Az email kuldozgetes nyilvan csak akkor mukodjon, ha van API, amivel
+            // lehet emailt kuldozgetni
             if (builder.Configuration["Auth:Mail:Resend:Token"] is string resendToken)
             {
                 builder.Services.AddOptions();
@@ -62,11 +63,10 @@ namespace backend
                     );
                 });
             
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Kulon scope, hogy a titkos adatok azonnal droppoljanak
+            // Kulon scope, hogy a titkos adatok azonnal droppoljanak, legalabbis asszem
             {
                 var key = builder.Configuration["Auth:Jwt:Secret"];
                 var iss = builder.Configuration["Auth:Issuer"];
@@ -92,6 +92,7 @@ namespace backend
                              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                          };
 
+                         // Kiveszi a JWT-t a cookiebol
                          options.Events = new JwtBearerEvents
                          {
                              OnMessageReceived = context =>

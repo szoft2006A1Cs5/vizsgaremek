@@ -33,7 +33,7 @@ namespace backend.Controllers
         /// Bejelentkezés e-maillel és jelszóval
         /// </summary>
         /// <param name="credentials">E-mail cím és jelszó</param>
-        /// <returns>JWT ha sikeres, másképpen 401-es HTTP kód</returns>
+        /// <returns>JWT Cookie + UserId ha sikeres, másképpen 401-es HTTP kód</returns>
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO credentials)
         {
@@ -61,6 +61,13 @@ namespace backend.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Regisztral egy felhasznalot a rendszerbe
+        /// </summary>
+        /// <param name="registration">A regisztracios adatok</param>
+        /// <returns>400-at ha hibas adatokat adtak meg,
+        /// 409-et ha utkozik valamely mas felhasznalo adataival,
+        /// 200-at + JWT Cookie + UserId, ha sikeres a regisztracio</returns>
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] UserDTO registration)
         {
@@ -101,6 +108,15 @@ namespace backend.Controllers
             return _authSrv.AddJWTCookie(user, Response) ? Ok(new { UserId = user.Id }) : StatusCode(500);
         }
 
+        /// <summary>
+        /// Jelszo visszaallito emailt kuld a megadott email cimre,
+        /// ha azzal letezik felhasznaloi fiok
+        /// </summary>
+        /// <param name="email">A felhasznalo email cime</param>
+        /// <returns>
+        /// 503-at ha nem elerheto az email kuldo szolgaltatas,
+        /// 200-at minden mas esetben
+        /// </returns>
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
@@ -125,6 +141,15 @@ namespace backend.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Megvaltoztatja a felhasznalo jelszavat
+        /// a kikuldott kod altal azonositva
+        /// </summary>
+        /// <param name="dto">A visszaallito adatok (email, visszaallito kod, uj jelszo)</param>
+        /// <returns>
+        /// 200-at ha sikeres,
+        /// 400-at ha nem az.
+        /// </returns>
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword(PasswordResetDTO dto)
         {

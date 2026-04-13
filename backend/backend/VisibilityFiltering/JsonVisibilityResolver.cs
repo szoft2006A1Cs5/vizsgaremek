@@ -15,6 +15,7 @@ namespace backend.VisibilityFiltering
             if (!typeof(IFilterable).IsAssignableFrom(type))
                 return typeInfo;
             
+            // Ha a fenti IFilterable condition teljesul, akkor ennek mindenkepp megkene lennie
             var getVisCondMethod = type.GetMethod("GetVisibilityConditionLambda", BindingFlags.Public | BindingFlags.Static);
             if (getVisCondMethod == null) return typeInfo;
             
@@ -26,6 +27,8 @@ namespace backend.VisibilityFiltering
                         | BindingFlags.Instance);
                     if (propInfo == null) continue;
 
+                    // Alapbol, ha nincs VisibleTo attributeja, nem irjuk felul a ShouldSerialize-t,
+                    // igy mindenkeppen visszaadjuk es nem szurodik ki
                     var attribute = propInfo.GetCustomAttribute<VisibleToAttribute>(true);
                     if (attribute == null) continue;
 

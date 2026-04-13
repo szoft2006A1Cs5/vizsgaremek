@@ -57,7 +57,7 @@ namespace backend.UnitTests.Tests
                 FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.RenterOffer,
-            }) as OkObjectResult;
+            }) as CreatedResult;
             Assert.IsNotNull(postResult);
 
             var rental = await _environment.Context.Rentals

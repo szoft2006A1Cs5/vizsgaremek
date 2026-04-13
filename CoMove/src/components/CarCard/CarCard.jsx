@@ -3,9 +3,10 @@ import { Badge, Flex, Rating } from "@mantine/core";
 import defaultImage from '../../assets/kepek/egyeb/default.png'
 import './CarCard.css'
 import { FaMapMarkerAlt } from 'react-icons/fa';
+import { BACKEND_URL } from '../../assets/scripts/Config';
 
 function CarCard({ car, onClick = () => {} }) {
-    const carImg = car.images[0]?.path ? `https://localhost:7245/${car.images[0]?.path}` : defaultImage;
+    const carImg = car.images[0]?.path ? `${BACKEND_URL}/${car.images[0]?.path}` : defaultImage;
 
     return (
         <div className="card" onClick={onClick}>

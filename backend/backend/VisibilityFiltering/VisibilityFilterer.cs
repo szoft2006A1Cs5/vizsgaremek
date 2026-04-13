@@ -15,6 +15,7 @@ namespace backend.VisibilityFiltering
 {
     public static class VisibilityFilterer
     {
+        // AsyncLocal nagyon meno
         public static AsyncLocal<User?> AuthUser { get; } = new();
         private static JsonSerializerOptions SerializerOptions { get; } = new()
         {
@@ -26,15 +27,18 @@ namespace backend.VisibilityFiltering
             Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
         };
         
+        /// <summary>
+        /// Vegigmegy az objektumon, es gyermekobjektumain, es JSON szerializalja,
+        /// de sajatos TypeInfoResolverrel, igy csak az az informacio adodik vissza
+        /// az IFilterable objektumokbol, amit a megadott felhasznalo lathat.
+        /// </summary>
+        /// <param name="data">A szerializalni es megszurni kivant objektum</param>
+        /// <param name="authUser">Az felhasznalo, akinek megszurjuk az adatokat</param>
+        /// <typeparam name="T">Barmilyen tipus/objektum szurheto</typeparam>
+        /// <returns>A szerializalt (es megszurt) objektum string</returns>
         public static string FilterSerialize<T>(this T data, User? authUser)
         {
             AuthUser.Value = authUser;
-            return JsonSerializer.Serialize(data, SerializerOptions);
-        }
-        
-        public static async Task<string> FilterSerialize<T>(this T data, ClaimsPrincipal claims, AuthService authSrv)
-        {
-            AuthUser.Value = await authSrv.GetUser(claims);
             return JsonSerializer.Serialize(data, SerializerOptions);
         }
     }
