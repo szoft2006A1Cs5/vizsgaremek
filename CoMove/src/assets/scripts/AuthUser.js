@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "./Config";
 
 export function useUser() {
@@ -24,9 +24,11 @@ export function useUser() {
 
 export function useLogout() {
     const queryClient = useQueryClient();
-    return async () => {
-        await fetch(`${API_URL}/Auth/Logout`, { method: "POST", credentials: "include" });
-        queryClient.setQueryData(['authUser'], null);
-        queryClient.clear();
-    }
+    return useMutation({
+        mutationFn: () => fetch(`${API_URL}/Auth/Logout`, { method: "POST", credentials: "include" }),
+        onSuccess: () => {
+            queryClient.setQueryData(['authUser'], null);
+            queryClient.clear();
+        },
+    });
 }

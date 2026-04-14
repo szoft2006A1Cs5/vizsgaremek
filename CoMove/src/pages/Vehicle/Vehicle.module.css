@@ -2,9 +2,10 @@
 .vehicleCarouselImg {
     width: 100%;
     height: 100%;
-    max-height: 700px;
-    object-fit: cover;
+    object-fit: contain;
+    max-height: 750px;
     object-position: center;
+    background-color: var(--button);
 }
 
 @media screen and (max-width: 768px) {

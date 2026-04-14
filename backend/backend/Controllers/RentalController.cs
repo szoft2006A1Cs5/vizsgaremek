@@ -161,7 +161,6 @@ namespace backend.Controllers
                 End = offer.End,
                 VehicleId = vehicle.Id,
                 Vehicle = vehicle,
-                FuelLevel = offer.FuelLevel,
                 RentalPrice = priceOffer.Value.RentalPrice,
                 Renter = authUser,
                 Status = RentalStatus.RenterOffer,

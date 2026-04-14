@@ -4,7 +4,7 @@
     left: 0;
     right: 0;
     height: 80px;
-    z-index: 9999;
+    z-index: 10000;
     background: transparent !important;
     border: 0 !important;
 }
@@ -44,13 +44,13 @@
 .nav_link {
     color: #ffffff;
     text-decoration: none;
-    font-weight: 800;
+    font-weight: bold;
     font-size: 12px;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     padding: 10px 12px;
     border-radius: 8px;
-    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    transition: all 0.2 ease;
 }
 
 .nav_link:hover {
@@ -60,35 +60,45 @@
 
 .nav_account {
     cursor: pointer;
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    transition: all 0.2 ease;
 }
 
 .nav_account:hover {
-    background: #2136bd;
-    box-shadow: 0 0 18px rgba(25, 37, 112, 0.7);
+    background: var(--lightbutton);
     transform: translateY(-1px);
 }
 
-.nav_popout {
-    margin: 12px;
-    padding: 14px;
-    border-radius: 14px;
-    background: rgba(6, 6, 49, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+.nav_glass {
+    margin: 10px;
+    padding: 15px;
+    border-radius: 15px;
+    background: #060631cc;
+    border: 1px solid var(--lightpurple);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
     z-index: 10000;
+    height: 100%;
 }
 
-.nav_popout .nav_link {
+.nav_glass .nav_link {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    color: white;
 }
 
 .nav_navlinkWrap {
     text-decoration: none;
     color: inherit;
+}
+
+.nav_glass .mantine-NavLink-root {
+    color: white;
+}
+
+.nav_glass .mantine-NavLink-root:hover {
+    color: var(--background);
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
 }
 
 .mantine-AppShell-header {
@@ -107,14 +117,10 @@
 }
 
 .nav_account_card {
-    width: 240px;
-    padding: 14px;
-    border-radius: 16px;
+    width: 250px;
+    padding: 15px;
+    border-radius: 15px;
     background: #e6f1ff;
-    box-shadow:
-        0 18px 45px rgba(0, 0, 0, 0.55),
-        0 4px 12px rgba(33, 54, 189, 0.15);
-    animation: dropdownFade 0.18s ease;
 }
 
 .nav_account_card .mantine-NavLink-root {
@@ -122,7 +128,6 @@
     font-weight: 700;
     padding: 5px 10px;
     border-radius: 10px;
-    color: var(--background);
     transition: all 0.18s ease;
 }
 

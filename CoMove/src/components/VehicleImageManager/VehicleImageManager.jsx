@@ -5,7 +5,7 @@ import {
     Paper, Stack, SimpleGrid, Group, Text,
     ActionIcon, Modal, Button, Center, Loader, FileButton, Image,
 } from '@mantine/core';
-import { IconTrash, IconChevronUp, IconChevronDown, IconUpload } from '@tabler/icons-react';
+import { IconTrash, IconChevronUp, IconChevronDown, IconUpload, IconChevronRight, IconChevronLeft } from '@tabler/icons-react';
 import { API_URL, BACKEND_URL } from '../../assets/scripts/Config';
 import defaultImage from '../../assets/kepek/egyeb/default.png';
 
@@ -98,7 +98,7 @@ function VehicleImageManager({ vehicleId }) {
                 title="Kép törlése"
                 centered
             >
-                <Text fz={14}>Biztosan törli ezt a képet?</Text>
+                <Text fz={15}>Biztosan törli ezt a képet?</Text>
                 <Group justify="flex-end" mt={20}>
                     <Button variant="default" onClick={() => setDeleteTarget(null)}>Mégsem</Button>
                     <Button color="red" loading={deleteMutation.isPending} onClick={() => deleteMutation.mutate(deleteTarget)}>Törlés</Button>
@@ -142,10 +142,10 @@ function VehicleImageManager({ vehicleId }) {
                                     <Group justify="space-between" gap={4}>
                                         <Group gap={4}>
                                             <ActionIcon variant="light" size="sm" disabled={i === 0} onClick={() => moveUp(i)}>
-                                                <IconChevronUp size={14} />
+                                                <IconChevronLeft size={14} />
                                             </ActionIcon>
                                             <ActionIcon variant="light" size="sm" disabled={i === sorted.length - 1} onClick={() => moveDown(i)}>
-                                                <IconChevronDown size={14} />
+                                                <IconChevronRight size={14} />
                                             </ActionIcon>
                                         </Group>
                                         <ActionIcon variant="light" color="red" size="sm" onClick={() => setDeleteTarget(img.imageId)}>

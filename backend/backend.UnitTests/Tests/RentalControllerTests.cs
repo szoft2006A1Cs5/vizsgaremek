@@ -54,7 +54,6 @@ namespace backend.UnitTests.Tests
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
-                FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.RenterOffer,
             }) as CreatedResult;
@@ -75,7 +74,6 @@ namespace backend.UnitTests.Tests
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
-                FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.OfferAccepted,
             }) as OkObjectResult;
@@ -97,7 +95,6 @@ namespace backend.UnitTests.Tests
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
-                FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Active,
             }) as OkObjectResult;
@@ -113,7 +110,6 @@ namespace backend.UnitTests.Tests
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
-                FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Active,
             }) as OkObjectResult;
@@ -129,7 +125,6 @@ namespace backend.UnitTests.Tests
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
-                FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Finished,
             }) as OkObjectResult;
@@ -145,7 +140,6 @@ namespace backend.UnitTests.Tests
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
-                FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Finished,
             }) as OkObjectResult;
@@ -161,7 +155,6 @@ namespace backend.UnitTests.Tests
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
-                FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Finished,
                 RenterRating = 5.0,
@@ -178,7 +171,6 @@ namespace backend.UnitTests.Tests
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
-                FuelLevel = 60,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Finished,
                 OwnerRating = 4.5,

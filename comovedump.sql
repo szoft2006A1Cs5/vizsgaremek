@@ -16,7 +16,10 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 DROP DATABASE IF EXISTS `comove`;
-CREATE DATABASE `comove` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci;
+CREATE DATABASE `comove`
+DEFAULT CHARACTER SET utf8
+COLLATE utf8_hungarian_ci;
+
 USE `comove`;
 
 --
@@ -38,8 +41,8 @@ CREATE TABLE `messages` (
   KEY `sender` (`senderId`),
   KEY `rental` (`rentalId`),
   CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`senderId`) REFERENCES `users` (`id`),
-  CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`rentalId`) REFERENCES `rentals` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+  CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`rentalId`) REFERENCES `rentals` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +51,7 @@ CREATE TABLE `messages` (
 
 LOCK TABLES `messages` WRITE;
 /*!40000 ALTER TABLE `messages` DISABLE KEYS */;
-INSERT INTO `messages` VALUES (1,'Szia! Meg√©rkeztem az aut√≥hoz, minden rendben t≈±nik.',0,'2026-01-11 08:55:00',0,4,2),(2,'Szuper, a kulcs a kijel√∂lt helyen volt?',0,'2026-01-11 08:57:00',0,2,2),(3,'Hey! How are you?',0,'2026-03-16 22:40:17',1,1,4);
+INSERT INTO `messages` VALUES (1,'Szia! Meg√©rkeztem az aut√≥hoz, minden rendben t≈±nik.',0,'2026-01-11 08:55:00',0,4,2),(2,'Szuper, a kulcs a kijel√∂lt helyen volt?',0,'2026-01-11 08:57:00',0,2,2),(5,'Szia mizujs',0,'2026-03-22 22:55:30',0,2,5),(6,'Cs, nem sok',0,'2026-03-23 00:13:31',0,1,5),(7,'Sup bro',0,'2026-03-23 07:40:44',0,1,5),(8,'Szia! Fogadd mar ael',0,'2026-03-23 07:49:47',0,2,7),(9,'Elfogadtam, kosz a penzt',0,'2026-03-23 07:51:54',0,1,7),(10,'Szivesen',0,'2026-03-23 07:52:07',0,2,7),(11,'Eleg maganyos hogy igy magamba beszelgetek nem?',0,'2026-03-23 07:52:20',0,1,7),(12,'De, de, az, magyanyosak vagyunk',0,'2026-03-23 07:52:32',0,2,7),(13,'Csmo',0,'2026-03-23 09:27:49',0,2,8),(14,'szla',0,'2026-03-23 09:28:33',0,2,8),(15,'szla',0,'2026-03-23 09:28:34',0,2,8),(16,'szla',0,'2026-03-23 09:28:35',0,2,8),(17,'szla',0,'2026-03-23 09:28:35',0,2,8),(18,'szia osszetortem a kocsit',0,'2026-03-23 09:28:49',0,2,8),(19,'szia!',0,'2026-03-27 09:55:18',0,1,12),(20,'utv',0,'2026-03-27 09:56:08',0,6,12),(21,'ars',0,'2026-03-27 10:33:16',0,6,13);
 /*!40000 ALTER TABLE `messages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -69,7 +72,7 @@ CREATE TABLE `notifications` (
   PRIMARY KEY (`id`),
   KEY `user` (`userId`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,6 +81,7 @@ CREATE TABLE `notifications` (
 
 LOCK TABLES `notifications` WRITE;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
+INSERT INTO `notifications` VALUES (27,3,1,'A Skoda Octavia-ra/re vonatkoz√≥ b√©rl√©s t√∂r√∂lve lett!','2026-03-23 00:11:18',0),(32,2,1,'A b√©rl√©si aj√°nlat Teszt Elek-val/vel, a(z) Toyota Corolla-ra/re elfogad√°sra ker√ºlt.','2026-03-23 09:30:09',0);
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -95,7 +99,6 @@ CREATE TABLE `rentals` (
   `end` datetime NOT NULL,
   `status` int NOT NULL DEFAULT '0',
   `pickupLocation` varchar(512) COLLATE utf8mb4_hungarian_ci NOT NULL,
-  `fuelLevel` float DEFAULT NULL,
   `renterRating` double DEFAULT NULL,
   `ownerRating` double DEFAULT NULL,
   `renterId` int NOT NULL,
@@ -105,7 +108,7 @@ CREATE TABLE `rentals` (
   KEY `vehicle` (`vehicleId`),
   CONSTRAINT `rentals_ibfk_1` FOREIGN KEY (`vehicleId`) REFERENCES `vehicles` (`id`),
   CONSTRAINT `rentals_ibfk_2` FOREIGN KEY (`renterId`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -114,7 +117,7 @@ CREATE TABLE `rentals` (
 
 LOCK TABLES `rentals` WRITE;
 /*!40000 ALTER TABLE `rentals` DISABLE KEYS */;
-INSERT INTO `rentals` VALUES (1,15000,'2026-01-05 10:00:00','2026-01-05 18:00:00',8,'9700 Szombathely, Zr√≠nyi Ilona utca 12.',100,5,4.5,3,1),(2,25000,'2026-01-11 09:00:00','2026-01-13 17:00:00',5,'9700 Szombathely, K√©thly Anna utca 12.',75.5,NULL,NULL,4,2),(3,8000,'2026-01-15 08:00:00','2026-01-15 12:00:00',1,'9700 Szombathely, Ur√°nia udvar 1.',NULL,NULL,NULL,1,3),(4,49100,'2026-03-13 10:00:00','2026-03-15 17:00:00',0,'string',0,NULL,NULL,2,1);
+INSERT INTO `rentals` VALUES (1,15000,'2026-01-05 10:00:00','2026-01-05 18:00:00',8,'9700 Szombathely, Zr√≠nyi Ilona utca 12.',5,4.5,3,1),(2,25000,'2026-01-11 09:00:00','2026-01-13 17:00:00',7,'9700 Szombathely, K√©thly Anna utca 12.',NULL,NULL,4,2),(5,39200,'2026-03-24 11:00:00','2026-03-26 12:00:00',2,'Szombathely, F≈ë t√©r 1.',NULL,NULL,2,1),(6,16200,'2026-03-22 23:55:00','2026-03-24 12:00:00',8,'Szombathely, F≈ë t√©r 1.',NULL,4.5,2,4),(7,43200,'2026-03-27 10:00:00','2026-03-29 09:00:00',2,'Szombathely, K√©thly Anna utca 12.',NULL,NULL,2,1),(8,42000,'2026-03-30 10:00:00','2026-04-01 22:00:00',4,'Otthon',NULL,NULL,2,1),(9,14828,'2026-03-23 10:49:00','2026-03-24 08:00:00',8,'Szombathely, Zr√≠nyi Ilona utca 12.',NULL,5,1,6),(10,19200,'2026-03-26 23:00:00','2026-03-27 23:00:00',8,'Szombathely, F≈ë t√©r 12.',5,4.5,1,6),(12,23000,'2026-03-28 11:00:00','2026-03-29 10:00:00',2,'Szombathely, Fo ter 12.',NULL,NULL,1,5),(13,20835,'2026-03-28 11:00:00','2026-03-29 10:09:00',3,'Szombathely, Zrin',NULL,NULL,1,6);
 /*!40000 ALTER TABLE `rentals` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -142,7 +145,7 @@ CREATE TABLE `users` (
   `addressStreetHouse` varchar(64) COLLATE utf8mb4_hungarian_ci NOT NULL,
   `balance` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,8 +154,36 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'123456AA','Teszt Elek','36201234567','2004-04-18',NULL,'tesztelek@teszt.hu',_binary '\\◊ëÄ<)^\‰Vjá•î#Á¥∞ E \ı.xΩ\‹\€˚6\⁄\ÔC∞2\Á°\"2>XI4O\Ò˝bZxÖ\√ˇbhäA∑\‰é\”\Ÿ\‡',_binary 'îR\0¯LÔÉççD\‡˙S','User','AA123456','9700','Szombathely','Zr√≠nyi Ilona utca 12.',0),(2,'123456BB','Gipsz Jakab','36701234567','1995-07-21',NULL,'gipszjakab@teszt.hu',_binary '–é\«»ì¯\‰	5£üáæ;ê\ƒ=c\ıcˇÖdFù\›Fç\–\ÓsàPª©zO⁄Æ[cH⁄Ω¬¥À´\Ô7≠ø\Ÿ',_binary 'àm\„b\‘(´}π$æ‘¨','User','BB123456','1117','Budapest','Budafoki √∫t 12.',48445),(3,'123456CC','Vincs Eszter','36301234567','2000-11-02',NULL,'vincseszter@teszt.hu',_binary '\ÈiìâHbô›§ã⁄òNR\ ;ç°l\È^æ®0\ yÄígø\◊/¬Ñl∂\0œåAW«Ø@Y\÷\ \"í\…GaNæqlñîì',_binary '±¿\‰AU+\Ô&\ı±\–u\‚\»q','User','CC123456','9700','Szombathely','K√©thly Anna utca 7.',0),(4,'123456DD','Teszt Ter√©z','36707654321','1989-12-12',NULL,'tesztterez@teszt.hu',_binary '±˙\Âî}’∞9^ƒ§\Ÿ<r5á\ÁS\€@\·\0\¬~ñ5\Ò\›YQtã¡éˇÆB¸\ı˙˙{0\”sê\¸®ìa:’ÄBQk',_binary '…Ér\Òïë¬ù4$+\›d\Ê','User','DD123456','1095','Budapest','Tin√≥di utca 1.',0),(5,'623412AD','Admin Tam√°s','36704124536','1978-09-07',NULL,'admin@teszt.hu',_binary 'µo+Ä\Û;\Õ<ˇ*Ju®¥(\r≤HKs¢R \ı~q,\"±\Õ\√UCx\Ì\Êà\Ÿ˙«∫\˜ u¶1s\ˆß\Ùá~\Zj0',_binary '_Eé^çNVë9\\\ŒVÆà','Administrator',NULL,'9700','Szombathely','Zr√≠nyi Ilona utca 12.',0);
+INSERT INTO `users` VALUES (1,'123456AA','Teszt Elek','36201234567','2004-04-18',NULL,'tesztelek@teszt.hu',_binary 'ÔøΩÔøΩ5ÔøΩ\ÔøΩp\ÔøΩ„∂Ü\ÔøΩ6\ÔøΩP\ÔøΩ\ÔøΩN-ÔøΩG\ÔøΩ-5}ÔøΩÔøΩ9√ú\ÔøΩÔøΩÔøΩÔøΩ\ÔøΩ&M\ÔøΩ\ÔøΩ*9h0\ÔøΩ\ÔøΩcÔøΩÔøΩ\ÔøΩÔøΩÔøΩ\0sÔøΩ\ÔøΩ',_binary '\ÔøΩÔøΩ\ÔøΩ„†ÑÔøΩZ\nYÔøΩ','User','AA123456','9700','Szombathely','Zr√≠nyi Ilona utca 12.',58845),(2,'123456BB','Gipsz Jakab','36701234567','1995-07-21',NULL,'gipszjakab@teszt.hu',_binary '6%\ÔøΩÔøΩÔøΩÔøΩ\ÔøΩ⁄∑ÔøΩ2\ÔøΩÔøΩ\ÔøΩ\ÔøΩ!=\Z!ÔøΩÔøΩLQm\\:\ÔøΩwA0\0)U\ÔøΩ5QÔøΩÔøΩÔøΩUa\ÔøΩÔøΩÔøΩÔøΩm\ÔøΩtÔøΩ\ÔøΩ/b\ÔøΩ\ÔøΩ›åÔøΩ\ÔøΩy',_binary 'ÔøΩNŸ†\r\ÔøΩ#ÔøΩ\ÔøΩPF3xÔøΩÿ≠','User','BB123456','1117','Budapest','Budafoki √∫t 12.',440815),(3,'123456CC','Vincs Eszter','36301234567','2000-11-02',NULL,'vincseszter@teszt.hu',_binary 'L^tÔøΩÔøΩ*pÔøΩÔøΩÔøΩ{∆óÔøΩ\ÔøΩ\ÔøΩ4ÔøΩÔøΩ”Ät*ÔøΩ<)ÔøΩlÔøΩÔøΩa\ÔøΩ\ÔøΩ	ÔøΩfÔøΩ\ÔøΩ$BÔøΩ0<8<}jÔøΩ<ÔøΩ\ÔøΩ\ÔøΩTÔøΩh',_binary '}|ÔøΩÔøΩﬂöÔøΩXL=ÔøΩ\ÔøΩ','User','CC123456','9700','Szombathely','K√©thly Anna utca 7.',0),(4,'123456DD','Teszt Ter√©z','36707654321','1989-12-12',NULL,'tesztterez@teszt.hu',_binary 'j^ÔøΩgWQ$YÔøΩÔøΩ\ÔøΩ\ÔøΩ3Ÿø_N\ÔøΩ~\ÔøΩ\ÔøΩMÔøΩÔøΩCm5[WÔøΩÔøΩKaHjKÔøΩ@h/ÔøΩÔøΩ+ÔøΩÔøΩ\ÔøΩ5ÔøΩS+ÔøΩÔøΩ!\Z–É<ÔøΩ.',_binary 'tMÔøΩÔøΩÔøΩÔøΩHÔøΩr6ÔøΩbÔøΩÔøΩ\ÔøΩ','User','DD123456','1095','Budapest','Tin√≥di utca 1.',0),(5,'623412AD','Admin Tam√°s','36704124536','1978-09-07',NULL,'admin@teszt.hu',_binary '\ÔøΩ\0W]ÔøΩ\ÔøΩC√®lÔøΩv“¨xÔøΩVQy\ÔøΩ\ÔøΩ’êÔøΩÔøΩZc\ÔøΩÔøΩk\\\ÔøΩ\ÔøΩ\ÔøΩn\ÔøΩ\ZÔøΩ-YR\ÔøΩ\ÔøΩ3L⁄Ø\ÔøΩÔøΩ\ÔøΩhÔøΩÔøΩ\ÔøΩ\ÔøΩ\ÔøΩ\ÔøΩU',_binary '\"\ÔøΩ7\\ÔøΩC\ÔøΩLSÔøΩÔøΩ	\ÔøΩT\'G','Administrator',NULL,'9700','Szombathely','Zr√≠nyi Ilona utca 12.',0),(6,'124124AA','Csaba Bence','36208192471','2005-12-01',NULL,'csaba.bence@hbsz.edu.hu',_binary 'ÔøΩ-}z\\ÔøΩ\ÔøΩ^\ÔøΩÔøΩSÔøΩ:S\ÔøΩ^ÔøΩÍ°π\ÔøΩ\ÔøΩAÔøΩÔøΩ\ÔøΩÔøΩ\ÔøΩ`dÔøΩÔøΩ\ÔøΩ?ÔøΩzÔøΩ\ÔøΩe\ÔøΩH\ÔøΩÔøΩ?kKÔøΩdÔøΩ\ÔøΩ\ÔøΩnKÔøΩÔøΩ{\ÔøΩ',_binary 'ÔøΩÔøΩÔøΩ\ÔøΩ\ÔøΩ_AÔøΩ|6\ÔøΩ','User',NULL,'9700','Szombathely','ABC utca 1.',77863),(7,'737373GA','Geo √Åron','36705152882','2006-06-22',NULL,'me@arongeo.com',_binary '-’ü ,p\ÔøΩP\ÔøΩ@/\ÔøΩ\ÔøΩ%9ÔøΩÔøΩÔøΩIÔøΩH\ÔøΩs{M9\'ÔøΩ]DÔøΩÔøΩIÔøΩÔøΩÔøΩ ÔøΩ7ÔøΩuo;\ÔøΩ1ÔøΩ\ÔøΩD)Z0\ÔøΩ\ÔøΩk;ÔøΩÔøΩ›ª\"\ÔøΩo',_binary '\ÔøΩÔøΩ√ßI\ÔøΩJÔøΩÔøΩ\ÔøΩﬁã\"[S','Administrator',NULL,'9700','Szombathely','Zr√≠nyi Ilona utca 12.',0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `usertokens`
+--
+
+DROP TABLE IF EXISTS `usertokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `usertokens` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `token` varchar(8) COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `type` varchar(15) COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `timeCreated` datetime NOT NULL DEFAULT (utc_timestamp()),
+  PRIMARY KEY (`id`),
+  KEY `usertokens_users_id_fk` (`userId`),
+  CONSTRAINT `usertokens_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `usertokens`
+--
+
+LOCK TABLES `usertokens` WRITE;
+/*!40000 ALTER TABLE `usertokens` DISABLE KEYS */;
+/*!40000 ALTER TABLE `usertokens` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -172,7 +203,7 @@ CREATE TABLE `vehicleavailabilities` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `vehicleavailability` (`vehicleId`,`availabilityId`),
   CONSTRAINT `vehicleavailabilities_ibfk_1` FOREIGN KEY (`vehicleId`) REFERENCES `vehicles` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,7 +212,7 @@ CREATE TABLE `vehicleavailabilities` (
 
 LOCK TABLES `vehicleavailabilities` WRITE;
 /*!40000 ALTER TABLE `vehicleavailabilities` DISABLE KEYS */;
-INSERT INTO `vehicleavailabilities` VALUES (4,2,1,'2026-03-11 11:00:00','2026-03-14 17:00:00',700),(5,1,1,'2026-03-11 11:00:00','2026-03-13 12:00:00',700),(6,1,2,'2026-03-13 12:00:00','2026-03-15 18:00:00',900),(7,1,3,'2026-03-23 10:00:00','2026-03-27 11:00:00',800),(8,1,4,'2026-03-27 11:00:00','2026-03-29 15:00:00',900),(9,4,1,'2026-03-23 11:00:00','2026-03-24 17:00:00',600);
+INSERT INTO `vehicleavailabilities` VALUES (11,1,6,'2026-04-03 10:00:00','2026-05-03 15:00:00',800),(17,5,2,'2026-04-14 08:39:06','2026-04-17 10:00:00',900),(18,5,3,'2026-04-17 10:00:00','2026-04-19 17:00:00',1000),(19,6,4,'2026-04-14 08:56:12','2026-04-17 10:00:00',500),(20,6,5,'2026-04-17 10:00:00','2026-04-19 16:00:00',700);
 /*!40000 ALTER TABLE `vehicleavailabilities` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -201,7 +232,7 @@ CREATE TABLE `vehicleimages` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `vehicleimage` (`vehicleId`,`imageId`),
   CONSTRAINT `vehicleimages_ibfk_1` FOREIGN KEY (`vehicleId`) REFERENCES `vehicles` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -210,7 +241,7 @@ CREATE TABLE `vehicleimages` (
 
 LOCK TABLES `vehicleimages` WRITE;
 /*!40000 ALTER TABLE `vehicleimages` DISABLE KEYS */;
-INSERT INTO `vehicleimages` VALUES (1,1,1,1,'res/58274674-91a9-4afb-ab80-52a0a605c520.jpg'),(2,2,1,1,'res/64725ad2-8502-4eef-b4f3-07d3c5af9423.jpg'),(3,3,1,1,'res/43b1c8fd-ce7c-4c34-8dfc-f46d2e12b6ba.png'),(4,1,2,2,'res/3bd9f544-f633-4a6f-8a29-0463842e19d2.jpg'),(6,4,1,1,'res/c27ef141-b934-4520-94a3-7a6fd3bd7301.jpg');
+INSERT INTO `vehicleimages` VALUES (1,1,1,1,'res/58274674-91a9-4afb-ab80-52a0a605c520.jpg'),(2,2,1,1,'res/64725ad2-8502-4eef-b4f3-07d3c5af9423.jpg'),(3,3,1,1,'res/43b1c8fd-ce7c-4c34-8dfc-f46d2e12b6ba.png'),(4,1,2,2,'res/3bd9f544-f633-4a6f-8a29-0463842e19d2.jpg'),(6,4,1,1,'res/c27ef141-b934-4520-94a3-7a6fd3bd7301.jpg'),(9,5,1,1,'res/8d86abed-d261-4f78-a917-ceb558726993.jpeg'),(10,6,1,1,'res/72b8619a-af94-4b8c-b4eb-25df5d7514a2.jpg');
 /*!40000 ALTER TABLE `vehicleimages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -237,9 +268,11 @@ CREATE TABLE `vehicles` (
   `insuranceNumber` varchar(64) COLLATE utf8mb4_hungarian_ci NOT NULL,
   `transmission` varchar(16) COLLATE utf8mb4_hungarian_ci NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `vehicles_pk` (`vin`),
+  UNIQUE KEY `vehicles_pk_2` (`licensePlate`),
   KEY `owner` (`ownerId`),
   CONSTRAINT `vehicles_ibfk_1` FOREIGN KEY (`ownerId`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -248,7 +281,7 @@ CREATE TABLE `vehicles` (
 
 LOCK TABLES `vehicles` WRITE;
 /*!40000 ALTER TABLE `vehicles` DISABLE KEYS */;
-INSERT INTO `vehicles` VALUES (1,1,'VF312345678901234','ABC123','Toyota','Corolla',2018,'Megb√≠zhat√≥ hibrid v√°rosi cirk√°l√≥.',85000,132,4.5,'benzin-elektromos','KGFB-998877','automatikus'),(2,2,'WBA41234567890123','SKY789','BMW','320d',2015,'K√©nyelmes utaz√≥aut√≥ hosszabb t√°vra.',210000,180,6.2,'d√≠zel','KGFB-112233','manu√°lis'),(3,3,'TMB51234567890123','RNL456','Skoda','Octavia',2020,'Hatalmas csomagtart√≥, tiszta bels≈ë.',45000,150,5.5,'benzin','KGFB-445566','manu√°lis'),(4,1,'DEFGHIJK12341241A','ABCD123','Suzuki','Swift',2018,'',5,120,6.2,'Benzin','KGFB-123412515','Manu√°lis');
+INSERT INTO `vehicles` VALUES (1,1,'VF312345678901234','ABC123','Toyota','Corolla',2018,'Megb√≠zhat√≥ hibrid v√°rosi cirk√°l√≥.',85000,132,4.5,'benzin-elektromos','KGFB-998877','automatikus'),(2,2,'WBA41234567890123','SKY789','BMW','320d',2015,'K√©nyelmes utaz√≥aut√≥ hosszabb t√°vra.',210000,180,6.2,'d√≠zel','KGFB-112233','manu√°lis'),(3,3,'TMB51234567890123','RNL456','Skoda','Octavia',2020,'Hatalmas csomagtart√≥, tiszta bels≈ë.',45000,150,5.5,'benzin','KGFB-445566','manu√°lis'),(4,1,'DEFGHIJK12341241A','ABCD123','Suzuki','Swift',2018,'',5,120,6.2,'Benzin','KGFB-123412515','Manu√°lis'),(5,6,'S12124NEINHSR1231','BENC369','BMW','E36 M3',1999,'Nagyon meno auto',150000,321,12,'Benzin','KFB-ul12j491247961','Manu√°lis'),(6,6,'RNTDHIENSTHDNE124','KKL724','Ford','Focus',2002,'',446800,116,6,'D√≠zel','neirosdeiarsnd12947','Manu√°lis');
 /*!40000 ALTER TABLE `vehicles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -261,4 +294,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-22 21:55:35
+-- Dump completed on 2026-04-15  0:30:36

@@ -1,4 +1,4 @@
-import { useState, useEffect, useEffectEvent } from "react"
+import { useState, useEffect } from "react"
 import "./Navbar.css"
 import {
     AppShell,
@@ -8,21 +8,23 @@ import {
     Image,
     Burger,
     Avatar,
+    Box,
     LoadingOverlay,
     Title,
     Divider,
     NavLink,
+    Popover,
 } from "@mantine/core";
 import logo from "../../assets/kepek/logo/comove_logo4.png"
 import { useDisclosure } from "@mantine/hooks"
 import { Link, useLocation } from "react-router-dom"
-import { Popover } from "@mantine/core"
 import NotificationMenu from "../NotificationMenu/NotificationMenu";
 import { useLogout, useUser } from "../../assets/scripts/AuthUser";
 
 function Navbar({ children }) {
     const [sideNavOpen, sideNav] = useDisclosure(false)
-    const [authBarOpen, authBar] = useDisclosure(false)
+    const [popoverOpen, popover] = useDisclosure(false)
+    const [asideOpen, aside] = useDisclosure(false)
     const location = useLocation()
 
     const links = [
@@ -33,13 +35,9 @@ function Navbar({ children }) {
     const [scrolled, setScrolled] = useState(false)
 
     useEffect(() => {
-        if (!authBarOpen)
-            return
-
-        const onAnyScroll = () => authBar.close();
-
+        if (!popoverOpen) return
+        const onAnyScroll = () => popover.close();
         window.addEventListener("scroll", onAnyScroll, { passive: true, capture: true })
-
         return () => window.removeEventListener("scroll", onAnyScroll, { capture: true })
     })
 
@@ -52,20 +50,49 @@ function Navbar({ children }) {
 
     useEffect(() => {
         sideNav.close();
-        authBar.close();
+        popover.close();
+        aside.close();
     }, [location.pathname])
 
-    const authUser = useUser();
+    const { data: authUser, isLoading } = useUser();
     const logout = useLogout();
 
-    const isLoadingUser = authUser.isLoading
+    const closeAll = () => {
+        popover.close(); 
+        aside.close(); 
+    }
+
+    const menuItems = (
+        <Stack gap={5}>
+            {!authUser?.name ? (
+                <>
+                    <NavLink component={Link} to="/login" label="Bejelentkezés" onClick={closeAll} />
+                    <NavLink component={Link} to="/register" label="Regisztráció" onClick={closeAll} />
+                </>
+            ) : (
+                <>
+                    <NavLink component={Link} to="/settings" label="Beállítások" onClick={closeAll} />
+                    <Divider />
+                    <NavLink component={Link} to="/rentals" label="Bérléseim" onClick={closeAll} />
+                    <NavLink component={Link} to="/vehicles" label="Járműveim" onClick={closeAll} />
+                    <Divider />
+                    <NavLink label="Kijelentkezés" onClick={() => logout.mutate()} />
+                </>
+            )}
+        </Stack>
+    )
 
     return (
         <AppShell
-            header={{ height: 80 }}
+            header={{ height: 80, zIndex: 50000 }}
             navbar={{
                 breakpoint: "sm",
                 collapsed: { desktop: true, mobile: !sideNavOpen },
+            }}
+            aside={{
+                width: 300,
+                breakpoint: "sm",
+                collapsed: { desktop: true, mobile: !asideOpen },
             }}
         >
             <AppShell.Header className={`nav_header ${scrolled ? "nav_scrolled" : ""}`}>
@@ -76,7 +103,7 @@ function Navbar({ children }) {
                                 hiddenFrom="sm"
                                 opened={sideNavOpen}
                                 onClick={() => {
-                                    if (authBarOpen) authBar.close();
+                                    if (asideOpen) aside.close();
                                     sideNav.toggle();
                                 }}
                                 color="white"
@@ -86,7 +113,7 @@ function Navbar({ children }) {
                             </Link>
                         </Group>
 
-                        <Group gap={18} className="nav_right">
+                        <Group gap={20} className="nav_right">
                             <Group visibleFrom="sm" className="nav_links">
                                 {links.map((x) => (
                                     <Link key={x.to} to={x.to} className="nav_link">
@@ -97,100 +124,83 @@ function Navbar({ children }) {
 
                             <NotificationMenu />
 
-                            <Popover
-                                opened={authBarOpen}
-                                onChange={(o) => (o ? authBar.open() : authBar.close())}
-                                position="bottom"
-                                offset={5}
-                                withArrow
-                                arrowSize={16}
-                                arrowRadius={4}
-                                shadow="md"
-                                withinPortal
-                                zIndex={10000}
-                                styles={{
-                                    arrow: {
-                                        background: "#e6f1ff",
-                                    }
-                                }}
-                            >
-                                <Popover.Target>
-                                    <Avatar
-                                        onClick={() => {
-                                            if (sideNavOpen) sideNav.close();
-                                            authBar.toggle();
-                                        }}
-                                        className="nav_account"
-                                        w={44}
-                                        h={44}
-                                        color="white"
-                                    />
-                                </Popover.Target>
-
-                                <Popover.Dropdown className="nav_account_dropdown">
-                                    <div className="nav_account_card">
-                                        <LoadingOverlay visible={isLoadingUser} zIndex={1000} overlayProps={{ radius: "sm", blur: 5 }} />
-
-                                        <Stack gap={5} className="nav_authItems">
-                                            {!authUser.data || !authUser.data.name ? (
+                            <Box visibleFrom="sm">
+                                <Popover
+                                    opened={popoverOpen}
+                                    onChange={(o) => (o ? popover.open() : popover.close())}
+                                    position="bottom"
+                                    offset={5}
+                                    withArrow
+                                    arrowSize={16}
+                                    arrowRadius={4}
+                                    shadow="md"
+                                    withinPortal
+                                    zIndex={10000}
+                                    styles={{ arrow: { background: "#e6f1ff" } }}
+                                >
+                                    <Popover.Target>
+                                        <Avatar
+                                            onClick={() => {
+                                                if (sideNavOpen) sideNav.close();
+                                                popover.toggle();
+                                            }}
+                                            className="nav_account"
+                                            w={44} h={44} color="white"
+                                        />
+                                    </Popover.Target>
+                                    <Popover.Dropdown className="nav_account_dropdown">
+                                        <div className="nav_account_card">
+                                            <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: "sm", blur: 5 }} />
+                                            {authUser?.name && (
                                                 <>
-                                                    <Link to="/login" className="nav_navlinkWrap" onClick={() => authBar.close()}>
-                                                        <NavLink label="Bejelentkezés" />
-                                                    </Link>
-                                                    <Link to="/register" className="nav_navlinkWrap" onClick={() => authBar.close()}>
-                                                        <NavLink label="Regisztráció" />
-                                                    </Link>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Title size={20} c="black">
-                                                        Üdv {authUser.data.name}!
-                                                    </Title>
-                                                    <Divider />
-
-                                                    <Link to="/settings" className="nav_navlinkWrap" onClick={() => authBar.close()}>
-                                                        <NavLink label="Beállítások" />
-                                                    </Link>
-
-                                                    <Divider />
-
-                                                    <Link to="/rentals" className="nav_navlinkWrap" onClick={() => authBar.close()}>
-                                                        <NavLink label="Bérléseim" />
-                                                    </Link>
-                                                    <Link to="/vehicles" className="nav_navlinkWrap" onClick={() => authBar.close()}>
-                                                        <NavLink label="Járműveim" />
-                                                    </Link>
-
-                                                    <Divider />
-
-                                                    <NavLink
-                                                        label="Kijelentkezés"
-                                                        onClick={() => {
-                                                            logout()
-                                                        }}
-                                                    />
+                                                    <Title size={20} c="black">Üdv {authUser.name}!</Title>
+                                                    <Divider my={5} />
                                                 </>
                                             )}
-                                        </Stack>
-                                    </div>
-                                </Popover.Dropdown>
-                            </Popover>
+                                            {menuItems}
+                                        </div>
+                                    </Popover.Dropdown>
+                                </Popover>
+                            </Box>
+
+                            <Avatar
+                                hiddenFrom="sm"
+                                onClick={() => {
+                                    if (sideNavOpen) sideNav.close();
+                                    aside.toggle();
+                                }}
+                                className="nav_account"
+                                w={44} h={44} color="white"
+                            />
                         </Group>
                     </Flex>
                 </div>
             </AppShell.Header>
 
             <AppShell.Navbar bg="transparent" hiddenFrom="sm" bd={0}>
-                <div className="nav_glass nav_popout">
+                <div className="nav_glass">
                     <Stack>
                         {links.map((x) => (
-                            <Link key={x.to} to={x.to} className={location.pathname === x.to ? "nav_link active" : "nav_link"}>
+                            <Link key={x.to} to={x.to} className="nav_link">
                                 {x.name}
                             </Link>
                         ))}
                     </Stack>
                 </div>
             </AppShell.Navbar>
+
+            <AppShell.Aside bg='transparent' bd={0} hiddenFrom="sm">
+                <div className="nav_glass">
+                    <LoadingOverlay visible={isLoading} overlayProps={{ radius: "15" }} />
+                    {authUser?.name && (
+                        <>
+                            <Title size={20} c="white" fw='bold' mb={8}>Üdv, {authUser.name}!</Title>
+                            <Divider color="lightgray" mb={8} />
+                        </>
+                    )}
+                    {menuItems}
+                </div>
+            </AppShell.Aside>
 
             <AppShell.Main>{children}</AppShell.Main>
         </AppShell>

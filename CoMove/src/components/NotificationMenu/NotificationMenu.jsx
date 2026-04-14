@@ -43,7 +43,12 @@ function NotificationMenu() {
 
     return (
         <>
-            <ActionIcon onClick={open} color='transparent'>
+            <ActionIcon 
+                onClick={open} 
+                color={!isLoading && authUser && authUser.notifications.length ? 'red' : 'transparent'}
+                bd='1px solid white'
+                bdrs={10}
+            >
                 <FaBell />
             </ActionIcon>
 

@@ -207,8 +207,7 @@ namespace backend.Services.RentalService
                     nameof(Rental.RentalPrice),
                     nameof(Rental.Start),
                     nameof(Rental.End),
-                    nameof(Rental.PickupLocation),
-                    nameof(Rental.FuelLevel)
+                    nameof(Rental.PickupLocation)
                 }.Contains(x.Name)));
 
             var dtoProps = typeof(RentalDTO).GetProperties();

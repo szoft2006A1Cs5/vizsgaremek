@@ -9,7 +9,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { DateTimePicker } from '@mantine/dates';
 import {
-    IconArrowLeft, IconCalendar, IconMapPin, IconGauge, IconCoin,
+    IconArrowLeft, IconCalendar, IconMapPin, IconCoin,
     IconSend, IconCheck, IconX, IconCar, IconUser,
 } from '@tabler/icons-react';
 import PageLayout from '../../components/PageLayout/PageLayout';
@@ -29,14 +29,13 @@ const STATUS = {
     renterFinishAccepted: { label: 'Visszaadás: bérlő kész',      mantine: 'yellow', step: 4 },
     ownerFinishAccepted:  { label: 'Visszaadás: tulaj kész',      mantine: 'yellow', step: 4 },
     finished:             { label: 'Befejezve',                   mantine: 'gray',   step: 5 },
-    renterCancelled:      { label: 'Bérlő által lemondva',        mantine: 'red',    step: -1 },
-    ownerCancelled:       { label: 'Tulajdonos által lemondva',   mantine: 'red',    step: -1 },
+    cancelled:            { label: 'Lemondva',                    mantine: 'red',    step: -1 },
 };
 
-const CANCELLED = ['renterCancelled', 'ownerCancelled'];
+const CANCELLED = ['cancelled'];
 
 function fmt(str) {
-    if (!str) return '–';
+    if (!str) return '-';
     return new Date(str).toLocaleString('hu-HU', {
         year: 'numeric', month: '2-digit', day: '2-digit',
         hour: '2-digit', minute: '2-digit',
@@ -44,7 +43,7 @@ function fmt(str) {
 }
 
 function fmtPrice(n) {
-    if (n == null) return '–';
+    if (n == null) return '-';
     return Number(n).toLocaleString('hu-HU') + ' Ft';
 }
 
@@ -53,7 +52,6 @@ function buildBody(rental, overrides) {
         start:           rental.start,
         end:             rental.end,
         pickupLocation:  rental.pickupLocation ?? '',
-        fuelLevel:       rental.fuelLevel,
         vehicleId:       rental.vehicleId,
         ...overrides,
     };
@@ -178,7 +176,6 @@ function OfferPanel({ rental, isOwner, authUser }) {
     const [start, setStart]               = useState(new Date(rental.start));
     const [end, setEnd]                   = useState(new Date(rental.end));
     const [pickupLocation, setPickup]     = useState(rental.pickupLocation ?? '');
-    const [fuelLevel, setFuelLevel]       = useState(rental.fuelLevel ?? 50);
 
     const counterOfferStatus = isOwner ? 'ownerOffer' : 'renterOffer';
 
@@ -263,14 +260,6 @@ function OfferPanel({ rental, isOwner, authUser }) {
                         leftSection={<IconMapPin size={15} />}
                         radius="md" size="sm" maxLength={512}
                     />
-                    <NumberInput
-                        label="Üzemanyag szint (%)"
-                        value={fuelLevel}
-                        onChange={setFuelLevel}
-                        leftSection={<IconGauge size={15} />}
-                        min={0} max={100}
-                        radius="md" size="sm"
-                    />
 
 
                     <Group gap={8} wrap="wrap">
@@ -313,7 +302,6 @@ function OfferPanel({ rental, isOwner, authUser }) {
                             ['Kezdés',        fmt(rental.start),        IconCalendar],
                             ['Vége',          fmt(rental.end),          IconCalendar],
                             ['Átvételi hely', rental.pickupLocation,    IconMapPin],
-                            ['Üzemanyag',     rental.fuelLevel != null ? `${rental.fuelLevel}%` : '–', IconGauge],
                         ].map(([lbl, val, Icon]) => (
                             <Group key={lbl} gap={8} align="flex-start">
                                 <Icon size={14} color="var(--lightpurple)" style={{ marginTop: 2 }} />
@@ -379,7 +367,6 @@ function PickupPanel({ rental, isOwner }) {
             <Stack gap={6}>
                 {[
                     ['Átvételi hely', rental.pickupLocation, IconMapPin],
-                    ['Üzemanyag',     rental.fuelLevel != null ? `${rental.fuelLevel}%` : '–', IconGauge],
                     ['Kezdés',        fmt(rental.start),       IconCalendar],
                     ['Vége',          fmt(rental.end),         IconCalendar],
                 ].map(([lbl, val, Icon]) => (
@@ -629,16 +616,6 @@ function RentalDetail() {
         <PageLayout
             title={vehicle ? `${vehicle.manufacturer} ${vehicle.model}` : `Bérlés #${rentalId}`}
             subtitle={vehicle ? `${vehicle.year} · ${vehicle.fuelType} · ${vehicle.transmission}` : ''}
-            heroContent={
-                <Button
-                    variant="subtle"
-                    color="gray"
-                    leftSection={<IconArrowLeft size={16} />}
-                    onClick={() => navigate(isOwner ? `/vehicle/${vehicle?.id}` : '/rentals')}
-                >
-                    Vissza
-                </Button>
-            }
         >
             <Grid gutter="xl">
                 <Grid.Col span={{ base: 12, md: 4 }}>

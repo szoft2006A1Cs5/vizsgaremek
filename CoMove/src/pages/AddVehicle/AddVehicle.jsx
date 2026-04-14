@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import VehicleForm from '../VehicleForm/VehicleForm';
+import VehicleForm from '../../components/VehicleForm/VehicleForm';
 import { API_URL } from '../../assets/scripts/Config';
 import { useUser } from '../../assets/scripts/AuthUser';
+import PageLayout from '../../components/PageLayout/PageLayout';
 
 function AddVehicle() {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ function AddVehicle() {
 
     if (!userLoading && !authUser) navigate("/login")
 
-    const mutation = useMutation({
+    const vehicleAddMutation = useMutation({
         mutationFn: async (values) => {
             const resp = await fetch(`${API_URL}/Vehicle`, {
                 method: 'POST',
@@ -28,12 +29,15 @@ function AddVehicle() {
     });
 
     return (
-        <VehicleForm
-            title="Jármű hozzáadása"
-            subtitle="Adja meg az új jármű adatait"
-            onSubmit={(values) => mutation.mutate(values)}
-            loading={mutation.isPending}
-        />
+            <PageLayout 
+                title='Új jármű hozzáadása'
+                subtitle='Adja meg a jármű adatait!'
+            >
+                <VehicleForm
+                    onSubmit={(val) => vehicleAddMutation.mutate(val)}
+                    loading={vehicleAddMutation.isPending}
+                />
+            </PageLayout>
     );
 }
 

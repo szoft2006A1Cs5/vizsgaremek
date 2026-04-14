@@ -2,7 +2,7 @@ import { useState, useEffect, useLayoutEffect } from 'react';
 import { Box, Container, Group, Text } from '@mantine/core';
 import style from './PageLayout.module.css';
 
-function PageLayout({ title, subtitle, heroContent, children }) {
+function PageLayout({ title, subtitle, rightContent, children }) {
     return (
         <>
             <Box className={style.hero}>
@@ -16,7 +16,7 @@ function PageLayout({ title, subtitle, heroContent, children }) {
                             <Text className={style.title}>{title}</Text>
                             <Text className={style.subtitle}>{subtitle}</Text>
                         </div>
-                        {heroContent}
+                        {rightContent}
                     </Group>
                 </Container>
             </Box>

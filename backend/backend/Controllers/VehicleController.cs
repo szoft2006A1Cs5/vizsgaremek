@@ -154,7 +154,7 @@ namespace backend.Controllers
                 .IgnoreAutoIncludes()
                 .Include(x => x.Owner)
                 .Include(x => x.Availabilities)
-                .Include(x => x.Rentals)
+                .Include(x => x.Rentals.OrderByDescending(y => y.Id))
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images.OrderBy(y => y.SortIndex))
                 .Where(x => x.Id == id)

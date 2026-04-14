@@ -23,7 +23,7 @@ function MyVehicles() {
         <PageLayout
             title="Járműveim"
             subtitle="Az Ön által bérbeadott járművek"
-            heroContent={
+            rightContent={
                 <Button
                     onClick={() => navigate("/vehicles/add")}
                     style={{ background: 'var(--button)' }}
@@ -36,9 +36,9 @@ function MyVehicles() {
             {isLoading ? (
                 <Center pt={80}><Loader color="var(--background)" /></Center>
             ) : isError ? (
-                <Center pt={80}><Text c="gray" fz={15}>Hiba történt a járművek betöltésekor.</Text></Center>
+                <Center pt={80}><Text c="var(--lightpurple)" fz={15}>Hiba történt a járművek betöltésekor.</Text></Center>
             ) : vehicles?.length === 0 ? (
-                <Center pt={80}><Text c="gray" fz={15}>Még nincs hozzáadott járműve.</Text></Center>
+                <Center pt={80}><Text c="var(--lightpurple)" fz={15}>Még nincs hozzáadott járműve.</Text></Center>
             ) : (
                 <Cards cars={vehicles} />
             )}

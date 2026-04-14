@@ -8,14 +8,10 @@ import {
 import { DateTimePicker } from '@mantine/dates';
 import { IconTrash, IconEdit, IconPlus, IconCalendar } from '@tabler/icons-react';
 import { API_URL } from '../../assets/scripts/Config';
+import { formatDateTime } from '../../assets/scripts/Utilities';
 import '@mantine/dates/styles.css';
 
 const EMPTY_FORM = { start: null, end: null, hourlyRate: 0 };
-
-function formatDateTime(str) {
-    if (!str) return '–';
-    return new Date(str).toLocaleString('hu-HU', { dateStyle: 'short', timeStyle: 'short' });
-}
 
 function VehicleAvailabilityManager({ vehicleId }) {
     const queryClient = useQueryClient();
@@ -113,7 +109,7 @@ function VehicleAvailabilityManager({ vehicleId }) {
                 title="Elérhetőség törlése"
                 centered
             >
-                <Text fz={14}>Biztosan törli ezt az elérhetőségi időszakot?</Text>
+                <Text fz={15} fw='bold'>Biztosan törli ezt az elérhetőségi időszakot?</Text>
                 <Group justify="flex-end" mt={20}>
                     <Button variant="default" onClick={() => setDeleteTarget(null)}>Mégsem</Button>
                     <Button color="red" loading={deleteMutation.isPending} onClick={() => deleteMutation.mutate(deleteTarget)}>Törlés</Button>
@@ -126,7 +122,7 @@ function VehicleAvailabilityManager({ vehicleId }) {
                 title={editTarget !== null ? 'Elérhetőség szerkesztése' : 'Elérhetőség hozzáadása'}
                 centered
             >
-                <Stack gap={16}>
+                <Stack gap={15}>
                     <DateTimePicker
                         label="Kezdés"
                         placeholder="Válassz időpontot"

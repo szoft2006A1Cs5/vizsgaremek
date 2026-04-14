@@ -251,7 +251,6 @@ namespace backend.UnitTests
                     End = new DateTime(2026, 03, 01, 15, 00, 00),
                     Status = RentalStatus.Finished,
                     RentalPrice = 29 * 600,
-                    FuelLevel = 50,
                     PickupLocation = "9700 Szombathely, Zrínyi Ilona utca 12.",
                     OwnerRating = 5.0,
                     RenterRating = 4.5
@@ -267,7 +266,6 @@ namespace backend.UnitTests
                     End = new DateTime(2026, 03, 19, 15, 00, 00),
                     Status = RentalStatus.OfferAccepted,
                     RentalPrice = 195 * 400,
-                    FuelLevel = 45,
                     PickupLocation = "9700 Szombathely, Uránia udvar 12.",
                     OwnerRating = null,
                     RenterRating = null
