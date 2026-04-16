@@ -11,14 +11,43 @@ import { API_URL } from '../../assets/scripts/Config';
 import { formatDateTime } from '../../assets/scripts/Utilities';
 import '@mantine/dates/styles.css';
 
-const EMPTY_FORM = { start: null, end: null, hourlyRate: 0 };
+function AvailabilityRow({ availability, onEdit, onDelete }) {
+    return (
+        <Paper radius='md' p='md' withBorder>
+            <Group wrap='nowrap' justify='space-between'>
+                <Group wrap='wrap' gap='xl' style={{ flex: 1 }}>
+                    <Stack gap={5}>
+                        <Text fw='bold' fz={13}>Kezdet</Text>
+                        <Text fz={12}>{formatDateTime(availability.start)}</Text>
+                    </Stack>
+                    <Stack gap={5}>
+                        <Text fw='bold' fz={13}>Vég</Text>
+                        <Text fz={12}>{formatDateTime(availability.end)}</Text>
+                    </Stack>
+                    <Stack gap={5}>
+                        <Text fw='bold' fz={13}>Óradíj</Text>
+                        <Text fz={12}>{availability.hourlyRate.toLocaleString('hu-HU')} Ft/óra</Text>
+                    </Stack>
+                </Group>
+                <Stack gap={15} ml='xl'>
+                    <ActionIcon variant='light' size='sm' p={1} onClick={() => onEdit()}>
+                        <IconEdit />
+                    </ActionIcon>
+                    <ActionIcon variant='light' color='red' size='sm' p={1} onClick={() => onDelete()}>
+                        <IconTrash />
+                    </ActionIcon>
+                </Stack>
+            </Group>
+        </Paper>
+    )
+};
 
-function VehicleAvailabilityManager({ vehicleId }) {
+function VehicleAvailabilityMenu({ vehicleId }) {
     const queryClient = useQueryClient();
-    const [modalOpen, setModalOpen] = useState(false);
-    const [editTarget, setEditTarget] = useState(null); // availabilityId being edited
+    const [addEditOpen, setAddEditOpen] = useState(false);
+    const [editTarget, setEditTarget] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
-    const [form, setForm] = useState(EMPTY_FORM);
+    const [fields, setFields] = useState({});
     const [error, setError] = useState(null);
 
     const { data: availabilities = [], isLoading } = useQuery({
@@ -36,20 +65,20 @@ function VehicleAvailabilityManager({ vehicleId }) {
 
     function openAdd() {
         setEditTarget(null);
-        setForm(EMPTY_FORM);
+        setFields({});
         setError(null);
-        setModalOpen(true);
+        setAddEditOpen(true);
     }
 
     function openEdit(avail) {
         setEditTarget(avail.availabilityId);
-        setForm({
+        setFields({
             start: new Date(avail.start),
             end: new Date(avail.end),
             hourlyRate: avail.hourlyRate,
         });
         setError(null);
-        setModalOpen(true);
+        setAddEditOpen(true);
     }
 
     const saveMutation = useMutation({
@@ -68,7 +97,9 @@ function VehicleAvailabilityManager({ vehicleId }) {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['vehicle-availabilities', vehicleId] });
-            setModalOpen(false);
+            setFields({});
+            setEditTarget(null);
+            setAddEditOpen(false);
         },
         onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
@@ -89,15 +120,27 @@ function VehicleAvailabilityManager({ vehicleId }) {
     });
 
     function handleSave() {
-        const { start, end } = form;
-        if (!start || !end) { setError('Add meg a kezdési és befejezési időpontot.'); return; }
-        if (new Date(end) <= new Date(start)) { setError('A befejezés időpontjának a kezdés után kell lennie.'); return; }
-        if (form.hourlyRate <= 0) { setError('Az óradíjnak pozitívnak kell lennie.'); return; }
+        if (!fields.start || !fields.end) { 
+            setError('Add meg a kezdési és befejezési időpontot.'); 
+            return; 
+        }
+
+        if (new Date(fields.end) <= new Date(fields.start)) { 
+            setError('A befejezés időpontjának a kezdés után kell lennie.');
+            return; 
+        }
+
+        if (fields.hourlyRate <= 0) { 
+            setError('Az óradíjnak pozitívnak kell lennie.'); 
+            return;
+        }
+
         setError(null);
+
         saveMutation.mutate({
-            start: new Date(form.start).toISOString(),
-            end: new Date(form.end).toISOString(),
-            hourlyRate: form.hourlyRate,
+            start: new Date(fields.start).toISOString(),
+            end: new Date(fields.end).toISOString(),
+            hourlyRate: fields.hourlyRate,
         });
     }
 
@@ -117,8 +160,8 @@ function VehicleAvailabilityManager({ vehicleId }) {
             </Modal>
 
             <Modal
-                opened={modalOpen}
-                onClose={() => setModalOpen(false)}
+                opened={addEditOpen}
+                onClose={() => setAddEditOpen(false)}
                 title={editTarget !== null ? 'Elérhetőség szerkesztése' : 'Elérhetőség hozzáadása'}
                 centered
             >
@@ -126,10 +169,10 @@ function VehicleAvailabilityManager({ vehicleId }) {
                     <DateTimePicker
                         label="Kezdés"
                         placeholder="Válassz időpontot"
-                        value={form.start}
-                        onChange={(val) => setForm((f) => ({ ...f, start: val }))}
+                        value={fields.start}
+                        onChange={(val) => setFields((fields) => ({ ...fields, start: val }))}
                         minDate={new Date()}
-                        leftSection={<IconCalendar size={16} />}
+                        leftSection={<IconCalendar size={15} />}
                         dropdownType="modal"
                         modalProps={{ styles: { inner: { paddingTop: '100px' } } }}
                         radius="md"
@@ -138,10 +181,10 @@ function VehicleAvailabilityManager({ vehicleId }) {
                     <DateTimePicker
                         label="Vége"
                         placeholder="Válassz időpontot"
-                        value={form.end}
-                        onChange={(val) => setForm((f) => ({ ...f, end: val }))}
-                        minDate={form.start ?? new Date()}
-                        leftSection={<IconCalendar size={16} />}
+                        value={fields.end}
+                        onChange={(val) => setFields((fields) => ({ ...fields, end: val }))}
+                        minDate={fields.start ?? new Date()}
+                        leftSection={<IconCalendar size={15} />}
                         dropdownType="modal"
                         modalProps={{ styles: { inner: { paddingTop: '100px' } } }}
                         radius="md"
@@ -150,13 +193,13 @@ function VehicleAvailabilityManager({ vehicleId }) {
                     <NumberInput
                         label="Óradíj (Ft)"
                         min={1}
-                        value={form.hourlyRate}
-                        onChange={(val) => setForm((f) => ({ ...f, hourlyRate: val }))}
+                        value={fields.hourlyRate}
+                        onChange={(val) => setFields((f) => ({ ...f, hourlyRate: val }))}
                         radius="md"
                     />
-                    {error && <Text fz={13} c="red">{error}</Text>}
+                    {error && <Text fz={15} fw='bold' c="red">{error}</Text>}
                     <Group justify="flex-end">
-                        <Button variant="default" onClick={() => setModalOpen(false)}>Mégsem</Button>
+                        <Button variant="default" onClick={() => setAddEditOpen(false)}>Mégsem</Button>
                         <Button
                             loading={saveMutation.isPending}
                             onClick={handleSave}
@@ -169,10 +212,10 @@ function VehicleAvailabilityManager({ vehicleId }) {
                 </Stack>
             </Modal>
 
-            <Paper shadow="md" radius="md" p={32}>
-                <Stack gap={16}>
+            <Paper shadow="md" radius="md" p={30}>
+                <Stack gap={15}>
                     <Group justify="space-between">
-                        <Text fz={15} fw={700} c="var(--background)">Elérhetőség</Text>
+                        <Text fz={18} fw='bold' c="var(--background)">Elérhetőségek</Text>
                         <Button
                             leftSection={<IconPlus size={16} />}
                             onClick={openAdd}
@@ -188,39 +231,18 @@ function VehicleAvailabilityManager({ vehicleId }) {
                     ) : sorted.length === 0 ? (
                         <Center py={40}><Text c="dimmed" fz={14}>Még nincs megadott elérhetőség.</Text></Center>
                     ) : (
-                        <Table striped highlightOnHover withTableBorder>
-                            <Table.Thead>
-                                <Table.Tr>
-                                    <Table.Th>Kezdés</Table.Th>
-                                    <Table.Th>Vége</Table.Th>
-                                    <Table.Th>Óradíj</Table.Th>
-                                    <Table.Th />
-                                </Table.Tr>
-                            </Table.Thead>
-                            <Table.Tbody>
-                                {sorted.map((avail) => (
-                                    <Table.Tr key={avail.availabilityId}>
-                                        <Table.Td>{formatDateTime(avail.start)}</Table.Td>
-                                        <Table.Td>{formatDateTime(avail.end)}</Table.Td>
-                                        <Table.Td>
-                                            <Badge variant="light" color="blue">
-                                                {avail.hourlyRate.toLocaleString('hu-HU')} Ft/óra
-                                            </Badge>
-                                        </Table.Td>
-                                        <Table.Td>
-                                            <Group gap={4} justify="flex-end">
-                                                <ActionIcon variant="light" size="sm" onClick={() => openEdit(avail)}>
-                                                    <IconEdit size={14} />
-                                                </ActionIcon>
-                                                <ActionIcon variant="light" color="red" size="sm" onClick={() => setDeleteTarget(avail.availabilityId)}>
-                                                    <IconTrash size={14} />
-                                                </ActionIcon>
-                                            </Group>
-                                        </Table.Td>
-                                    </Table.Tr>
-                                ))}
-                            </Table.Tbody>
-                        </Table>
+                        <Stack gap={15}>
+                            {sorted.map((avail, i) => {
+                                return (
+                                    <AvailabilityRow 
+                                        availability={avail} 
+                                        key={i} 
+                                        onEdit={() => openEdit(avail)} 
+                                        onDelete={() => setDeleteTarget(avail.availabilityId)} 
+                                    />
+                                )
+                            })}
+                        </Stack>
                     )}
                 </Stack>
             </Paper>
@@ -228,4 +250,4 @@ function VehicleAvailabilityManager({ vehicleId }) {
     );
 }
 
-export default VehicleAvailabilityManager;
+export default VehicleAvailabilityMenu;

@@ -3,7 +3,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    max-height: 750px;
+    max-height: 650px;
     object-position: center;
     background-color: var(--button);
 }
