@@ -64,7 +64,7 @@ function Navbar({ children }) {
 
     const menuItems = (
         <Stack gap={5}>
-            {!authUser?.name ? (
+            {!authUser ? (
                 <>
                     <NavLink component={Link} to="/login" label="Bejelentkezés" onClick={closeAll} />
                     <NavLink component={Link} to="/register" label="Regisztráció" onClick={closeAll} />
