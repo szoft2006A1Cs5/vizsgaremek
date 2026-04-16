@@ -241,8 +241,7 @@ namespace backend.Controllers
 
             if ((existingRental.Start != modifications.Start ||
                 existingRental.End != modifications.End) &&
-                existingRental.Vehicle.GetQuote(modifications.Start, modifications.End, existingRental) == null &&
-                modifications.Start <= _timePrv.GetUtcNow())
+                existingRental.Vehicle.GetQuote(modifications.Start, modifications.End, existingRental) == null)
                 return Conflict(new { Error = "Nem bérelhető a jármű az adott időszakban."});
 
             var result = await _rentSrv.Update(existingRental, modifications, authUser);

@@ -455,6 +455,8 @@ namespace backend.Controllers
                     x.VehicleId == vehicleId &&
                     x.ImageId == imageId
                 );
+
+            if (image == null) return NotFound();
             
             return Ok(image.FilterSerialize(authUser));
         }
@@ -475,7 +477,7 @@ namespace backend.Controllers
                 vehicle.OwnerId != authUser.Id) return Forbid();
 
             var path = await _resSrv.Store(file);
-            if (path == null) return BadRequest();
+            if (path == null) return StatusCode(500);
 
             var vehicleImage = new VehicleImage
             {

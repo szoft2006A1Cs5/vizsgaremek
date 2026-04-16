@@ -159,16 +159,21 @@ namespace backend.Services.RentalService
         public async Task<RentalResult> Update(Rental curr, RentalDTO changed, User authUser)
         {
             if (RentalStatus.Cancelled <= curr.Status) return RentalResult.Ok(curr);
-            
-            var startingStatus = curr.Status;
-            
-            var statRes = await HandleStatusChange(curr, changed, authUser);
-            if (statRes.StatusCode != 200) return statRes;
-            
-            if (curr.Status != startingStatus &&
-                RentalStatus.OfferAccepted <= curr.Status) 
-                return RentalResult.Ok(curr);
-            
+
+            if (authUser.Role == UserRole.Administrator)
+            {
+                curr.Status = changed.Status;
+            } else
+            {
+                var startingStatus = curr.Status;
+                var statRes = await HandleStatusChange(curr, changed, authUser);
+                if (statRes.StatusCode != 200) return statRes;
+
+                if (curr.Status != startingStatus &&
+                    RentalStatus.OfferAccepted <= curr.Status)
+                    return RentalResult.Ok(curr);
+            }
+
             // Reflectionnel tudjuk allitani,
             // hogy statusz es a bejelentkezett felhasznalo alapjan
             // mely propertyk valtozzanak meg
@@ -202,13 +207,22 @@ namespace backend.Services.RentalService
 
             if (authUser.Role != UserRole.Administrator &&
                 RentalStatus.OfferAccepted <= curr.Status)
+            {
                 props = props.Where(x => !(new[]
                 {
-                    nameof(Rental.RentalPrice),
                     nameof(Rental.Start),
                     nameof(Rental.End),
                     nameof(Rental.PickupLocation)
                 }.Contains(x.Name)));
+            }
+            else
+            {
+                // Ujraszamoljuk az arat, ha valtozott az idotartam.
+                props = props.Where(x => nameof(Rental.RentalPrice) != x.Name);
+
+                var quote = curr.Vehicle.GetQuote(changed.Start, changed.End, curr);
+                if (quote != null) curr.RentalPrice = quote.Value.RentalPrice;
+            }
 
             var dtoProps = typeof(RentalDTO).GetProperties();
             foreach (var prop in props)

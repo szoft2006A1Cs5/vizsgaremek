@@ -26,6 +26,7 @@ namespace backend.DTOs.User
                    Regex.IsMatch(this.Email, @"^[A-z0-9.-]+@([A-z0-9-]+\.)+([A-z]{2,3})$") &&
                    Regex.IsMatch(this.Phone, @"^(36|06)(94|70|30|20)\d{7}$") &&
                    Regex.IsMatch(this.AddressZipcode, @"^\d{4}$") &&
+                   !string.IsNullOrWhiteSpace(this.Password) &&
                    (this.DateOfBirth.ToDateTime(new TimeOnly(0), DateTimeKind.Utc).AddYears(18) 
                     <= timePrv.GetUtcNow().UtcDateTime);
         }
