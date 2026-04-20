@@ -38,7 +38,7 @@ function Rental() {
 
     return (<>
         <PageLayout
-            title={rental?.vehicle ? `${rental.vehicle.manufacturer} ${rental.vehicle.model} bérlése` : `Bérlés ${rentalId}`}
+            title={rental?.vehicle ? `${rental.vehicle.manufacturer} ${rental.vehicle.model} bérlése` : `Bérlés részletei`}
             subtitle={rental ? `${formatDateTime(rental.start)} - ${formatDateTime(rental.end)} - ${formatPrice(rental.rentalPrice)} + (díjak)` : ''}
         >
             { isLoading ? (
