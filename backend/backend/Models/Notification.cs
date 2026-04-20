@@ -16,7 +16,6 @@ namespace backend.Models
         [MaxLength(512)]
         public required string Content { get; set; }
         public DateTime TimeSent { get; set; }
-        public bool Read { get; set; }
 
         public static async Task Send(int userId, string content, Context context)
         {
@@ -28,7 +27,6 @@ namespace backend.Models
                     .MaxOrZero(x => x.NotificationId) + 1,
                 Content = content,
                 TimeSent = DateTime.Now,
-                Read = false,
             };
 
             await context.Notifications.AddAsync(notif);

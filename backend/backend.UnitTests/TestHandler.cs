@@ -48,7 +48,7 @@ namespace backend.UnitTests
 
             Context context = new Context(GetOptions());
             FakeTimeProvider fakeTimeProvider = new FakeTimeProvider();
-            AuthService authSrv = new AuthService(config, context);
+            AuthService authSrv = new AuthService(config, context, fakeTimeProvider);
             RentalService rentSrv = new RentalService(context, fakeTimeProvider);
             MockResourceService resSrv = new MockResourceService();
             context.Database.EnsureCreated();
@@ -76,8 +76,8 @@ namespace backend.UnitTests
                     Email = "tesztelek@teszt.hu",
                     Phone = "36201234567",
                     DateOfBirth = new DateOnly(2004, 04, 18),
-                    Password = Convert.FromHexString("5cd79118803c295ee4566a87a59423e7b4b020194520f52e78bddcdbfb36daef43b032e7a122323e5849344ff1fd625a7885c3ff62688a0241b7e4018ed3d9e0"),
-                    Salt = Convert.FromHexString("945200f84cef838d8d44e0121415fa53"),
+                    Password = Convert.FromHexString("93A01935B0DE70EFE3B686E336C550EDE54E142DA547F62D35060F7D92B439C39CC9159816A9821BC5264DC8F2AC2A396830C6ED638E07B3F4A1890073A503CC"),
+                    Salt = Convert.FromHexString("0EF49EF1E3A084BC5A08070A0E599514"),
                     DriversLicenseNumber = "AA123456",
                     AddressZipcode = "9700",
                     AddressSettlement = "Szombathely",
@@ -249,9 +249,8 @@ namespace backend.UnitTests
                     Renter = null,
                     Start = new DateTime(2026, 02, 28, 10, 00, 00),
                     End = new DateTime(2026, 03, 01, 15, 00, 00),
-                    Status = RentalStatus.Finished,
+                    Status = RentalStatus.Active,
                     RentalPrice = 29 * 600,
-                    FuelLevel = 50,
                     PickupLocation = "9700 Szombathely, Zrínyi Ilona utca 12.",
                     OwnerRating = 5.0,
                     RenterRating = 4.5
@@ -267,7 +266,6 @@ namespace backend.UnitTests
                     End = new DateTime(2026, 03, 19, 15, 00, 00),
                     Status = RentalStatus.OfferAccepted,
                     RentalPrice = 195 * 400,
-                    FuelLevel = 45,
                     PickupLocation = "9700 Szombathely, Uránia udvar 12.",
                     OwnerRating = null,
                     RenterRating = null
@@ -279,9 +277,9 @@ namespace backend.UnitTests
                 {
                     Id = 1,
                     Content = "A bérlési kérelmed elutasították és így törölve lett!",
-                    Read = false,
                     TimeSent = new DateTime(2026, 03, 02, 11, 12, 23),
-                    UserId = 1
+                    UserId = 1,
+                    NotificationId = 1
                 }
             ]);
             

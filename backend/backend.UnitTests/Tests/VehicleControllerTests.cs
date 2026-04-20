@@ -21,7 +21,8 @@ public class VehicleControllerTests
         _controller = new VehicleController(
             _environment.Context, 
             _environment.AuthService, 
-            _environment.ResourceService
+            _environment.ResourceService,
+            _environment.FakeTimeProvider
         );
     }
     

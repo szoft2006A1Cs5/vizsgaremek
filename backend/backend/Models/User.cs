@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using backend.VisibilityFiltering;
 
 namespace backend.Models
@@ -12,8 +13,6 @@ namespace backend.Models
 
     public class User : IFilterable
     {
-        public User() {}
-        
         public int Id { get; set; }
 
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(8)]
@@ -34,11 +33,11 @@ namespace backend.Models
         [VisibleTo(VisibilityLevel.OwnerOnly), MaxLength(64)]
         public required string Email { get; set; }
 
-        [VisibleTo(VisibilityLevel.AdminOnly)]
-        public required byte[] Password { get; set; } // HASH
+        [JsonIgnore]
+        public byte[] Password { get; set; } // HASH
 
-        [VisibleTo(VisibilityLevel.AdminOnly)]
-        public required byte[] Salt { get; set; }
+        [JsonIgnore]
+        public byte[] Salt { get; set; }
 
         [VisibleTo(VisibilityLevel.AdminOnly)]
         public UserRole Role { get; set; }
@@ -85,10 +84,16 @@ namespace backend.Models
                     return (_, auth) => auth != null && auth.Role == UserRole.Administrator;
                 case VisibilityLevel.InRelation:
                     return (obj, auth) => obj is User model && 
-                                          auth != null && (model.Rentals.Any(x => (x.RenterId == auth.Id || 
-                                              x.Vehicle.OwnerId == auth.Id) &&
-                                              RentalStatus.OfferAccepted <= x.Status) || model.Id == auth.Id ||
-                                                           auth.Role == UserRole.Administrator);
+                                          auth != null && 
+                                          (model.Id == auth.Id || 
+                                           auth.Role == UserRole.Administrator ||
+                                          (model.Rentals?.Any(x => x.Vehicle?.OwnerId == auth.Id &&
+                                                                   RentalStatus.OfferAccepted <= x.Status &&
+                                                                   x.Status < RentalStatus.Finished) ?? false) || 
+                                          (model.Vehicles?.Any(v => v.Rentals?.Any(r => r.RenterId == auth.Id && 
+                                              RentalStatus.OfferAccepted <= r.Status && 
+                                              r.Status < RentalStatus.Finished) ?? false) 
+                                           ?? false));
                 case VisibilityLevel.OwnerOnly:
                     return (obj, auth) => obj is User model &&
                                           auth != null &&

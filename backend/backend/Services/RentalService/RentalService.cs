@@ -20,13 +20,30 @@ namespace backend.Services.RentalService
             _timePrv = timePrv;
         }
         
+        /// <summary>
+        /// Kezeli a berlesek allapotvaltozasat.
+        /// </summary>
+        /// <param name="curr">A berles amelyen valtoztatni kivanunk</param>
+        /// <param name="change">A valtozasok</param>
+        /// <param name="authUser">A bejelentkezett felhasznalo, aki vegrehajtja a valtoztatast</param>
+        /// <returns>Egy RentalResultot, ami elmondja milyen HTTP statuszkodot kell majd visszaadnunk</returns>
         private async Task<RentalResult> HandleStatusChange(Rental curr, RentalDTO change, User authUser)
         {
-            if (RentalStatus.RenterCancelled <= change.Status)
+            if (RentalStatus.Cancelled == change.Status)
                 return await this.TryCancel(curr, authUser);
             
             var vehicleName = $"{curr.Vehicle.Manufacturer} {curr.Vehicle.Model}";
             
+            // Koszonhetoen a statuszok ketoldalu/szimmetrikus jellegenek
+            // nem kell explicit minden statusz valtozast kulon kulon lekezelni,
+            // hanem mivel tudjuk egy adott statusz csoportnak az elso statuszat,
+            // abbol kiindulva egesz egyszeruen tudjuk eldonteni, mikor kell a kovetkezo
+            // csoportra lepni.
+            
+            // Eloszor is megkeressuk az elso olyan csoport alapjat, amelyen belul jelenleg
+            // van a berles statusza, illetve megnezzuk, hogy tovabb akarunk e lepni, vagy
+            // (erre tulajdonkeppen csak egy eset van, az ajanlatkuldozgetes, mivel a visszamondast
+            // kulon kezeljuk) visszaakarunk lepni.
             var b = new int?[] { 
                 (int)RentalStatus.RenterOffer,
                 (int)RentalStatus.RenterPickupAccepted,
@@ -35,6 +52,8 @@ namespace backend.Services.RentalService
             .FirstOrDefault(b => (int)curr.Status < b + 2 &&
                                  (int)change.Status == b + 2);
 
+            // Ha null, akkor vagy visszafele lepunk, vagy invalid a statusz lepes, igy nem valtoztatunk a
+            // statuszon
             if (b == null)
             {
                 if (curr.Status < RentalStatus.OfferAccepted)
@@ -47,8 +66,11 @@ namespace backend.Services.RentalService
                 _timePrv.GetUtcNow() < curr.Start)
                 return RentalResult.BadRequest("A bérlés nem kezdődhet meg a megadott időpont előtt!");
                 
-            var otherWaiting = (int)curr.Status == (authUser.Id == curr.RenterId ? b + 1 : b);
-            var resStatus = otherWaiting
+            // Nyilvan attol fuggoen, hogy a berlesben, berlokent, vagy berbeadokent veszunk reszt,
+            // tudjuk eldonteni, hogy a masik fel mar elfogadta-e.
+            var otherAccepted = (int)curr.Status == (authUser.Id == curr.RenterId ? b + 1 : b);
+            // Ha igen tovabblephetunk a masik csoportra, ha nem, akkor beallitjuk hogy mi mar elfogadtuk.
+            var resStatus = otherAccepted
                 ? (RentalStatus)(b + 2)
                 : (RentalStatus)(authUser.Id == curr.RenterId ? b : b + 1);
 
@@ -127,19 +149,34 @@ namespace backend.Services.RentalService
             return RentalResult.Ok(curr);
         }
         
+        /// <summary>
+        /// Kezeli a berlesek property-jeinek valtozasat
+        /// </summary>
+        /// <param name="curr">A berles amelyen valtoztatni kivanunk</param>
+        /// <param name="changed">A valtozasok</param>
+        /// <param name="authUser">A bejelentkezett felhasznalo, aki vegrehajtja a valtoztatasokat</param>
+        /// <returns>Egy RentalResultot, ami elmondja milyen HTTP statuszkodot kell majd visszaadnunk</returns>
         public async Task<RentalResult> Update(Rental curr, RentalDTO changed, User authUser)
         {
-            if (RentalStatus.RenterCancelled <= curr.Status) return RentalResult.Ok(curr);
-            
-            var startingStatus = curr.Status;
-            
-            var statRes = await HandleStatusChange(curr, changed, authUser);
-            if (statRes.StatusCode != 200) return statRes;
-            
-            if (curr.Status != startingStatus &&
-                RentalStatus.OfferAccepted <= curr.Status) 
-                return RentalResult.Ok(curr);
-            
+            if (RentalStatus.Cancelled <= curr.Status) return RentalResult.Ok(curr);
+
+            if (authUser.Role == UserRole.Administrator)
+            {
+                curr.Status = changed.Status;
+            } else
+            {
+                var startingStatus = curr.Status;
+                var statRes = await HandleStatusChange(curr, changed, authUser);
+                if (statRes.StatusCode != 200) return statRes;
+
+                if (curr.Status != startingStatus &&
+                    RentalStatus.OfferAccepted <= curr.Status)
+                    return RentalResult.Ok(curr);
+            }
+
+            // Reflectionnel tudjuk allitani,
+            // hogy statusz es a bejelentkezett felhasznalo alapjan
+            // mely propertyk valtozzanak meg
             IEnumerable<PropertyInfo> props = typeof(Rental)
                 .GetProperties()
                 .Where(x => (authUser.Role != UserRole.Administrator ? !(new[]
@@ -165,19 +202,27 @@ namespace backend.Services.RentalService
                 else
                     props = props.Where(x =>
                         x.Name != (authUser.Id == curr.RenterId
-                            ? nameof(Rental.OwnerRating)
-                            : nameof(Rental.RenterRating)));
+                            ? nameof(Rental.RenterRating)
+                            : nameof(Rental.OwnerRating)));
 
             if (authUser.Role != UserRole.Administrator &&
                 RentalStatus.OfferAccepted <= curr.Status)
+            {
                 props = props.Where(x => !(new[]
                 {
-                    nameof(Rental.RentalPrice),
                     nameof(Rental.Start),
                     nameof(Rental.End),
-                    nameof(Rental.PickupLocation),
-                    nameof(Rental.FuelLevel)
+                    nameof(Rental.PickupLocation)
                 }.Contains(x.Name)));
+            }
+            else
+            {
+                // Ujraszamoljuk az arat, ha valtozott az idotartam.
+                props = props.Where(x => nameof(Rental.RentalPrice) != x.Name);
+
+                var quote = curr.Vehicle.GetQuote(changed.Start, changed.End, curr);
+                if (quote != null) curr.RentalPrice = quote.Value.RentalPrice;
+            }
 
             var dtoProps = typeof(RentalDTO).GetProperties();
             foreach (var prop in props)
@@ -191,10 +236,18 @@ namespace backend.Services.RentalService
             return RentalResult.Ok(curr);
         }
 
+        /// <summary>
+        /// Megprobalja visszamondani a berlest,
+        /// ha a berles meg nem lepett ajanlatoknal tovabb,
+        /// akkor megprobalja torolni is.
+        /// </summary>
+        /// <param name="rental">A visszamondando/torlendo berles</param>
+        /// <param name="authUser">A bejelentkezett felhasznalo, aki visszamondja azt</param>
+        /// <returns>Egy RentalResultot, ami elmondja milyen HTTP statuszkodot kell majd visszaadnunk</returns>
         public async Task<RentalResult> TryCancel(Rental rental, User authUser)
         {
             if (RentalStatus.Active <= rental.Status)
-                return RentalResult.BadRequest("Már aktív bérlés nem mondható le!");
+                return RentalResult.BadRequest("Már aktív/befejezett bérlés nem mondható le!");
             
             var vehicleName = $"{rental.Vehicle.Manufacturer} {rental.Vehicle.Model}";
             
@@ -202,10 +255,8 @@ namespace backend.Services.RentalService
             {
                 rental.Renter.Balance += rental.FullPrice;
                 rental.Vehicle.Owner!.Balance -= rental.RentalPrice;
-                    
-                rental.Status = authUser.Id == rental.RenterId ? 
-                    RentalStatus.RenterCancelled : 
-                    RentalStatus.OwnerCancelled;
+
+                rental.Status = RentalStatus.Cancelled;
 
                 await Notification.Send(
                     rental.RenterId,

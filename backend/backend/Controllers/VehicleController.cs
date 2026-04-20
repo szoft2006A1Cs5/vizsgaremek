@@ -12,8 +12,6 @@ using backend.VisibilityFiltering;
 using Microsoft.AspNetCore.Http.Extensions;
 using backend.Services.ResourceService;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace backend.Controllers
 {
     [Route("api/[controller]")]
@@ -23,15 +21,40 @@ namespace backend.Controllers
         private readonly Context _context;
         private readonly AuthService _authSrv;
         private readonly IResourceService _resSrv;
+        private readonly TimeProvider _timePrv;
 
-        public VehicleController(Context ctx, AuthService authSrv, IResourceService resSrv)
+        public VehicleController(Context ctx, AuthService authSrv, IResourceService resSrv, TimeProvider timePrv)
         {
             _context = ctx;
             _authSrv = authSrv;
             _resSrv = resSrv;
+            _timePrv = timePrv;
         }
 
-        // GET: api/<VehicleController>
+        /// <summary>
+        /// Visszaadja az adatbazisban talalhato jarmuveket
+        /// (opcionalisan szurve)
+        /// </summary>
+        /// <param name="rentalStart">Opcionalis, a berles kezdeti idopontja</param>
+        /// <param name="rentalEnd">
+        /// Opcionalis, a berles vegenek idopontja
+        /// (mindenkeppen a berles kezdete utan kell kovetkeznie)
+        /// </param>
+        /// <param name="manufacturer">Opcionalis, jarmu gyarto/marka</param>
+        /// <param name="model">Opcionalis, jarmu tipus/modell</param>
+        /// <param name="year">Opcionalis, jarmu gyartasi eve</param>
+        /// <param name="settlement">Opcionalis, a telepules ahol jarmuvet keresunk</param>
+        /// <param name="fuelType">Opcionalis, jarmu uzemanyaganak tipusa</param>
+        /// <param name="transmission">Opcionalis, jarmu sebessegvaltojanak tipusa</param>
+        /// <param name="minRate">Opcionalis, minimum oradij</param>
+        /// <param name="maxRate">Opcionalis, maximum oradij</param>
+        /// <param name="minPrice">Opcionalis, minimum teljes ar</param>
+        /// <param name="maxPrice">Opcionalis, maximum teljes ar</param>
+        /// <param name="showOwned">
+        /// Visszaadja-e a bejelentkezett felhasznalo
+        /// jarmuveit? Alapvetoen false/hamis
+        /// </param>
+        /// <returns>(Szurt) jarmuvek</returns>
         [HttpGet]
         public async Task<IActionResult> GetVehicles(
             [FromQuery] DateTime? rentalStart = null,
@@ -61,6 +84,7 @@ namespace backend.Controllers
                 .Where(x => 
                     ((rentalStart != null && rentalEnd != null && rentalStart < rentalEnd) ?
                         !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                            r.Status < RentalStatus.Finished &&
                                             !(r.End < rentalStart || rentalEnd < r.Start)) &&
                         x.Availabilities.Any(a => a.Start <= rentalStart && rentalStart <= a.End) &&
                         x.Availabilities.Any(a => a.Start <= rentalEnd && rentalEnd <= a.End) &&
@@ -106,7 +130,16 @@ namespace backend.Controllers
             return Ok(vehicles.FilterSerialize(authUser));
         }
 
-        // GET api/<VehicleController>/5
+        /// <summary>
+        /// Visszaadja a megadott id-ju jarmu adatait
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="rentalStart">Opcionalis, a berles kezdeti idopontja</param>
+        /// <param name="rentalEnd">
+        /// Opcionalis, a berles vegso idopontja,
+        /// nem lehet elobb, mint a kezdeti idopont
+        /// </param>
+        /// <returns>A megadott jarmu adatai</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVehicleById(
             int id, 
@@ -121,7 +154,7 @@ namespace backend.Controllers
                 .IgnoreAutoIncludes()
                 .Include(x => x.Owner)
                 .Include(x => x.Availabilities)
-                .Include(x => x.Rentals)
+                .Include(x => x.Rentals.OrderByDescending(y => y.Id))
                 .ThenInclude(x => x.Renter)
                 .Include(x => x.Images.OrderBy(y => y.SortIndex))
                 .Where(x => x.Id == id)
@@ -130,11 +163,18 @@ namespace backend.Controllers
             if (vehicle == null) return NotFound();
 
             if (rentalStart != null && rentalEnd != null && rentalStart < rentalEnd)
-                vehicle.ExtensionData.Add("offer", vehicle.GetQuote(rentalStart, rentalEnd));
+                vehicle.ExtensionData.Add("quote", vehicle.GetQuote(rentalStart, rentalEnd));
 
             return Ok(vehicle.FilterSerialize(authUser));
         }
 
+        /// <summary>
+        /// Visszaadja a bejelentkezett felhasznalo jarmuveinek adatait.
+        /// </summary>
+        /// <returns>
+        /// 401, ha a felhasznalo nincs bejelentkezve
+        /// 200 + jarmuvek listaja, ha a felhasznalo be van jelentkezve
+        /// </returns>
         [Authorize(Roles = "User")]
         [HttpGet("Owned")]
         public async Task<IActionResult> GetOwnedVehicles()
@@ -240,7 +280,10 @@ namespace backend.Controllers
             [FromQuery] DateTime? rentalEnd = null
         )
         {
-            if (rentalStart == null && rentalEnd == null && rentalEnd <= rentalStart)
+            if ((rentalStart == null || rentalEnd == null) ||
+                rentalEnd <= rentalStart ||
+                rentalStart.Value.AddMinutes(5) <= _timePrv.GetUtcNow()) // 5 perc arbitrary,
+                                                                         // csak egy kiss buffer spacenek kell
                 return BadRequest();
             
             var vehicle = await _context.Vehicles
@@ -276,6 +319,14 @@ namespace backend.Controllers
         [HttpPost("{vehicleId}/Availability")]
         public async Task<IActionResult> AddAvailability(int vehicleId, [FromBody] VehicleAvailability availability)
         {
+            if (availability.End <= availability.Start ||
+                availability.HourlyRate < 0)
+                return BadRequest(new
+                    {
+                        Error = "A bérelhetőség kezdete nem lehet később a végénél, illetve " +
+                                "a beállított ár nem lehet 0 vagy kevesebb!"
+                    });
+
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
             
@@ -289,13 +340,6 @@ namespace backend.Controllers
             if (vehicle == null) return NotFound();
             if (vehicle.OwnerId != authUser.Id 
                 && authUser.Role != UserRole.Administrator) return Forbid();
-
-            if (availability.End <= availability.Start || availability.HourlyRate <= 0)
-                return BadRequest(new
-                {
-                    Error = "A bérelhetőség kezdete nem lehet később a végénél," +
-                            " és a beállított ár nem lehet 0 vagy kevesebb!"
-                });
             
             if (vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(availability.DateInterval)))
                 return Conflict(new { Error = "A megadott időszakra már van bérelhetőség megadva!" });
@@ -331,6 +375,14 @@ namespace backend.Controllers
             [FromBody] VehicleAvailability replacement
         )
         {
+            if (replacement.End <= replacement.Start ||
+                replacement.HourlyRate < 0)
+                return BadRequest(new
+                {
+                    Error = "A bérelhetőség kezdete nem lehet később a végénél, illetve " +
+                            "a beállított ár nem lehet 0 vagy kevesebb!"
+                });
+
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
 
@@ -342,13 +394,6 @@ namespace backend.Controllers
             if (availability == null || availability.Vehicle == null) return NotFound();
             if (availability.Vehicle.OwnerId != authUser.Id &&
                 authUser.Role != UserRole.Administrator) return Forbid();
-
-            if (replacement.End <= replacement.Start || replacement.HourlyRate < 0)
-                return BadRequest(new
-                {
-                    Error = "A bérelhetőség kezdete nem lehet később a végénél," +
-                            " és a beállított ár nem lehet 0 vagy kevesebb!"
-                });
             
             if (availability.Vehicle.Availabilities.Any(x => x.DateInterval.DoesCollide(replacement.DateInterval) &&
                                                              x.AvailabilityId != availabilityId))
@@ -400,6 +445,22 @@ namespace backend.Controllers
             );
         }
         
+        [HttpGet("{vehicleId}/Image/{imageId}")]
+        public async Task<IActionResult> GetImageById(int vehicleId, int imageId)
+        {
+            var authUser = await _authSrv.GetUser(User);
+
+            var image = await _context.VehicleImages
+                .FirstOrDefaultAsync(x =>
+                    x.VehicleId == vehicleId &&
+                    x.ImageId == imageId
+                );
+
+            if (image == null) return NotFound();
+            
+            return Ok(image.FilterSerialize(authUser));
+        }
+        
         [HttpPost("{vehicleId}/Image")]
         public async Task<IActionResult> AddImage(int vehicleId, IFormFile file, [FromQuery] int? sortIndex = null)
         {
@@ -416,7 +477,7 @@ namespace backend.Controllers
                 vehicle.OwnerId != authUser.Id) return Forbid();
 
             var path = await _resSrv.Store(file);
-            if (path == null) return BadRequest();
+            if (path == null) return StatusCode(500);
 
             var vehicleImage = new VehicleImage
             {

@@ -9,9 +9,12 @@ using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using backend.Services.EmailService;
 using backend.Services.RentalService;
 using backend.Services.ResourceService;
+using Resend;
 
 namespace backend
 {
@@ -28,49 +31,42 @@ namespace backend
                 return;
             }
             
-            // Add services to the container.
-            builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr));
+            builder.Services.AddDbContext<Context>(optionsBuilder => optionsBuilder.UseMySQL(connStr, options =>
+            {
+                options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            }));
             builder.Services.AddSingleton(TimeProvider.System);
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<RentalService>();
             builder.Services.AddSingleton<IResourceService, LocalResourceService>();
 
+            // Az email kuldozgetes nyilvan csak akkor mukodjon, ha van API, amivel
+            // lehet emailt kuldozgetni
+            if (builder.Configuration["Auth:Mail:Resend:Token"] is string resendToken)
+            {
+                builder.Services.AddOptions();
+                builder.Services.AddHttpClient<ResendClient>();
+                builder.Services.Configure<ResendClientOptions>(o =>
+                {
+                    o.ApiToken = resendToken;
+                });
+                builder.Services.AddTransient<IResend, ResendClient>();
+
+                builder.Services.AddScoped<IEmailService, ResendEmailService>();
+            }
+
             builder.Services.AddControllers()
                 .AddJsonOptions(options => {
                     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                    options.JsonSerializerOptions.Converters.Add(
+                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                    );
                 });
             
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.AddSecurityDefinition("JWTBearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "JWT Token for authentication",
-                    Name = "Authentication",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "bearer"
-                });
+            builder.Services.AddSwaggerGen();
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Id = "JWTBearer",
-                                Type = ReferenceType.SecurityScheme,
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
-            });
-
-            // Kulon scope, hogy a titkos adatok azonnal droppoljanak
+            // Kulon scope, hogy a titkos adatok azonnal droppoljanak, legalabbis asszem
             {
                 var key = builder.Configuration["Auth:Jwt:Secret"];
                 var iss = builder.Configuration["Auth:Issuer"];
@@ -95,6 +91,18 @@ namespace backend
                              ValidAudience = aud,
                              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                          };
+
+                         // Kiveszi a JWT-t a cookiebol
+                         options.Events = new JwtBearerEvents
+                         {
+                             OnMessageReceived = context =>
+                             {
+                                 if (context.Request.Cookies.TryGetValue("auth", out var token))
+                                     context.Token = token;
+                                 
+                                 return Task.CompletedTask;
+                             }
+                         };
                      });
             }
 
@@ -115,26 +123,42 @@ namespace backend
                 app.UseSwaggerUI();
             }
             
-            app.UseHttpsRedirection();
-            
             // Csak ha localresourceservice-t hasznalunk
             app.UseStaticFiles(new StaticFileOptions
             {
                 RequestPath = "/res",
             });
 
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapControllers();
+            if (!app.Environment.IsDevelopment())
+            {
+                // Igy nem kell minden metodust try catchbe rakni, hanem ha exception van,
+                // szepen irjuk ki innen.
+                app.UseExceptionHandler(error =>
+                {
+                    error.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(new { Error = "Szerverhiba!" }));
+                    });
+                });
+            }
 
             app.UseCors(policy =>
             {
                 policy
                     .WithOrigins(allowedOrigins)
                     .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
+            
+            app.UseHttpsRedirection();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
             
             app.Run();
         }

@@ -75,10 +75,11 @@ namespace backend.Models
                 case VisibilityLevel.InRelation:
                     return (obj, auth) => obj is Vehicle model &&
                                           auth != null &&
-                                          (model.Rentals.Any(x => x.RenterId == auth.Id &&
-                                                                  RentalStatus.OfferAccepted <= x.Status) ||
-                                           model.OwnerId == auth.Id ||
-                                           auth.Role == UserRole.Administrator);
+                                          (model.OwnerId == auth.Id || 
+                                           auth.Role == UserRole.Administrator ||
+                                           (model.Rentals?.Any(x => x.RenterId == auth.Id &&
+                                                                    RentalStatus.OfferAccepted <= x.Status &&
+                                                                    x.Status < RentalStatus.Finished) ?? false));
                 case VisibilityLevel.OwnerOnly:
                     return (obj, auth) => obj is Vehicle model &&
                                           auth != null &&
@@ -88,21 +89,6 @@ namespace backend.Models
                     return (_, _) => false;
             }
         }
-        
-        public bool CheckAvailable(
-            DateTime intervalStart, 
-            DateTime intervalEnd,
-            Rental? exclude = null)
-        {
-            // Ha van mar berles amit elfogadtak es utkozik a megadott datummal,
-            // akkor nyilvan nem elerheto az idoszakra, emellett a jarmu tulajdonosa
-            // altal meghatarozott berelhetosegi idoszakban van-e a megadott intervallum.
-            return !this.Rentals.Any(r => (exclude != null ? exclude.Id != r.Id : true) &&
-                                          RentalStatus.OfferAccepted <= r.Status && 
-                                          !(r.End < intervalStart || intervalEnd < r.Start)) &&
-                   this.Availabilities.Any(a => a.Start <= intervalStart && intervalEnd <= a.End) &&
-                   intervalStart < intervalEnd;
-        }
 
         public VehicleQuote? GetQuote(DateTime? intervalStart, DateTime? intervalEnd, Rental? exclude = null)
         {
@@ -110,6 +96,7 @@ namespace backend.Models
             
             // Ha van mar az idoszakban berles, nyilvan nem berelheto
             if (this.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
+                                      r.Status < RentalStatus.Finished &&
                                       !(r.End < intervalStart || intervalEnd < r.Start) &&
                                       (exclude != null ? exclude.Id != r.Id : true)))
                 return null;

@@ -1,0 +1,21 @@
+
+.vehicleCarouselImg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-height: 650px;
+    object-position: center;
+    background-color: var(--button);
+}
+
+@media screen and (max-width: 768px) {
+    .vehicleCarouselImg {
+        max-height: 300px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+    .vehicleCarouselImg {
+        max-height: 500px;
+    }
+}
