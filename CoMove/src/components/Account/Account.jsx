@@ -1,5 +1,4 @@
 import "./Account.css";
-import logo from "../../assets/kepek/logo/comove_logo4.png";
 import { useLayoutEffect, useEffect, useState } from "react";
 
 function Account() {
@@ -17,9 +16,7 @@ function Account() {
   return (
     <div className="account_root">
       <section
-        className={`account_hero account_pageAnim ${
-          loaded ? "isLoaded" : ""
-        }`}
+        className={`account_hero account_pageAnim ${loaded ? "isLoaded" : ""}`}
       >
         <div className="account_hero_content">
           <h1 className="account_focim">Fiókbeállítások</h1>
@@ -28,9 +25,7 @@ function Account() {
       </section>
 
       <section
-        className={`account_page account_pageAnim ${
-          loaded ? "isLoaded" : ""
-        }`}
+        className={`account_page account_pageAnim ${loaded ? "isLoaded" : ""}`}
       >
         <div className="account_card">
           <div className="account_form">
@@ -40,14 +35,11 @@ function Account() {
             <label>Születési idő</label>
             <input type="date" />
 
-            <label>Lakcím</label>
-            <input type="text" />
-
             <label>Telefonszám</label>
-            <input type="text" />
+            <input type="text" placeholder="36 20 123 4567" />
 
             <label>Forgalmiszám</label>
-            <input type="text" />
+            <input type="text" placeholder="123456EE" />
 
             <label>E-mail cím</label>
             <input type="text" />
