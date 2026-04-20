@@ -69,7 +69,7 @@ namespace backend.Controllers
         /// 409-et ha utkozik valamely mas felhasznalo adataival,
         /// 200-at + JWT Cookie + UserId, ha sikeres a regisztracio</returns>
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] UserDTO registration)
+        public async Task<IActionResult> Register([FromBody] UserRegistrationDTO registration)
         {
             if (!registration.CheckValid(_timePrv))
                 return BadRequest(new { Error = "A megadott adatok hibásak!" });

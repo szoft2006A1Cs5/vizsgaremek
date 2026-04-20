@@ -18,6 +18,7 @@ import '@mantine/dates/styles.css';
 import { notifications } from '@mantine/notifications';
 import style from './Vehicle.module.css';
 import RentalRow from '../../components/common/RentalRow/RentalRow';
+import 'dayjs/locale/hu'
 
 function Vehicle() {
     const { carId } = useParams();
@@ -205,6 +206,8 @@ function Vehicle() {
                                                     onChange={setStart}
                                                     minDate={new Date()}
                                                     leftSection={<IconCalendar size={15} />}
+                                                    locale='hu'
+                                                    valueFormat='YYYY. MM. DD. HH:mm'
                                                     radius="md"
                                                     size="sm"
                                                     clearable
@@ -216,6 +219,8 @@ function Vehicle() {
                                                     onChange={setEnd}
                                                     minDate={start ?? new Date()}
                                                     leftSection={<IconCalendar size={15} />}
+                                                    locale='hu'
+                                                    valueFormat='YYYY. MM. DD. HH:mm'
                                                     radius="md"
                                                     size="sm"
                                                     clearable

@@ -9,6 +9,7 @@ import { API_URL } from "../../assets/scripts/Config";
 import "@mantine/dates/styles.css";
 import { useMutation } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
+import 'dayjs/locale/hu'
 
 function normalize(s) {
     return (s || "").toString().trim().toLowerCase();
@@ -143,6 +144,7 @@ function Searching() {
                                     onChange={setStart}
                                     minDate={new Date()}
                                     valueFormat="YYYY. MM. DD. HH:mm"
+                                    locale="hu"
                                     styles={{
                                         input: {
                                             fontSize: 13,
@@ -168,6 +170,7 @@ function Searching() {
                                     onChange={setEnd}
                                     minDate={start ?? new Date()}
                                     valueFormat="YYYY. MM. DD. HH:mm"
+                                    locale="hu"
                                     styles={{
                                         input: {
                                             fontSize: 13,

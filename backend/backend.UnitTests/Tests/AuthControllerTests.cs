@@ -64,7 +64,7 @@ public class AuthControllerTests
     {
         _controller.SetAuthUser(null, null);
         
-        var result = (await _controller!.Register(new UserDTO
+        var result = (await _controller!.Register(new UserRegistrationDTO
         {
             AddressStreetHouse = "Utca utca 1.",
             AddressZipcode = "9700",
@@ -86,7 +86,7 @@ public class AuthControllerTests
     {
         _controller.SetAuthUser(null, null);
         
-        var result = (await _controller!.Register(new UserDTO
+        var result = (await _controller!.Register(new UserRegistrationDTO
         {
             AddressStreetHouse = "Utca utca 1.",
             AddressZipcode = "9700",
@@ -108,7 +108,7 @@ public class AuthControllerTests
     {
         _controller.SetAuthUser(null, null);
         
-        var result = (await _controller!.Register(new UserDTO
+        var result = (await _controller!.Register(new UserRegistrationDTO
         {
             AddressStreetHouse = "Utca utca 1.",
             AddressZipcode = "9700",
@@ -131,7 +131,7 @@ public class AuthControllerTests
         _controller.SetAuthUser(null, null);
         
         #region Register
-        var registerResult = (await _controller!.Register(new UserDTO
+        var registerResult = (await _controller!.Register(new UserRegistrationDTO
         {
             AddressStreetHouse = "Utca utca 1.",
             AddressZipcode = "9700",

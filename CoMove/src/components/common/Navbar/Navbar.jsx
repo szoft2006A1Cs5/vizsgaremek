@@ -73,7 +73,7 @@ function Navbar({ children }) {
                 </>
             ) : (
                 <>
-                    <NavLink component={Link} to="/settings" label="Beállítások" onClick={closeAll} />
+                    <NavLink component={Link} to="/account" label="Beállítások" onClick={closeAll} />
                     <Divider />
                     <NavLink component={Link} to="/rentals" label="Bérléseim" onClick={closeAll} />
                     <NavLink component={Link} to="/vehicles" label="Járműveim" onClick={closeAll} />

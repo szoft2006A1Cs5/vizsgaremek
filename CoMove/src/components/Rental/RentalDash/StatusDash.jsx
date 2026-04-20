@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL, nextStatus, requiresActionFromMe, STATUS_DICT } from "../../../assets/scripts/Config";
+import { getRespJsonError } from "../../../assets/scripts/Utilities";
 import InfoDash from "./InfoDash";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
@@ -32,7 +33,7 @@ function StatusDash({ rental, me }) {
             })
 
             if (!resp.ok) {
-                const respJson = await resp.json();
+                const respJson = await getRespJsonError(resp);
                 throw new Error(respJson?.error ?? "Nem sikerült frissíteni a bérlést!");
             }
         },

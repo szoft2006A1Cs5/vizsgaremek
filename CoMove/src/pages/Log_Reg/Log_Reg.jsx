@@ -18,7 +18,7 @@ function Registration() {
 
     const nameRegex = /^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+(?: [A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+)+$/
     const idcardRegex = /^\d{6}[A-Z]{2}$/
-    const passwordRegex = /^(?=.*[A-ZÁÉÍÓÖŐÚÜŰ])(?=.*\d).{8,}$/
+    const passwordRegex = /^(?=.*[a-z])(?=.*\d)(?=.*[A-Z]).{8,}$/
     const drivlicenseRegex = /^[A-Z]{2}\d{6}$/
     const addresssettlementRegex = /^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]{2,100}$/
     const addresszipcodeRegex = /^\d{4}$/

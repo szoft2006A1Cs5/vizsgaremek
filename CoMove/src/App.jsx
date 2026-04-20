@@ -11,6 +11,7 @@ import AddVehicle from "./pages/AddVehicle/AddVehicle";
 import EditVehicle from "./pages/EditVehicle/EditVehicle";
 import MyRentals from "./pages/MyRentals/MyRentals";
 import Rental from "./pages/Rental/Rental";
+import Account from "./pages/Account/Account";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,8 @@ export default function App() {
               <Route path="/vehicle/:carId/edit" element={<EditVehicle />} />
               <Route path="/rentals" element={<MyRentals />} />
               <Route path="/rental/:rentalId" element={<Rental />} />
+              <Route path="/account/:userId" element={<Account />} />
+              <Route path="/account" element={<Account />} />
             </Route>
           </Route>
 

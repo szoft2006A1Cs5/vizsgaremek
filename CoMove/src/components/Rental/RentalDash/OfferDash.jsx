@@ -1,11 +1,13 @@
 import { Button, Group, Stack, Text, TextInput } from "@mantine/core";
 import { API_URL } from "../../../assets/scripts/Config";
+import { getRespJsonError } from "../../../assets/scripts/Utilities";
 import { DateTimePicker } from "@mantine/dates";
 import { useState } from "react";
 import { IconCalendar, IconCheck, IconMapPin, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
+import 'dayjs/locale/hu'
 
 function OfferDash({ rental, me }) {
     const queryClient = useQueryClient();
@@ -36,7 +38,7 @@ function OfferDash({ rental, me }) {
             })
 
             if (!resp.ok) {
-                const respJson = await resp.json();
+                const respJson = await getRespJsonError(resp);
                 throw new Error(respJson?.error ?? "Nem sikerült frissíteni a bérlést!");
             }
 
@@ -70,6 +72,8 @@ function OfferDash({ rental, me }) {
                 value={new Date(rentalForm.start)}
                 onChange={(date) => setRentalForm({ ...rentalForm, start: new Date(date).toISOString() })}
                 minDate={new Date()}
+                locale='hu'
+                valueFormat='YYYY. MM. DD. HH:mm'
                 radius="md"
                 size="sm"
                 maxLength={512}
@@ -82,6 +86,8 @@ function OfferDash({ rental, me }) {
                 value={new Date(rentalForm.end)}
                 onChange={(date) => setRentalForm({ ...rentalForm, end: new Date(date).toISOString() })}
                 minDate={rentalForm?.start ? new Date(rentalForm.start) : new Date()}
+                locale='hu'
+                valueFormat='YYYY. MM. DD. HH:mm'
                 radius="md"
                 size="sm"
                 maxLength={512}

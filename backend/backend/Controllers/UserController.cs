@@ -127,7 +127,11 @@ namespace backend.Controllers
                                                           false))))
                 return Conflict();
             
-            var userProps = typeof(User).GetProperties();
+            var userProps = typeof(User).GetProperties().Where(x => !(new[] {
+                nameof(Models.User.Password),
+                nameof(Models.User.Salt),
+            }.Contains(x.Name))).ToList();
+            
             foreach (var dtoProp in typeof(UserModificationDTO).GetProperties())
             {
                 var userProp =
@@ -137,10 +141,13 @@ namespace backend.Controllers
                 if (userProp != null)
                     userProp.SetValue(user, dtoProp.GetValue(dto));
             }
-            
-            var (pass, salt) = _authSrv.GeneratePasswordHashSalt(dto.Password);
-            user.Password = pass;
-            user.Salt = salt;
+
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                var (pass, salt) = _authSrv.GeneratePasswordHashSalt(dto.Password);
+                user.Password = pass;
+                user.Salt = salt;
+            }
 
             await _context.SaveChangesAsync();
             
@@ -172,7 +179,7 @@ namespace backend.Controllers
             if (authUser == null) return Unauthorized();
             if (authUser.Id != id && authUser.Role != UserRole.Administrator) return Forbid();
 
-            if (amount < 0) return BadRequest();
+            if (amount <= 0) return BadRequest();
 
             var user = authUser.Id == id ? authUser : await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
             if (user == null) return NotFound();

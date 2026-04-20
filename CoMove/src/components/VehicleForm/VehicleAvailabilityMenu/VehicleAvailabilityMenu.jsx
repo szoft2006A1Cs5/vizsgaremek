@@ -10,6 +10,7 @@ import { IconTrash, IconEdit, IconPlus, IconCalendar } from '@tabler/icons-react
 import { API_URL } from '../../../assets/scripts/Config';
 import { formatDateTime } from '../../../assets/scripts/Utilities';
 import '@mantine/dates/styles.css';
+import 'dayjs/locale/hu'
 
 function AvailabilityRow({ availability, onEdit, onDelete }) {
     return (
@@ -174,6 +175,8 @@ function VehicleAvailabilityMenu({ vehicleId }) {
                         minDate={new Date()}
                         leftSection={<IconCalendar size={15} />}
                         dropdownType="modal"
+                        locale='hu'
+                        valueFormat='YYYY. MM. DD. HH:mm'
                         modalProps={{ styles: { inner: { paddingTop: '100px' } } }}
                         radius="md"
                         clearable
@@ -186,6 +189,8 @@ function VehicleAvailabilityMenu({ vehicleId }) {
                         minDate={fields.start ?? new Date()}
                         leftSection={<IconCalendar size={15} />}
                         dropdownType="modal"
+                        locale='hu'
+                        valueFormat='YYYY. MM. DD. HH:mm'
                         modalProps={{ styles: { inner: { paddingTop: '100px' } } }}
                         radius="md"
                         clearable
