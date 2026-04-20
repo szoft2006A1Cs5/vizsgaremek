@@ -202,8 +202,8 @@ namespace backend.Services.RentalService
                 else
                     props = props.Where(x =>
                         x.Name != (authUser.Id == curr.RenterId
-                            ? nameof(Rental.OwnerRating)
-                            : nameof(Rental.RenterRating)));
+                            ? nameof(Rental.RenterRating)
+                            : nameof(Rental.OwnerRating)));
 
             if (authUser.Role != UserRole.Administrator &&
                 RentalStatus.OfferAccepted <= curr.Status)

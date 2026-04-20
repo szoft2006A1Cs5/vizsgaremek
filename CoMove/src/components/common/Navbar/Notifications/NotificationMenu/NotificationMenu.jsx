@@ -2,8 +2,8 @@ import { Button, ActionIcon, Modal, Center, Text, ScrollArea } from "@mantine/co
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Notification from '../Notification/Notification'
-import { useUser } from '../../assets/scripts/AuthUser';
-import { API_URL } from '../../assets/scripts/Config';
+import { useUser } from '../../../../../assets/scripts/AuthUser';
+import { API_URL } from '../../../../../assets/scripts/Config';
 import { FaBell } from 'react-icons/fa';
 import { notifications } from "@mantine/notifications";
 

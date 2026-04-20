@@ -6,7 +6,7 @@ import {
     Paper, Grid, Stack, Group, Center, Loader, Text,
     TextInput, NumberInput,
 } from '@mantine/core';
-import PageLayout from '../../components/PageLayout/PageLayout';
+import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { DateTimePicker } from '@mantine/dates';
 import { Carousel } from '@mantine/carousel';
 import { IconChevronLeft, IconChevronRight, IconCalendar, IconAlertCircle } from '@tabler/icons-react';
@@ -17,7 +17,7 @@ import '@mantine/carousel/styles.css';
 import '@mantine/dates/styles.css';
 import { notifications } from '@mantine/notifications';
 import style from './Vehicle.module.css';
-import RentalRow from '../../components/RentalRow/RentalRow';
+import RentalRow from '../../components/common/RentalRow/RentalRow';
 
 function Vehicle() {
     const { carId } = useParams();
@@ -96,15 +96,6 @@ function Vehicle() {
         },
     });
 
-    function createRental() {
-        if (!pickupLocation.trim()) {
-            setPickupError("Nem adtál meg átvételi helyet!");
-            return;
-        }
-
-        createRentalMutation.mutate();
-    }
-
     const canEdit = authUser && vehicle && (authUser.id === vehicle.ownerId || authUser.role === "Administrator");
 
     return (
@@ -113,9 +104,9 @@ function Vehicle() {
             subtitle={vehicle ? `${vehicle.year} - ${vehicle.fuelType} - ${vehicle.transmission}` : ''}
         >
                     {isLoading ? (
-                        <Center pt={80}><Loader color="var(--background)" /></Center>
+                        <Center pt={100}><Loader color="var(--background)" /></Center>
                     ) : isError || !vehicle ? (
-                        <Center pt={80}><Text c="dimmed" fz={15}>A jármű nem található.</Text></Center>
+                        <Center pt={100}><Text c="dimmed" fz={15}>A jármű nem található.</Text></Center>
                     ) : (
                         <Paper shadow="md" radius="md" style={{ overflow: 'hidden' }}>
                             <Grid>
@@ -154,7 +145,7 @@ function Vehicle() {
                                         {vehicle.rating != null ? (
                                             <Group gap={10}>
                                                 <Rating value={Number(vehicle.rating) || 0} fractions={10} readOnly size="sm" />
-                                                <Text fz={13} c="var(--lightpurple)">{(Number(vehicle.rating) || 0).toFixed(1)}</Text>
+                                                <Text fz={14} c="var(--background)" fw='bold'>{(Number(vehicle.rating) || 0).toFixed(2)}</Text>
                                             </Group>
                                         ) : <></>}
 
@@ -242,7 +233,7 @@ function Vehicle() {
                                                                 radius="md"
                                                                 size="sm"
                                                                 maxLength={512}
-                                                                error={pickupError}
+                                                                error={!pickupLocation.trim() ? "Nem adtál meg átvételi helyet!" : null}
                                                             />
                                                             <Group justify='space-between' wrap='nowrap'>
                                                                 <Text fz={15} c="var(--lightpurple)">Teljes ár</Text>
@@ -265,7 +256,7 @@ function Vehicle() {
                                                                     radius="md"
                                                                     style={{ background: 'var(--button)' }}
                                                                     loading={createRentalMutation.isPending}
-                                                                    onClick={() => createRental()}
+                                                                    onClick={() => createRentalMutation.mutate()}
                                                                 >
                                                                     Bérlés megkezdése
                                                                 </Button>

@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 import { LoadingOverlay, SimpleGrid } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
-import CarCard from "../../components/CarCard/CarCard";
+import VehicleCard from "../../components/common/VehicleCard/VehicleCard";
 import { API_URL } from "../../assets/scripts/Config";
 import "@mantine/dates/styles.css";
+import { useMutation } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
 function normalize(s) {
     return (s || "").toString().trim().toLowerCase();
@@ -58,6 +60,25 @@ function Searching() {
         [start, end, brand, type, minPrice, maxPrice, pickup]
     );
 
+    const searchMutation = useMutation({
+        mutationFn: async (params) => {
+            const resp = await fetch(`${API_URL}/Vehicle?${params}`, {
+                credentials: "include"
+            });
+
+            if (!resp.ok)
+                throw new Error("Nem sikerült lekérni a járműveket!");
+
+            return resp.json();
+        },
+        onSuccess: () => {
+            requestAnimationFrame(() => {
+                document.getElementById("search-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        },
+        onError: (error) => notifications.show({ title: "Hiba!", message: error.message, color: "red" })
+    });
+
     const handleSearch = () => {
         if (filters.start && filters.end && new Date(filters.start) >= new Date(filters.end)) {
             alert("A bérlés vége nem lehet korábban vagy ugyanakkor, mint a kezdete.");
@@ -82,27 +103,7 @@ function Searching() {
         if (filters.minPrice && !isNaN(filters.minPrice)) params.set("minRate", filters.minPrice);
         if (filters.maxPrice && !isNaN(filters.maxPrice)) params.set("maxRate", filters.maxPrice);
 
-        fetch(`${API_URL}/Vehicle?${params}`, {
-            credentials: "include",
-        })
-        .then(resp => {
-            setIsLoading(false);
-            if (resp.status !== 200) {
-                setCars(null);
-                return null;
-            }
-
-            return resp.json();
-        })
-        .then(data => {
-            if (!data) return;
-
-            setCars(data);
-            requestAnimationFrame(() => {
-                document.getElementById("search-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
-            });
-        })
-        .catch(err => console.err(err));
+        searchMutation.mutate(params);
     };
 
     return (
@@ -212,24 +213,24 @@ function Searching() {
                     </div>
 
                     <div id="search-results" className="searching_results">
-                        <LoadingOverlay visible={isLoading} />
-                        {cars && (
+                        <LoadingOverlay visible={searchMutation.isPending} />
+                        {searchMutation.data && (
                             <>
-                                <h2 className="searching_resultsTitle">Találatok ({cars.length + " db"})</h2>
+                                <h2 className="searching_resultsTitle">Találatok ({searchMutation.data.length + " db"})</h2>
                                 <SimpleGrid cols={{
                                     base: 1,
                                     sm: 2,
                                     lg: 4,
                                 }}>
-                                    {cars.map(car => {
+                                    {searchMutation.data.map(car => {
                                         return (
-                                            <CarCard key={car.id} car={car} onClick={() => {
+                                            <VehicleCard key={car.id} vehicle={car} onClick={() => {
                                                 navigate(`/vehicle/${car.id}?rentalStart=${filters.start ? new Date(filters.start).toISOString() : ""}&rentalEnd=${filters.end ? new Date(filters.end).toISOString() : ""}`)
                                             }} />
                                     )
                                     })}
                                 </SimpleGrid>
-                                {cars.length === 0 && (
+                                {searchMutation.data.length === 0 && (
                                     <p className="searching_noResults">Nincs találat a megadott feltételekre.</p>
                                 )}
                             </>
@@ -272,7 +273,7 @@ function Searching() {
                 <div className="footerBottom">
                     <div className="footerBottomInner">
                         <div className="footerCopy">
-                            ©&nbsp;&nbsp;<span className="footerBrandName">CoMove</span>&nbsp;&nbsp;– Minden jog fenntartva.
+                            ©&nbsp;&nbsp;<span className="footerBrandName">CoMove</span>&nbsp;&nbsp;- Minden jog fenntartva.
                         </div>
                         <button
                             className={`footerToTop ${showFloatingTop ? "floating" : ""}`}

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Text, Stack, Loader, Center, SimpleGrid } from '@mantine/core';
-import PageLayout from '../../components/PageLayout/PageLayout';
+import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { API_URL } from '../../assets/scripts/Config';
-import RentalRow from '../../components/RentalRow/RentalRow';
+import RentalRow from '../../components/common/RentalRow/RentalRow';
 
 function MyRentals() {
     const { data: rentals, isLoading, isError } = useQuery({
@@ -20,11 +20,11 @@ function MyRentals() {
     return (
         <PageLayout title="Bérléseim" subtitle="Az Ön által indított bérlések">
             {isLoading ? (
-                <Center pt={80}><Loader color="var(--button)" /></Center>
+                <Center pt={100}><Loader color="var(--button)" /></Center>
             ) : isError ? (
-                <Center pt={80}><Text c="var(--lightpurple)" fz={14}>Hiba történt a bérlések betöltésekor.</Text></Center>
+                <Center pt={100}><Text c="var(--lightpurple)" fz={14}>Hiba történt a bérlések betöltésekor.</Text></Center>
             ) : !rentals || rentals.length === 0 ? (
-                <Center pt={80}><Text c="var(--lightpurple)" fz={14}>Még nincs bérlésed. Keress egy járművet és küldj ajánlatot!</Text></Center>
+                <Center pt={100}><Text c="var(--lightpurple)" fz={14}>Még nincs bérlésed. Keress egy járművet és küldj ajánlatot!</Text></Center>
             ) : (
                 <Stack gap={25}>
                     {active.length > 0 && (

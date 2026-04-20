@@ -4,7 +4,7 @@ import { notifications } from '@mantine/notifications';
 import VehicleForm from '../../components/VehicleForm/VehicleForm';
 import { API_URL } from '../../assets/scripts/Config';
 import { useUser } from '../../assets/scripts/AuthUser';
-import PageLayout from '../../components/PageLayout/PageLayout';
+import PageLayout from '../../components/common/PageLayout/PageLayout';
 
 function AddVehicle() {
     const navigate = useNavigate();

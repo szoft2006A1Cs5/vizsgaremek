@@ -38,7 +38,9 @@ namespace backend.Models
         [MaxLength(512)]
         public required string PickupLocation { get; set; }
 
+        // A BERLOT ERTEKELI
         public double? RenterRating { get; set; }
+        // A BERBADOT ERTEKELI
         public double? OwnerRating { get; set; }
 
         public int RenterId { get; set; }

@@ -7,8 +7,8 @@ import {
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { IconTrash, IconEdit, IconPlus, IconCalendar } from '@tabler/icons-react';
-import { API_URL } from '../../assets/scripts/Config';
-import { formatDateTime } from '../../assets/scripts/Utilities';
+import { API_URL } from '../../../assets/scripts/Config';
+import { formatDateTime } from '../../../assets/scripts/Utilities';
 import '@mantine/dates/styles.css';
 
 function AvailabilityRow({ availability, onEdit, onDelete }) {

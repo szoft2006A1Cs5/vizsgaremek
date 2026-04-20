@@ -86,12 +86,16 @@ namespace backend.Controllers
             var rental = await _context.Rentals
                 .Include(x => x.Vehicle)
                 .ThenInclude(x => x.Owner)
+                .ThenInclude(x => x.Vehicles)
+                .ThenInclude(x => x.Rentals)
                 .Include(x => x.Renter)
+                .ThenInclude(x => x.Rentals)
                 .Include(x => x.Vehicle)
                 .ThenInclude(x => x.Availabilities)
                 .Include(x => x.Vehicle)
                 .ThenInclude(x => x.Images)
                 .FirstOrDefaultAsync(x => x.Id == id);
+            
             if (rental == null) return NotFound();
             
             if (rental.Vehicle.OwnerId != authUser.Id &&
@@ -326,9 +330,11 @@ namespace backend.Controllers
 
             return Ok(
                 (await _context.Messages
+                    .AsNoTracking()
+                    .IgnoreAutoIncludes()
                     .Include(x => x.Sender)
                     .Where(x => x.RentalId == rental.Id)
-                    .OrderByDescending(x => x.TimeSent)
+                    .OrderBy(x => x.TimeSent)
                     .ToListAsync())
                     .FilterSerialize(authUser)
             );

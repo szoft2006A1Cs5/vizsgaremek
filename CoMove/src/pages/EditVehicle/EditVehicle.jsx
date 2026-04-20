@@ -3,11 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { Center, Loader, LoadingOverlay, Stack } from '@mantine/core';
 import VehicleForm from '../../components/VehicleForm/VehicleForm';
-import VehicleImageMenu from '../../components/VehicleImageMenu/VehicleImageMenu';
-import VehicleAvailabilityMenu from '../../components/VehicleAvailabilityMenu/VehicleAvailabilityMenu';
+import VehicleImageMenu from '../../components/VehicleForm/VehicleImageMenu/VehicleImageMenu';
+import VehicleAvailabilityMenu from '../../components/VehicleForm/VehicleAvailabilityMenu/VehicleAvailabilityMenu';
 import { API_URL } from '../../assets/scripts/Config';
 import { useUser } from '../../assets/scripts/AuthUser';
-import PageLayout from '../../components/PageLayout/PageLayout';
+import PageLayout from '../../components/common/PageLayout/PageLayout';
 
 function EditVehicle() {
     const { carId } = useParams();

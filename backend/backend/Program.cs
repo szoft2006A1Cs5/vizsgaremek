@@ -123,8 +123,6 @@ namespace backend
                 app.UseSwaggerUI();
             }
             
-            app.UseHttpsRedirection();
-            
             // Csak ha localresourceservice-t hasznalunk
             app.UseStaticFiles(new StaticFileOptions
             {
@@ -154,6 +152,8 @@ namespace backend
                     .AllowAnyMethod()
                     .AllowCredentials();
             });
+            
+            app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();

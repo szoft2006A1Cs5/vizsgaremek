@@ -6,8 +6,8 @@ import {
     ActionIcon, Modal, Button, Center, Loader, FileButton, Image,
 } from '@mantine/core';
 import { IconTrash, IconUpload, IconChevronRight, IconChevronLeft } from '@tabler/icons-react';
-import { API_URL, BACKEND_URL } from '../../assets/scripts/Config';
-import defaultImage from '../../assets/kepek/egyeb/default.png';
+import { API_URL, BACKEND_URL } from '../../../assets/scripts/Config';
+import defaultImage from '../../../assets/kepek/egyeb/default.png';
 
 function VehicleImage({ vehicleImage, onLeft, leftDisabled = false, onRight, rightDisabled = false, onDelete }) {
     return (

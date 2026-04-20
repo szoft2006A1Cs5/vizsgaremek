@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import Cards from "../../components/Cards/Cards";
 import { API_URL } from "../../assets/scripts/Config";
-import { Loader, Center, Stack, Text, Button } from "@mantine/core";
-import PageLayout from "../../components/PageLayout/PageLayout";
+import { Loader, Center, Stack, Text, Button, SimpleGrid } from "@mantine/core";
+import PageLayout from "../../components/common/PageLayout/PageLayout";
+import VehicleCard from "../../components/common/VehicleCard/VehicleCard";
 
 function MyVehicles() {
     const navigate = useNavigate();
@@ -34,13 +34,25 @@ function MyVehicles() {
             }
         >
             {isLoading ? (
-                <Center pt={80}><Loader color="var(--background)" /></Center>
+                <Center pt={100}><Loader color="var(--background)" /></Center>
             ) : isError ? (
-                <Center pt={80}><Text c="var(--lightpurple)" fz={15}>Hiba történt a járművek betöltésekor.</Text></Center>
+                <Center pt={100}><Text c="var(--lightpurple)" fz={15}>Hiba történt a járművek betöltésekor.</Text></Center>
             ) : vehicles?.length === 0 ? (
-                <Center pt={80}><Text c="var(--lightpurple)" fz={15}>Még nincs hozzáadott járműve.</Text></Center>
+                <Center pt={100}><Text c="var(--lightpurple)" fz={15}>Még nincs hozzáadott járműve.</Text></Center>
             ) : (
-                <Cards cars={vehicles} />
+                <SimpleGrid cols={{
+                    base: 1,
+                    sm: 2,
+                    lg: 4,
+                }}>
+                    {vehicles.map(vehicle => {
+                        return (
+                            <VehicleCard key={vehicle.id} vehicle={vehicle} onClick={() => {
+                                navigate(`/vehicle/${vehicle.id}`)
+                            }} />
+                    )
+                    })}
+                </SimpleGrid>
             )}
         </PageLayout>
     );
