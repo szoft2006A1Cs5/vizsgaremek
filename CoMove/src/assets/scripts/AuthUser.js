@@ -17,7 +17,7 @@ export function useUser() {
         },
         refetchInterval: 60000,
         staleTime: 60000,
-        refetchOnWindowFocus: true,
+        refetchOnWindowFocus: true
     })
 }
 

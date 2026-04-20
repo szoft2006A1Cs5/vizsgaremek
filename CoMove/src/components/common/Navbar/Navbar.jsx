@@ -153,7 +153,6 @@ function Navbar({ children }) {
                                     </Popover.Target>
                                     <Popover.Dropdown className="nav_account_dropdown">
                                         <div className="nav_account_card">
-                                            <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: "sm", blur: 5 }} />
                                             {authUser?.name && (
                                                 <>
                                                     <Title size={20} c="black">Üdv {authUser.name}!</Title>
@@ -195,7 +194,6 @@ function Navbar({ children }) {
 
             <AppShell.Aside bg='transparent' bd={0} hiddenFrom="sm">
                 <div className="nav_glass">
-                    <LoadingOverlay visible={isLoading} overlayProps={{ radius: "15" }} />
                     {authUser?.name && (
                         <>
                             <Title size={20} c="white" fw='bold' mb={8}>Üdv, {authUser.name}!</Title>
