@@ -5,18 +5,18 @@ import { useUser } from '../../assets/scripts/AuthUser';
 
 function EnsureAuth() {
     const navigate = useNavigate();
-    const { data: authUser, isLoading: isLoading, isSuccess: isSuccess } = useUser();
+    const { data: authUser, isLoading: isLoading, isSuccess: isSuccess, isError: isError } = useUser();
 
     useEffect(() => {
-        if (isSuccess && !authUser) navigate("/login")
-    }, [authUser, isSuccess])
+        if ((!isLoading && !authUser) || isError) navigate("/login")
+    }, [authUser, isLoading, isError])
     
     return (
         <>
             { isLoading ?
                 <LoadingOverlay visible={isLoading} />     
               : 
-                <Outlet />
+                (isSuccess && authUser && <Outlet />)
             }
         </>
     );

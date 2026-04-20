@@ -10,9 +10,8 @@ export function useUser() {
                 credentials: "include",
             });
 
-            if (resp.status !== 200) {
-                return null;
-            }
+            if (!resp.ok)
+                throw new Error("Nincs bejelentkezve!");
 
             return await resp.json();
         },

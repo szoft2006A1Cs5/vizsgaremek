@@ -31,8 +31,8 @@ function Account() {
     });
 
     useEffect(() => {
-        if (authUserSuccess && userId != authUser.id &&
-            authUser.role !== "administrator")
+        if (authUserSuccess && userId != authUser?.id &&
+            authUser?.role !== "administrator")
             navigate("/")
     }, [userId, authUser])
 
