@@ -249,7 +249,7 @@ namespace backend.UnitTests
                     Renter = null,
                     Start = new DateTime(2026, 02, 28, 10, 00, 00),
                     End = new DateTime(2026, 03, 01, 15, 00, 00),
-                    Status = RentalStatus.Finished,
+                    Status = RentalStatus.Active,
                     RentalPrice = 29 * 600,
                     PickupLocation = "9700 Szombathely, Zrínyi Ilona utca 12.",
                     OwnerRating = 5.0,

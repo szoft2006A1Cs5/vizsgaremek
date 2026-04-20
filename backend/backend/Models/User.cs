@@ -84,10 +84,16 @@ namespace backend.Models
                     return (_, auth) => auth != null && auth.Role == UserRole.Administrator;
                 case VisibilityLevel.InRelation:
                     return (obj, auth) => obj is User model && 
-                                          auth != null && (model.Rentals.Any(x => (x.RenterId == auth.Id || 
-                                              x.Vehicle.OwnerId == auth.Id) &&
-                                              RentalStatus.OfferAccepted <= x.Status) || model.Id == auth.Id ||
-                                                           auth.Role == UserRole.Administrator);
+                                          auth != null && 
+                                          (model.Id == auth.Id || 
+                                           auth.Role == UserRole.Administrator ||
+                                          (model.Rentals?.Any(x => x.Vehicle?.OwnerId == auth.Id &&
+                                                                   RentalStatus.OfferAccepted <= x.Status &&
+                                                                   x.Status < RentalStatus.Finished) ?? false) || 
+                                          (model.Vehicles?.Any(v => v.Rentals?.Any(r => r.RenterId == auth.Id && 
+                                              RentalStatus.OfferAccepted <= r.Status && 
+                                              r.Status < RentalStatus.Finished) ?? false) 
+                                           ?? false));
                 case VisibilityLevel.OwnerOnly:
                     return (obj, auth) => obj is User model &&
                                           auth != null &&

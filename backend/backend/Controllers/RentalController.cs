@@ -90,6 +90,7 @@ namespace backend.Controllers
                 .ThenInclude(x => x.Rentals)
                 .Include(x => x.Renter)
                 .ThenInclude(x => x.Rentals)
+                .ThenInclude(x => x.Vehicle)
                 .Include(x => x.Vehicle)
                 .ThenInclude(x => x.Availabilities)
                 .Include(x => x.Vehicle)
@@ -281,7 +282,9 @@ namespace backend.Controllers
             if (authUser == null) return Unauthorized();
             
             var existingRental = await _context.Rentals
+                .Include(x => x.Renter)
                 .Include(x => x.Vehicle)
+                .ThenInclude(x => x.Owner)
                 .FirstOrDefaultAsync(x => x.Id == id);
             
             if (existingRental == null) return NotFound();

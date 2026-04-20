@@ -10,6 +10,7 @@ function ProfileRow({ profile, owner = false }) {
                 <Stack gap={0}>
                     <Text fz={11} c='var(--lightpurple)'>{owner ? 'Bérbeadó' : 'Bérlő'}</Text>
                     <Text fz={14} fw='bold'>{profile?.name}</Text>
+                    {profile?.phone && <Text fz={12}>{profile?.phone}</Text>}
                 </Stack>
             </Group>
 
