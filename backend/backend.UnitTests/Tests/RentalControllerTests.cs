@@ -148,36 +148,36 @@ namespace backend.UnitTests.Tests
             Assert.AreEqual(RentalStatus.Finished, rental.Status);
             #endregion
 
-            #region RenterRating 
+            #region RenterRatingOwner 
             _controller.SetAuthUser(1, UserRole.User);
-            var renterRatingResult = await _controller.Put(rentalId, new RentalDTO
+            var renterRatingOwnerResult = await _controller.Put(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Finished,
-                RenterRating = 5.0,
+                OwnerRating = 5.0,
             }) as OkObjectResult;
-            Assert.IsNotNull(renterRatingResult);
+            Assert.IsNotNull(renterRatingOwnerResult);
 
-            Assert.AreEqual(5.0, rental.RenterRating);
+            Assert.AreEqual(5.0, rental.OwnerRating);
             #endregion
 
             #region OwnerRating 
             _controller.SetAuthUser(2, UserRole.User);
-            var ownerRatingResult = await _controller.Put(rentalId, new RentalDTO
+            var ownerRatingRenterResult = await _controller.Put(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
                 End = rentalEnd,
                 PickupLocation = "9700 Szombathely, Fő tér 1.",
                 Status = RentalStatus.Finished,
-                OwnerRating = 4.5,
+                RenterRating = 4.5,
             }) as OkObjectResult;
-            Assert.IsNotNull(ownerRatingResult);
+            Assert.IsNotNull(ownerRatingRenterResult);
 
-            Assert.AreEqual(4.5, rental.OwnerRating);
+            Assert.AreEqual(4.5, rental.RenterRating);
             #endregion
         }
     }
