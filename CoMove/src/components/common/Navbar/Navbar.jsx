@@ -31,7 +31,7 @@ function Navbar({ children }) {
 
     const links = [
         { to: "/", name: "Főoldal" },
-        { to: "/search", name: "Autók keresése" },
+        { to: "/searching", name: "Autók keresése" },
     ]
 
     const [scrolled, setScrolled] = useState(false)
@@ -60,8 +60,8 @@ function Navbar({ children }) {
     const logout = useLogout();
 
     const closeAll = () => {
-        popover.close(); 
-        aside.close(); 
+        popover.close();
+        aside.close();
     }
 
     const menuItems = (

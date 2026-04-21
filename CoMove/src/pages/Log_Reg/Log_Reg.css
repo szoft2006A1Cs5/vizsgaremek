@@ -20,16 +20,12 @@
   place-items: center;
   padding: 22px 14px;
   background:
-    radial-gradient(
-      1200px 500px at 20% 0%,
+    radial-gradient(1200px 500px at 20% 0%,
       rgba(25, 37, 112, 0.1),
-      transparent 55%
-    ),
-    radial-gradient(
-      900px 500px at 90% 15%,
+      transparent 55%),
+    radial-gradient(900px 500px at 90% 15%,
       rgba(65, 88, 236, 0.1),
-      transparent 55%
-    ),
+      transparent 55%),
     var(--bg);
 }
 
@@ -94,12 +90,10 @@
   border-radius: 999px;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(
-    circle at 35% 35%,
-    rgba(27, 53, 218, 0.562),
-    rgba(25, 37, 112, 0.22) 55%,
-    rgba(6, 6, 49, 0) 75%
-  );
+  background: radial-gradient(circle at 35% 35%,
+      rgba(27, 53, 218, 0.562),
+      rgba(25, 37, 112, 0.22) 55%,
+      rgba(6, 6, 49, 0) 75%);
   filter: blur(0.2px);
 }
 
@@ -581,6 +575,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
