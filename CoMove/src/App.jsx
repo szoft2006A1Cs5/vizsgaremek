@@ -32,7 +32,7 @@ export default function App() {
         <Routes>
           <Route element={<LayoutWithNavbar />}>
             <Route path="/" element={<Home />} />
-            <Route path="/searching" element={<Searching />} />
+            <Route path="/search" element={<Searching />} />
             <Route path="/vehicle/:carId" element={<Vehicle />} />
 
             <Route element={<EnsureAuth />} >

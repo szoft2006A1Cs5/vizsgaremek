@@ -1,7 +1,7 @@
 import { Button, Group, Stack, Text, TextInput } from "@mantine/core";
 import { API_URL } from "../../../assets/scripts/Config";
 import { DateTimePicker } from "@mantine/dates";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconCalendar, IconCheck, IconMapPin, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
@@ -20,6 +20,14 @@ function OfferDash({ rental, me }) {
         end: rental.end,
         pickupLocation: rental.pickupLocation
     });
+
+    useEffect(() => {
+        setRentalForm({
+            start: rental.start,
+            end: rental.end,
+            pickupLocation: rental.pickupLocation
+        })
+    }, [rental])
 
     const counterOfferStatus = isRenter ? "renterOffer" : "ownerOffer";
 

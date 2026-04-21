@@ -88,7 +88,7 @@ function Vehicle() {
             return resp.json();
         },
         onSuccess: (rental) => {
-            navigate(`/rentals/${rental.id}`);
+            navigate(`/rental/${rental.id}`);
         },
         onError: (err) => {
             notifications.show({

@@ -132,7 +132,7 @@ function VehicleAvailabilityMenu({ vehicleId }) {
             return; 
         }
 
-        if (fields.hourlyRate <= 0) { 
+        if (!fields.hourlyRate || fields.hourlyRate <= 0) { 
             setError('Az óradíjnak pozitívnak kell lennie.'); 
             return;
         }
@@ -198,8 +198,7 @@ function VehicleAvailabilityMenu({ vehicleId }) {
                     />
                     <NumberInput
                         label="Óradíj (Ft)"
-                        min={1}
-                        value={fields.hourlyRate}
+                        value={fields.hourlyRate ?? 0}
                         onChange={(val) => setFields((f) => ({ ...f, hourlyRate: val }))}
                         radius="md"
                     />

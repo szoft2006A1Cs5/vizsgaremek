@@ -31,7 +31,7 @@ function Navbar({ children }) {
 
     const links = [
         { to: "/", name: "Főoldal" },
-        { to: "/searching", name: "Autók keresése" },
+        { to: "/search", name: "Autók keresése" },
     ]
 
     const [scrolled, setScrolled] = useState(false)
