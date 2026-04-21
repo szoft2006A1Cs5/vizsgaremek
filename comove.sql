@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1:3307
--- Létrehozás ideje: 2026. Ápr 21. 22:33
+-- Létrehozás ideje: 2026. Ápr 21. 22:50
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -146,7 +146,7 @@ CREATE TABLE `usertokens` (
   `userId` int(11) NOT NULL,
   `token` varchar(8) NOT NULL,
   `type` varchar(15) NOT NULL,
-  `timeCreated` datetime NOT NULL DEFAULT utc_timestamp()
+  `timeCreated` datetime NOT NULL DEFAULT (utc_timestamp())
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -411,6 +411,18 @@ ALTER TABLE `vehicleimages`
 --
 ALTER TABLE `vehicles`
   ADD CONSTRAINT `vehicles_ibfk_1` FOREIGN KEY (`ownerId`) REFERENCES `users` (`id`);
+
+DELIMITER $$
+--
+-- Események
+--
+CREATE DEFINER=`root`@`localhost` EVENT `DeleteOldAvailabilities` ON SCHEDULE EVERY 1 DAY STARTS '2026-04-21 00:00:00' ON COMPLETION NOT PRESERVE ENABLE DO DELETE FROM vehicleavailabilities
+WHERE (vehicleavailabilities.end < UTC_TIMESTAMP())$$
+
+CREATE DEFINER=`root`@`localhost` EVENT `DeleteOldTokens` ON SCHEDULE EVERY 1 HOUR STARTS '2026-04-21 00:00:00' ON COMPLETION NOT PRESERVE ENABLE DO DELETE FROM usertokens
+WHERE (usertokens.timeCreated + INTERVAL 30 MINUTE) < UTC_TIMESTAMP()$$
+
+DELIMITER ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
