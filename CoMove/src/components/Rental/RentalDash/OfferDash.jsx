@@ -1,6 +1,5 @@
 import { Button, Group, Stack, Text, TextInput } from "@mantine/core";
 import { API_URL } from "../../../assets/scripts/Config";
-import { getRespJsonError } from "../../../assets/scripts/Utilities";
 import { DateTimePicker } from "@mantine/dates";
 import { useState } from "react";
 import { IconCalendar, IconCheck, IconMapPin, IconX } from "@tabler/icons-react";
@@ -8,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
 import 'dayjs/locale/hu'
+import { fetchAPI } from "../../../assets/scripts/Utilities";
 
 function OfferDash({ rental, me }) {
     const queryClient = useQueryClient();
@@ -25,9 +25,8 @@ function OfferDash({ rental, me }) {
 
     const updateMutation = useMutation({
         mutationFn: async (newStatus) => {
-            const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
+            const resp = await fetchAPI(`/Rental/${rental.id}`, {
                 method: newStatus === "cancelled" ? "DELETE" : "PUT",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -38,7 +37,7 @@ function OfferDash({ rental, me }) {
             })
 
             if (!resp.ok) {
-                const respJson = await getRespJsonError(resp);
+                const respJson = await resp.json().catch(() => {});
                 throw new Error(respJson?.error ?? "Nem sikerült frissíteni a bérlést!");
             }
 

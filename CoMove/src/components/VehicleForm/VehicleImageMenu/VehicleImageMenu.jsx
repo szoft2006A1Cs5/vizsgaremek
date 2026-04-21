@@ -8,12 +8,13 @@ import {
 import { IconTrash, IconUpload, IconChevronRight, IconChevronLeft } from '@tabler/icons-react';
 import { API_URL, BACKEND_URL } from '../../../assets/scripts/Config';
 import defaultImage from '../../../assets/kepek/egyeb/default.png';
+import { fetchAPI, formatPic } from '../../../assets/scripts/Utilities';
 
 function VehicleImage({ vehicleImage, onLeft, leftDisabled = false, onRight, rightDisabled = false, onDelete }) {
     return (
         <Stack gap={10}>
             <Image
-                src={`${BACKEND_URL}/${vehicleImage.path}`}
+                src={formatPic(vehicleImage?.path)}
                 h={120}
                 fit="cover"
                 radius="md"
@@ -43,12 +44,9 @@ function VehicleImageMenu({ vehicleId }) {
     const { data: images = [], isLoading } = useQuery({
         queryKey: ['vehicle-images', vehicleId],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image`, {
-                credentials: "include",
-            });
+            const resp = await fetchAPI(`/Vehicle/${vehicleId}/Image`);
 
-            if (!resp.ok)
-                throw new Error('Hiba a képek betöltése során!');
+            if (!resp.ok) throw new Error('Hiba a képek betöltése során!');
 
             return resp.json();
         },
@@ -62,14 +60,12 @@ function VehicleImageMenu({ vehicleId }) {
 
             formData.append('file', file);
 
-            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image`, {
+            const resp = await fetchAPI(`/Vehicle/${vehicleId}/Image`, {
                 method: 'POST',
-                credentials: "include",
                 body: formData,
             });
 
-            if (!resp.ok)
-                throw new Error('Feltöltés sikertelen');
+            if (!resp.ok) throw new Error('Feltöltés sikertelen!');
         },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] }),
         onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
@@ -77,13 +73,11 @@ function VehicleImageMenu({ vehicleId }) {
 
     const deleteMutation = useMutation({
         mutationFn: async (imageId) => {
-            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image/${imageId}`, {
+            const resp = await fetchAPI(`/Vehicle/${vehicleId}/Image/${imageId}`, {
                 method: 'DELETE',
-                credentials: "include",
             });
 
-            if (!resp.ok)
-                throw new Error('Törlés sikertelen');
+            if (!resp.ok) throw new Error('Törlés sikertelen!');
         },
         onSuccess: () => {
             setDeleteTarget(null);
@@ -94,15 +88,13 @@ function VehicleImageMenu({ vehicleId }) {
 
     const reorderMutation = useMutation({
         mutationFn: async ({ imageId, sortIndex }) => {
-            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Image/${imageId}`, {
+            const resp = await fetchAPI(`/Vehicle/${vehicleId}/Image/${imageId}`, {
                 method: 'PUT',
-                credentials: "include",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(sortIndex),
             });
 
-            if (!resp.ok)
-                throw new Error('Átrendezés sikertelen');
+            if (!resp.ok) throw new Error('Átrendezés sikertelen!');
         },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] }),
         onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),

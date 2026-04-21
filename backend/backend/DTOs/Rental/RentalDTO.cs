@@ -5,8 +5,8 @@ namespace backend.DTOs.Rental
 {
     public class RentalDTO
     {
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public required DateTime Start { get; set; }
+        public required DateTime End { get; set; }
 
         public RentalStatus Status { get; set; }
 

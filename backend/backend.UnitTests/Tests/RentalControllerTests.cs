@@ -30,8 +30,6 @@ namespace backend.UnitTests.Tests
             );
         }
 
-        // TODO: Meg tesztek a tobbi endpointhoz
-        
         [TestMethod]
         public async Task ChainTest()
         {

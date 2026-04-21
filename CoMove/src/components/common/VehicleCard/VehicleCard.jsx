@@ -4,9 +4,10 @@ import defaultImage from '../../../assets/kepek/egyeb/default.png'
 import './VehicleCard.css'
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { BACKEND_URL } from '../../../assets/scripts/Config';
+import { formatPic } from '../../../assets/scripts/Utilities';
 
 function VehicleCard({ vehicle, onClick = () => {} }) {
-    const vehicleImg = vehicle.images[0]?.path ? `${BACKEND_URL}/${vehicle.images[0]?.path}` : defaultImage;
+    const vehicleImg = formatPic(vehicle.images[0]?.path) ?? defaultImage;
 
     return (
         <div className="card" onClick={onClick}>

@@ -3,6 +3,7 @@ import { Text, Rating, Divider, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { API_URL } from "../../../assets/scripts/Config";
 import InfoDash from "./InfoDash";
+import { fetchAPI } from "../../../assets/scripts/Utilities";
 
 function RatingDash({ rental, me }) {
     const queryClient = useQueryClient();
@@ -10,9 +11,8 @@ function RatingDash({ rental, me }) {
 
     const ratingMutation = useMutation({
         mutationFn: async (rating) => {
-            const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
+            const resp = await fetchAPI(`/Rental/${rental.id}`, {
                 method: "PUT",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },

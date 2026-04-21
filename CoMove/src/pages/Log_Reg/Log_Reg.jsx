@@ -6,6 +6,8 @@ import whitelogo from "../../assets/kepek/logo/comove_logo4.png";
 import { API_URL } from "../../assets/scripts/Config";
 import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
+import { fetchAPI } from "../../assets/scripts/Utilities";
+import { REGEX } from "../../assets/scripts/Regex";
 
 function Registration() {
     const navigate = useNavigate();
@@ -71,7 +73,7 @@ function Registration() {
             if (!formData.teljes_nev.trim()) {
                 newErrors.teljes_nev = "A név megadása kötelező.";
             }
-            else if (!nameRegex.test(formData.teljes_nev.trim())) {
+            else if (!REGEX.name.test(formData.teljes_nev.trim())) {
                 newErrors.teljes_nev = "A név legalább két szóból álljon és nagybetűvel kezdődjön.";
             }
 
@@ -84,7 +86,7 @@ function Registration() {
 
             if (!formData.szemelyi_szam.trim()) {
                 newErrors.szemelyi_szam = "A személyi szám megadása kötelező.";
-            } else if (!idcardRegex.test(formData.szemelyi_szam.trim())) {
+            } else if (!REGEX.idCardNumber.test(formData.szemelyi_szam.trim())) {
                 newErrors.szemelyi_szam = "A személyi szám csak számokat tartalmazhat.";
             }
         }
@@ -92,7 +94,7 @@ function Registration() {
         if (regStep === 1) {
             if (!formData.iranyitoszam.trim()) {
                 newErrors.iranyitoszam = "Add meg az irányítószámot.";
-            } else if (!addresszipcodeRegex.test(formData.iranyitoszam.trim())) {
+            } else if (!REGEX.addressZipcode.test(formData.iranyitoszam.trim())) {
                 newErrors.iranyitoszam = "Az irányítószám csak 4 számjegyből állhat.";
             }
 
@@ -108,7 +110,7 @@ function Registration() {
 
             if (!formData.telefonszam.trim()) {
                 newErrors.telefonszam = "A telefonszám megadása kötelező.";
-            } else if (!phoneRegex.test(formData.telefonszam.trim())) {
+            } else if (!REGEX.phone.test(formData.telefonszam.trim())) {
                 newErrors.telefonszam = "A telefonszám csak számokat tartalmazhat.";
             }
 
@@ -117,13 +119,13 @@ function Registration() {
         if (regStep === 2) {
             if (!formData.email.trim()) {
                 newErrors.email = "Az email cím megadása kötelező.";
-            } else if (!emailRegex.test(formData.email.trim())) {
+            } else if (!REGEX.email.test(formData.email.trim())) {
                 newErrors.email = "Nem megfelelő email formátum.";
             }
 
             if (!formData.jelszo.trim()) {
                 newErrors.jelszo = "A jelszó megadása kötelező.";
-            } else if (!passwordRegex.test(formData.jelszo)) {
+            } else if (!REGEX.password.test(formData.jelszo)) {
                 newErrors.jelszo =
                     "A jelszónak legalább 8 karakter hosszúnak kell lennie, tartalmaznia kell legalább 1 nagybetűt és 1 számot.";
             }
@@ -139,7 +141,7 @@ function Registration() {
     };
 
     const validateLogin = () => {
-        if (!emailRegex.test(loginData.email)) {
+        if (!REGEX.email.test(loginData.email)) {
             setErrors({ loginEmail: "Nem megfelelő email formátum." });
             return false;
         }
@@ -255,12 +257,12 @@ function Registration() {
 
     const loginMutation = useMutation({
         mutationFn: async (credentials) => {
-            const resp = await fetch(`${API_URL}/Auth/Login`, {
+            const resp = await fetchAPI(`/Auth/Login`, {
                 method: "POST",
-                credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(credentials)
             });
+
             if (resp.status === 401) throw new Error("Hibás e-mail cím vagy jelszó!");
             if (!resp.ok) throw new Error("Váratlan hiba történt a bejelentkezéskor!");
         },
@@ -398,7 +400,7 @@ function Registration() {
                                 <button
                                     type="button"
                                     className="auth_forgot_link"
-                                    onClick={() => navigate("/forgot-password")}
+                                    onClick={() => navigate("/forgotpassword")}
                                 >
                                     Elfelejtetted a jelszavad?
                                 </button>

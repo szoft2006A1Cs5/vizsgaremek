@@ -1,5 +1,6 @@
-export const BACKEND_URL = `https://${window.location.hostname}:7245`
-export const API_URL = `${BACKEND_URL}/api`
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? `https://${window.location.hostname}:7245`
+export const API_URL = import.meta.env.VITE_API_URL ?? `${BACKEND_URL}/api`
+export const RES_URL = import.meta.env.VITE_RES_URL ?? `${BACKEND_URL}/res`
 
 export const STATUS_DICT = {
     "renterOffer":          { num: 0, text: "Bérlő ajánlata", color: "blue" },

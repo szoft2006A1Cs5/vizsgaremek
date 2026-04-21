@@ -1,19 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "./Config";
+import { fetchAPI } from "./Utilities";
+import { useNavigate } from "react-router-dom";
 
 export function useUser() {
     return useQuery({
         queryKey: ["authUser"],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/User`, {
-                method: "GET",
-                credentials: "include",
-            });
+            const resp = await fetchAPI(`/User`);
 
-            if (!resp.ok)
-                throw new Error("Nincs bejelentkezve!");
+            if (!resp.ok) throw new Error("Nincs bejelentkezve!");
 
-            return await resp.json();
+            return resp.json();
         },
         refetchInterval: 60000,
         staleTime: 60000,
@@ -23,11 +21,14 @@ export function useUser() {
 
 export function useLogout() {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
+
     return useMutation({
-        mutationFn: () => fetch(`${API_URL}/Auth/Logout`, { method: "POST", credentials: "include" }),
+        mutationFn: () => fetchAPI(`/Auth/Logout`, { method: "POST" }),
         onSuccess: () => {
             queryClient.setQueryData(['authUser'], null);
             queryClient.clear();
+            navigate("/");
         },
     });
 }

@@ -6,6 +6,7 @@ import { useUser } from '../../../../../assets/scripts/AuthUser';
 import { API_URL } from '../../../../../assets/scripts/Config';
 import { FaBell } from 'react-icons/fa';
 import { notifications } from "@mantine/notifications";
+import { fetchAPI } from "../../../../../assets/scripts/Utilities";
 
 function NotificationMenu() {
     const [opened, { open, close }] = useDisclosure(false);
@@ -16,10 +17,10 @@ function NotificationMenu() {
 
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
-            const resp = await fetch(`${API_URL}/User/${authUser.id}/Notification/${id}`, {
+            const resp = await fetchAPI(`/User/${authUser.id}/Notification/${id}`, {
                 method: "DELETE",
-                credentials: "include",
             });
+
             if (!resp.ok) throw new Error("Nem sikerült törölni az értesítést!");
         },
         onSuccess: () => qc.invalidateQueries({ queryKey: ['authUser'] }),
@@ -28,10 +29,10 @@ function NotificationMenu() {
 
     const deleteAllMutation = useMutation({
         mutationFn: async () => {
-            const resp = await fetch(`${API_URL}/User/${authUser.id}/Notification`, {
+            const resp = await fetchAPI(`/User/${authUser.id}/Notification`, {
                 method: "DELETE",
-                credentials: "include",
             });
+
             if (!resp.ok) throw new Error("Nem sikerült törölni az értesítéseket!");
         },
         onSuccess: () => qc.invalidateQueries({ queryKey: ['authUser'] }),

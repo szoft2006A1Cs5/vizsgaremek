@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "./Config";
+import { API_URL, BACKEND_URL, RES_URL } from "./Config";
 
 export function formatDate(str) {
     if (!str) return '-';
@@ -15,9 +15,8 @@ export function formatPrice(n) {
     return Number(n).toLocaleString('hu-HU') + ' Ft';
 }
 
-export function formatProfilePic(pic) {
-    if (pic == null) return null;
-    return `${BACKEND_URL}/${pic}`;
+export function formatPic(pic, isProfile = false) {
+    return pic ? `${RES_URL}/${pic}` : null;
 }
 
 export function checkOver18(dateStr) {
@@ -33,7 +32,13 @@ export function checkOver18(dateStr) {
     return date <= today;
 }
 
-export async function getRespJsonError(resp) {
-    return resp.headers.get("Content-Type")?.includes("application/json") ? await resp.json() : null;
+export async function fetchAPI(path, options = {}) {
+    try {
+        return await fetch(`${API_URL}${path}`, {
+            ...options,
+            credentials: "include"
+        });
+    } catch {
+        throw new Error("Nem sikerült lekérni az adatokat!");
+    }
 }
-

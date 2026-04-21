@@ -1,5 +1,5 @@
 import { Button, Group, NumberInput, Paper, Stack, Text } from "@mantine/core";
-import { formatPrice, getRespJsonError } from "../../assets/scripts/Utilities";
+import { fetchAPI, formatPrice } from "../../assets/scripts/Utilities";
 import { IconWallet } from "@tabler/icons-react";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,9 +12,8 @@ function AccountBalance({ user }) {
 
     const addBalanceMutation = useMutation({
         mutationFn: async () => {
-            const resp = await fetch(`${API_URL}/User/${user.id}/Deposit`, {
+            const resp = await fetchAPI(`/User/${user.id}/Deposit`, {
                 method: "PUT",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -22,7 +21,7 @@ function AccountBalance({ user }) {
             });
 
             if (!resp.ok) {
-                const respJson = await getRespJsonError(resp);
+                const respJson = await resp.json().catch(() => {});
                 throw new Error(respJson?.error ?? "Nem sikerült feltölteni az egyenleget!");
             }
         },
