@@ -122,12 +122,19 @@ namespace backend
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            
-            // Csak ha localresourceservice-t hasznalunk
-            app.UseStaticFiles(new StaticFileOptions
+
+            // Ha LocalResourceService van es nincs megadva basepath, azaz nem hasznalunk mas mappat,
+            // akkor it serveli a kepeket. (Ha mas mappat hasznalunk valoszinuleg jobb lenne, hogy mas servelje
+            // a fajlokat, mondjuk nginx)
+            if (app.Services.GetService<IResourceService>() is LocalResourceService &&
+                string.IsNullOrWhiteSpace(app.Configuration["Resources:Local:BasePath"]))
             {
-                RequestPath = "/res",
-            });
+                // Csak ha localresourceservice-t hasznalunk
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    RequestPath = "/res",
+                });
+            }
 
             if (!app.Environment.IsDevelopment())
             {

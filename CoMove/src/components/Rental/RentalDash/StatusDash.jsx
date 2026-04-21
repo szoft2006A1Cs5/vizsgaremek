@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL, nextStatus, requiresActionFromMe, STATUS_DICT } from "../../../assets/scripts/Config";
-import { getRespJsonError } from "../../../assets/scripts/Utilities";
 import InfoDash from "./InfoDash";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { Button, Group, Stack, Stepper, Text } from "@mantine/core";
+import { fetchAPI } from "../../../assets/scripts/Utilities";
 
 function StatusDash({ rental, me }) {
     const queryClient = useQueryClient();
@@ -18,9 +18,8 @@ function StatusDash({ rental, me }) {
 
     const updateMutation = useMutation({
         mutationFn: async (newStatus) => {
-            const resp = await fetch(`${API_URL}/Rental/${rental.id}`, {
+            const resp = await fetchAPI(`/Rental/${rental.id}`, {
                 method: newStatus === "cancelled" ? "DELETE" : "PUT",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -33,7 +32,7 @@ function StatusDash({ rental, me }) {
             })
 
             if (!resp.ok) {
-                const respJson = await getRespJsonError(resp);
+                const respJson = await resp.json().catch(() => {});
                 throw new Error(respJson?.error ?? "Nem sikerült frissíteni a bérlést!");
             }
         },

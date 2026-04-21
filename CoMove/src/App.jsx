@@ -12,6 +12,8 @@ import EditVehicle from "./pages/EditVehicle/EditVehicle";
 import MyRentals from "./pages/MyRentals/MyRentals";
 import Rental from "./pages/Rental/Rental";
 import Account from "./pages/Account/Account";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +37,7 @@ export default function App() {
 
             <Route element={<EnsureAuth />} >
               <Route path="/vehicles" element={<MyVehicles />} />
-              <Route path="/vehicles/add" element={<AddVehicle />} />
+              <Route path="/vehicle/add" element={<AddVehicle />} />
               <Route path="/vehicle/:carId/edit" element={<EditVehicle />} />
               <Route path="/rentals" element={<MyRentals />} />
               <Route path="/rental/:rentalId" element={<Rental />} />
@@ -44,6 +46,8 @@ export default function App() {
             </Route>
           </Route>
 
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
           <Route path="/login" element={<Log_Reg />} />
           <Route path="/register" element={<Log_Reg />} />
         </Routes>

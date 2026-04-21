@@ -1,5 +1,5 @@
 import { useForm } from "@mantine/form";
-import { checkOver18, getRespJsonError } from "../../assets/scripts/Utilities";
+import { checkOver18, fetchAPI } from "../../assets/scripts/Utilities";
 import { Button, Checkbox, Divider, Group, PasswordInput, Stack, TextInput, Text } from "@mantine/core";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { API_URL } from "../../assets/scripts/Config";
 import { DateInput, DatePicker, DatePickerInput } from "@mantine/dates";
 import 'dayjs/locale/hu'
 import { notifications } from "@mantine/notifications";
+import { REGEX } from "../../assets/scripts/Regex";
 
 function AccountForm({ user }) {
     const queryClient = useQueryClient();
@@ -22,15 +23,15 @@ function AccountForm({ user }) {
             previousPassword: ""
         },
         validate: {
-            idCardNumber: ((v) => /^\d{6}[A-Z]{2}$/.test(v) ? null : "Érvénytelen személyi szám!"),
-            name: ((v) => /^[A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+( [A-ZÁÉÍÓÚÜŰÖŐ][a-záéíóúüűöő]+)+$/.test(v) ? null : "Helytelen név!"),
-            phone: ((v) => /^(36|06)(94|70|30|20)\d{7}$/.test(v) ? null : "Érvénytelen telefonszám!"),
+            idCardNumber: ((v) => REGEX.idCardNumber.test(v) ? null : "Érvénytelen személyi szám!"),
+            name: ((v) => REGEX.name.test(v) ? null : "Helytelen név!"),
+            phone: ((v) => REGEX.phone.test(v) ? null : "Érvénytelen telefonszám!"),
             dateOfBirth: ((v) => checkOver18(v) ? null : "El kell múlnod 18 évesnek!"),
-            email: ((v) => /^[A-z0-9.-]+@([A-z0-9-]+\.)+([A-z]{2,3})$/.test(v) ? null : "Érvénytelen e-mail formátum!"),
-            password: ((v) => !newPassword || /^(?=.*[a-z])(?=.*\d)(?=.*[A-Z]).{8,}$/.test(v) ? null : "A 8 karakteres jelszónak tartalmaznia kell nagybetűt, kisbetűt és számot!"),
+            email: ((v) => REGEX.email.test(v) ? null : "Érvénytelen e-mail formátum!"),
+            password: ((v) => !newPassword || REGEX.password.test(v) ? null : "A 8 karakteres jelszónak tartalmaznia kell nagybetűt, kisbetűt és számot!"),
             passwordAgain: ((v, values) => !newPassword || v.trim() === values.password.trim() ? null : "A két új jelszó nem egyezik!"),
-            driversLicenseNumber: ((v) => !v.trim() || /^[A-Z]{2}\d{6}$/.test(v) ? null : "Érvénytelen jogosítványszám!"),
-            addressZipcode: ((v) => /^\d{4}$/.test(v) ? null : "Érvénytelen irányítószám!"),
+            driversLicenseNumber: ((v) => !v.trim() || REGEX.driversLicenseNumber.test(v) ? null : "Érvénytelen jogosítványszám!"),
+            addressZipcode: ((v) => REGEX.addressZipcode.test(v) ? null : "Érvénytelen irányítószám!"),
             addressSettlement: ((v) => !!v.trim() ? null : "Nem adtál meg települést!"),
             addressStreetHouse: ((v) => !!v.trim() ? null : "Nem adtál meg utcát, házszámot!"),
             previousPassword: ((v) => !!v.trim() ? null : "Kötelező megadni a jelszót a beállítások frissítéséhez!")
@@ -39,9 +40,8 @@ function AccountForm({ user }) {
 
     const saveMutation = useMutation({
         mutationFn: async (formSent) => {
-            const resp = await fetch(`${API_URL}/User/${user.id}`, {
+            const resp = await fetchAPI(`/User/${user.id}`, {
                 method: "PUT",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -57,7 +57,7 @@ function AccountForm({ user }) {
             } else if (resp.status === 409) {
                 throw new Error("Az adatok ütköznek más felhasználói adatokkal!");
             } else if (!resp.ok) {
-                const respJson = await getRespJsonError(resp);
+                const respJson = await resp.json().catch(() => {});
                 throw new Error(respJson?.error ?? "Nem sikerült menteni az adatokat!");
             }
         },

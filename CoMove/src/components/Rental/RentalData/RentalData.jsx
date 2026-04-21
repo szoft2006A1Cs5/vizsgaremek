@@ -1,12 +1,12 @@
 import { Avatar, Badge, Divider, Group, Paper, Rating, Stack, Text } from "@mantine/core";
-import { formatDateTime, formatPrice, formatProfilePic } from "../../../assets/scripts/Utilities";
+import { formatDateTime, formatPrice, formatPic } from "../../../assets/scripts/Utilities";
 import { STATUS_DICT } from "../../../assets/scripts/Config";
 
 function ProfileRow({ profile, owner = false }) {
     return (
         <Group justify="space-between">
             <Group>
-                <Avatar src={formatProfilePic(profile?.profilePicPath)} color="var(--background)" />
+                <Avatar src={formatPic(profile?.profilePicPath)} color="var(--background)" />
                 <Stack gap={0}>
                     <Text fz={11} c='var(--lightpurple)'>{owner ? 'Bérbeadó' : 'Bérlő'}</Text>
                     <Text fz={14} fw='bold'>{profile?.name}</Text>

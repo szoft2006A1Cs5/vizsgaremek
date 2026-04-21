@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_URL } from "../../assets/scripts/Config";
 import { useEffect } from "react";
 import { notifications } from "@mantine/notifications";
-import { formatDateTime, formatPrice } from "../../assets/scripts/Utilities";
+import { fetchAPI, formatDateTime, formatPrice } from "../../assets/scripts/Utilities";
 import VehicleCard from "../../components/common/VehicleCard/VehicleCard";
 import RentalData from "../../components/Rental/RentalData/RentalData";
 import RentalChat from "../../components/Rental/RentalChat/RentalChat";
@@ -20,9 +20,7 @@ function Rental() {
     const { data: rental, isLoading, error, isError } = useQuery({
         queryKey: ['rental', rentalId],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Rental/${rentalId}`, { 
-                credentials: "include" 
-            });
+            const resp = await fetchAPI(`/Rental/${rentalId}`);
 
             if (resp.status === 403 || resp.status === 404) {
                 navigate("/rentals");

@@ -8,6 +8,7 @@ import VehicleAvailabilityMenu from '../../components/VehicleForm/VehicleAvailab
 import { API_URL } from '../../assets/scripts/Config';
 import { useUser } from '../../assets/scripts/AuthUser';
 import PageLayout from '../../components/common/PageLayout/PageLayout';
+import { fetchAPI } from '../../assets/scripts/Utilities';
 
 function EditVehicle() {
     const { carId } = useParams();
@@ -20,22 +21,22 @@ function EditVehicle() {
     const { data: vehicle, isLoading } = useQuery({
         queryKey: ['vehicle', carId],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Vehicle/${carId}`, {
-                credentials: "include",
-            });
+            const resp = await fetchAPI(`/Vehicle/${carId}`);
+
             if (!resp.ok) throw new Error('Hiba!');
+            
             return resp.json();
         },
     });
 
     const vehicleUpdateMutation = useMutation({
-        mutationFn: async (values) => {
-            const resp = await fetch(`${API_URL}/Vehicle/${carId}`, {
+        mutationFn: async (vehicleData) => {
+            const resp = await fetchAPI(`/Vehicle/${carId}`, {
                 method: 'PUT',
-                credentials: "include",
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(values),
+                body: JSON.stringify(vehicleData),
             });
+
             if (resp.status === 409) throw new Error('A megadott VIN, rendszám vagy biztosítási szám már foglalt.');
             if (!resp.ok) throw new Error('Hiba történt a jármű mentésekor.');
         },

@@ -1,10 +1,10 @@
 import { ActionIcon, Avatar, FileButton, Grid, Group, Paper, Stack } from "@mantine/core";
 import { API_URL, BACKEND_URL } from "../../assets/scripts/Config";
-import { getRespJsonError } from "../../assets/scripts/Utilities";
 import { IconUpload, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import AccountForm from "./AccountForm";
+import { fetchAPI, formatPic } from "../../assets/scripts/Utilities";
 
 function AccountEdit({ user }) {
     const queryClient = useQueryClient();
@@ -16,14 +16,13 @@ function AccountEdit({ user }) {
             if (file)
                 formData.append('file', file);
 
-            const resp = await fetch(`${API_URL}/User/${user.id}/Image`, {
+            const resp = await fetchAPI(`/User/${user.id}/Image`, {
                 method: "PUT",
-                credentials: "include",
                 body: formData
             });
 
             if (!resp.ok) {
-                const respJson = await getRespJsonError(resp);
+                const respJson = await resp.json().catch(() => {});
                 throw new Error(respJson?.error ?? "Nem sikerült frissíteni a profilképet!");
             }
         },
@@ -38,7 +37,7 @@ function AccountEdit({ user }) {
                     <Group justify="center" align="center">
                         <Stack gap={25}>
                             <Avatar 
-                                src={user.profilePicPath ? `${BACKEND_URL}/${user.profilePicPath}` : null}
+                                src={formatPic(user?.profilePicPath)}
                                 w={150}
                                 h={150}
                             />

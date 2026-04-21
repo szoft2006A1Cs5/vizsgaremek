@@ -21,7 +21,7 @@ import { Link, useLocation } from "react-router-dom"
 import NotificationMenu from "./Notifications/NotificationMenu/NotificationMenu";
 import { useLogout, useUser } from "../../../assets/scripts/AuthUser";
 import { BACKEND_URL } from "../../../assets/scripts/Config";
-import { formatProfilePic } from "../../../assets/scripts/Utilities";
+import { formatPic } from "../../../assets/scripts/Utilities";
 
 function Navbar({ children }) {
     const [sideNavOpen, sideNav] = useDisclosure(false)
@@ -147,7 +147,7 @@ function Navbar({ children }) {
                                                 popover.toggle();
                                             }}
                                             className="nav_account"
-                                            src={formatProfilePic(authUser?.profilePicPath)}
+                                            src={formatPic(authUser?.profilePicPath)}
                                             w={44} h={44} color="white"
                                         />
                                     </Popover.Target>
@@ -172,7 +172,7 @@ function Navbar({ children }) {
                                     aside.toggle();
                                 }}
                                 className="nav_account"
-                                src={formatProfilePic(authUser?.profilePicPath)}
+                                src={formatPic(authUser?.profilePicPath)}
                                 w={44} h={44} color="white"
                             />
                         </Group>
