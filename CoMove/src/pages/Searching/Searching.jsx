@@ -10,6 +10,7 @@ import "@mantine/dates/styles.css";
 import { useMutation } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import 'dayjs/locale/hu'
+import { fetchAPI } from "../../assets/scripts/Utilities";
 
 function normalize(s) {
     return (s || "").toString().trim().toLowerCase();
@@ -63,12 +64,9 @@ function Searching() {
 
     const searchMutation = useMutation({
         mutationFn: async (params) => {
-            const resp = await fetch(`${API_URL}/Vehicle?${params}`, {
-                credentials: "include"
-            });
+            const resp = await fetchAPI(`/Vehicle?${params}`);
 
-            if (!resp.ok)
-                throw new Error("Nem sikerült lekérni a járműveket!");
+            if (!resp.ok) throw new Error("Nem sikerült lekérni a járműveket!");
 
             return resp.json();
         },

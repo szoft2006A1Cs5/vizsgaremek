@@ -8,7 +8,7 @@ import {
 import { DateTimePicker } from '@mantine/dates';
 import { IconTrash, IconEdit, IconPlus, IconCalendar } from '@tabler/icons-react';
 import { API_URL } from '../../../assets/scripts/Config';
-import { formatDateTime } from '../../../assets/scripts/Utilities';
+import { fetchAPI, formatDateTime } from '../../../assets/scripts/Utilities';
 import '@mantine/dates/styles.css';
 import 'dayjs/locale/hu'
 
@@ -54,10 +54,10 @@ function VehicleAvailabilityMenu({ vehicleId }) {
     const { data: availabilities = [], isLoading } = useQuery({
         queryKey: ['vehicle-availabilities', vehicleId],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Availability`, {
-                credentials: "include",
-            });
-            if (!resp.ok) throw new Error('Failed');
+            const resp = await fetchAPI(`/Vehicle/${vehicleId}/Availability`);
+
+            if (!resp.ok) throw new Error('Nem sikerült lekérni az elérhetőségeket!');
+
             return resp.json();
         },
     });
@@ -85,14 +85,15 @@ function VehicleAvailabilityMenu({ vehicleId }) {
     const saveMutation = useMutation({
         mutationFn: async (body) => {
             const url = editTarget !== null
-                ? `${API_URL}/Vehicle/${vehicleId}/Availability/${editTarget}`
-                : `${API_URL}/Vehicle/${vehicleId}/Availability`;
-            const resp = await fetch(url, {
+                ? `/Vehicle/${vehicleId}/Availability/${editTarget}`
+                : `/Vehicle/${vehicleId}/Availability`;
+            
+            const resp = await fetchAPI(url, {
                 method: editTarget !== null ? 'PUT' : 'POST',
-                credentials: "include",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
+
             if (resp.status === 409) throw new Error('Ez az időszak ütközik egy meglévő elérhetőséggel.');
             if (!resp.ok) throw new Error('Hiba történt a mentés során.');
         },
@@ -107,10 +108,10 @@ function VehicleAvailabilityMenu({ vehicleId }) {
 
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
-            const resp = await fetch(`${API_URL}/Vehicle/${vehicleId}/Availability/${id}`, {
+            const resp = await fetchAPI(`/Vehicle/${vehicleId}/Availability/${id}`, {
                 method: 'DELETE',
-                credentials: "include",
             });
+
             if (!resp.ok) throw new Error('Törlés sikertelen');
         },
         onSuccess: () => {

@@ -19,6 +19,7 @@ import { notifications } from '@mantine/notifications';
 import style from './Vehicle.module.css';
 import RentalRow from '../../components/common/RentalRow/RentalRow';
 import 'dayjs/locale/hu'
+import { fetchAPI, formatPic } from '../../assets/scripts/Utilities';
 
 function Vehicle() {
     const { carId } = useParams();
@@ -39,10 +40,10 @@ function Vehicle() {
     const { data: vehicle, isLoading, isError } = useQuery({
         queryKey: ['vehicle', carId],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Vehicle/${carId}`, {
-                credentials: "include",
-            });
+            const resp = await fetchAPI(`/Vehicle/${carId}`);
+
             if (!resp.ok) throw new Error('Not found');
+            
             return resp.json();
         },
     });
@@ -54,9 +55,9 @@ function Vehicle() {
                 rentalStart: new Date(start).toISOString(),
                 rentalEnd: new Date(end).toISOString(),
             });
-            const resp = await fetch(`${API_URL}/Vehicle/${carId}/Quote?${params}`, {
-                credentials: "include",
-            });
+
+            const resp = await fetchAPI(`/Vehicle/${carId}/Quote?${params}`);
+
             if (resp.status === 409) return null;
             if (!resp.ok) throw new Error('Nem sikerült lekérni az ajánlatot!');
             return resp.json();
@@ -66,9 +67,8 @@ function Vehicle() {
 
     const createRentalMutation = useMutation({
         mutationFn: async () => {
-            const resp = await fetch(`${API_URL}/Rental`, {
+            const resp = await fetchAPI(`/Rental`, {
                 method: 'POST',
-                credentials: "include",
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -79,10 +79,12 @@ function Vehicle() {
                     pickupLocation,
                 }),
             });
+
             if (!resp.ok) {
                 const err = await resp.json().catch(() => ({}));
                 throw new Error(err?.error ?? 'Hiba történt a bérlés létrehozásakor.');
             }
+
             return resp.json();
         },
         onSuccess: (rental) => {
@@ -125,7 +127,7 @@ function Vehicle() {
                                             <Carousel.Slide key={img.imageId}>
                                                 <img
                                                     className={style.vehicleCarouselImg}
-                                                    src={`${BACKEND_URL}/${img.path}`}
+                                                    src={formatPic(img?.path)}
                                                 />
                                             </Carousel.Slide>
                                         )) : (

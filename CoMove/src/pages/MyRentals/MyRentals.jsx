@@ -3,13 +3,16 @@ import { Text, Stack, Loader, Center, SimpleGrid } from '@mantine/core';
 import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { API_URL } from '../../assets/scripts/Config';
 import RentalRow from '../../components/common/RentalRow/RentalRow';
+import { fetchAPI } from '../../assets/scripts/Utilities';
 
 function MyRentals() {
     const { data: rentals, isLoading, isError } = useQuery({
         queryKey: ['myrentals'],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Rental`, { credentials: "include" });
-            if (!resp.ok) throw new Error('Szerverhiba!');
+            const resp = await fetchAPI('/Rental');
+
+            if (!resp.ok) throw new Error('Nem sikerült lekérni a bérléseket!');
+
             return resp.json();
         },
     });

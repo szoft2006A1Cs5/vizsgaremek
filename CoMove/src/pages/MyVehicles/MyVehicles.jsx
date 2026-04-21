@@ -4,6 +4,7 @@ import { API_URL } from "../../assets/scripts/Config";
 import { Loader, Center, Stack, Text, Button, SimpleGrid } from "@mantine/core";
 import PageLayout from "../../components/common/PageLayout/PageLayout";
 import VehicleCard from "../../components/common/VehicleCard/VehicleCard";
+import { fetchAPI } from "../../assets/scripts/Utilities";
 
 function MyVehicles() {
     const navigate = useNavigate();
@@ -11,10 +12,10 @@ function MyVehicles() {
     const { data: vehicles, isLoading, isError } = useQuery({
         queryKey: ["ownedVehicles"],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Vehicle/Owned`, {
-                credentials: "include",
-            });
+            const resp = await fetchAPI('/Vehicle/Owned');
+
             if (resp.status !== 200) return null;
+            
             return resp.json();
         },
     });
@@ -25,7 +26,7 @@ function MyVehicles() {
             subtitle="Az Ön által bérbeadott járművek"
             rightContent={
                 <Button
-                    onClick={() => navigate("/vehicles/add")}
+                    onClick={() => navigate("/vehicle/add")}
                     style={{ background: 'var(--button)' }}
                     radius="md"
                 >

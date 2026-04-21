@@ -7,6 +7,7 @@ import { API_URL } from "../../assets/scripts/Config";
 import { Center, Loader, Stack, Text } from "@mantine/core";
 import AccountBalance from "../../components/Account/AccountBalance";
 import AccountEdit from "../../components/Account/AccountEdit";
+import { fetchAPI } from "../../assets/scripts/Utilities";
 
 function Account() {
     const navigate = useNavigate();
@@ -17,12 +18,9 @@ function Account() {
     const { data: user, error, isError, isLoading } = useQuery({
         queryKey: ["user", String(userId)],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/User/${userId}`, {
-                credentials: "include"
-            });
+            const resp = await fetchAPI(`/User/${userId}`);
 
-            if (!resp.ok)
-                throw new Error("Nem sikerült lekérni a felhasználói adatokat!");
+            if (!resp.ok) throw new Error("Nem sikerült lekérni a felhasználói adatokat!");
 
             return resp.json();
         },

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_URL, BACKEND_URL } from "../../../assets/scripts/Config";
 import { useUser } from "../../../assets/scripts/AuthUser";
-import { formatDateTime } from "../../../assets/scripts/Utilities";
+import { fetchAPI, formatDateTime, formatPic } from "../../../assets/scripts/Utilities";
 import { notifications } from "@mantine/notifications";
 
 function Message({ message, me }) {
@@ -18,7 +18,7 @@ function Message({ message, me }) {
                 <Group bg={isMe ? 'var(--button)' : "lightgray"} w="100%" p={10} bdrs={10}>
                     <Stack gap={1}>
                         { message?.isImage ? 
-                            <Image src={`${BACKEND_URL}/${message.content}`} />
+                            <Image src={formatPic(message.content)} />
                         : 
                             <Text c={isMe ? 'white' : "var(--background)"} fz={12}>{message.content}</Text>
                         }
@@ -39,9 +39,7 @@ function RentalChat({ rentalId }) {
     const { data: messages, isLoading, error, isError } = useQuery({
         queryKey: ["rental-messages", rentalId],
         queryFn: async () => {
-            const resp = await fetch(`${API_URL}/Rental/${rentalId}/Message`, {
-                credentials: "include"
-            });
+            const resp = await fetchAPI(`/Rental/${rentalId}/Message`);
 
             if (!resp.ok)
                 throw new Error("Nem sikerült betölteni az üzeneteket!");
@@ -53,9 +51,8 @@ function RentalChat({ rentalId }) {
 
     const sendMessageMutation = useMutation({
         mutationFn: async () => {
-            const resp = await fetch(`${API_URL}/Rental/${rentalId}/Message`, {
+            const resp = await fetchAPI(`/Rental/${rentalId}/Message`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -80,9 +77,8 @@ function RentalChat({ rentalId }) {
             const formData = new FormData();
             formData.append('file', file);
 
-            const resp = await fetch(`${API_URL}/Rental/${rentalId}/Message/Image`, {
+            const resp = await fetchAPI(`/Rental/${rentalId}/Message/Image`, {
                 method: "POST",
-                credentials: "include",
                 body: formData,
             });
 
@@ -148,7 +144,7 @@ function RentalChat({ rentalId }) {
                             radius='xl'
                             placeholder="Írj üzenetet!" 
                             value={msgSent}
-                            onInput={(e) => setMsgSent(e.target.value.trim())} 
+                            onInput={(e) => setMsgSent(e.target.value)} 
                             onKeyDown={(e) => {
                                 if (e.key === "Enter" && !e.shiftKey && msgSent.trim()) {
                                     e.preventDefault();
