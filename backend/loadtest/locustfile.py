@@ -2,21 +2,15 @@ from enum import verify
 from locust import HttpUser, task
 import random
 
-token = None
-
 class ComoveAPILoadTest(HttpUser):
     def on_start(self):
         self.client.verify = False
 
-        with self.client.post(
+        self.client.post(
             "/api/Auth/login",
             json={ "email": "tesztelek@teszt.hu", "password": "NagyTesztElek32" },
-            verify=False,
-            catch_response=True
-        ) as resp:
-            if resp.status_code == 200:
-                token = resp.json().get("token")
-                self.client.headers.update({"Authorization": f"Bearer {token}"})
+            verify=False
+        )
 
     @task
     def getUserTest(self):
@@ -39,16 +33,8 @@ class ComoveAPILoadTest(HttpUser):
         self.client.get(f"/api/Vehicle/1/Availability", verify=False)
 
     @task
-    def getAvailability(self):
-        self.client.get(f"/api/Vehicle/1/Availability/1", verify=False)
-
-    @task
     def getImages(self):
         self.client.get(f"/api/Vehicle/{random.randint(1, 3)}/Image", verify=False)
-
-    @task
-    def getImage(self):
-        self.client.get(f"/api/Vehicle/1/Image/1", verify=False)
 
     @task
     def getRentals(self):

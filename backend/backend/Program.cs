@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using backend.Common;
 using backend.Services.EmailService;
 using backend.Services.RentalService;
 using backend.Services.ResourceService;
@@ -114,10 +115,15 @@ namespace backend
                 .Select(x => x.Value!)
                 .ToArray();
             
+            Config.LoadFromConfiguration(builder.Configuration);
+            
             var app = builder.Build();
             
+            bool isDevelopment = app.Environment.IsDevelopment() || 
+                                 app.Environment.IsEnvironment("HTTPDevelopment");
+            
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (isDevelopment)
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
@@ -136,7 +142,7 @@ namespace backend
                 });
             }
 
-            if (!app.Environment.IsDevelopment())
+            if (!isDevelopment)
             {
                 // Igy nem kell minden metodust try catchbe rakni, hanem ha exception van,
                 // szepen irjuk ki innen.
