@@ -97,7 +97,7 @@ function Home() {
                 <button
                   className="home_btn"
                   type="button"
-                  onClick={() => navigate("/searching")}
+                  onClick={() => navigate("/search")}
                 >
                   Béreljen itt
                 </button>
