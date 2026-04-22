@@ -144,7 +144,8 @@ namespace backend.Controllers
             if (authUser == null) return Unauthorized();
 
             if (authUser.DriversLicenseNumber == null)
-                return Forbid();
+                return BadRequest(new { Error = "A bérlési ajánlat elküldéséhez adja meg jogosítványa " +
+                                                "számát a fiókbeállításokban!" });
 
             var vehicle = await _context.Vehicles
                 .Include(x => x.Availabilities)

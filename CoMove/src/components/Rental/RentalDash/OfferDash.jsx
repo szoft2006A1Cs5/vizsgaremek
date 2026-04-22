@@ -84,6 +84,7 @@ function OfferDash({ rental, me }) {
                 radius="md"
                 size="sm"
                 maxLength={512}
+                required={true}
             />
 
             <DateTimePicker
@@ -98,6 +99,7 @@ function OfferDash({ rental, me }) {
                 radius="md"
                 size="sm"
                 maxLength={512}
+                required={true}
             />
 
             <TextInput
@@ -110,6 +112,7 @@ function OfferDash({ rental, me }) {
                 size="sm"
                 maxLength={512}
                 error={!rentalForm.pickupLocation.trim() ? "Nem adtál meg átvételi helyet!" : null}
+                required={true}
             />
 
             <Group gap={10} wrap="wrap">

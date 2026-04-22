@@ -72,7 +72,7 @@ namespace backend.Controllers
         public async Task<IActionResult> Register([FromBody] UserRegistrationDTO registration)
         {
             if (!registration.CheckValid(_timePrv))
-                return BadRequest(new { Error = "A megadott adatok hibásak!" });
+                return BadRequest(new { Error = "A megadott adatok formátumai hibásak!" });
 
             var phone = registration.Phone.Substring(2);
             if (_context.Users.Any(x => x.Email == registration.Email ||

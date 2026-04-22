@@ -50,19 +50,19 @@ function VehicleForm({ initVal, onSubmit, loading }) {
                         <Text fz={15} fw='bold' c="var(--background)" mb={10}>Alapadatok</Text>
                         <Grid>
                             <Grid.Col span={{ base: 12, sm: 6 }}>
-                                <TextInput label="Gyártó" maxLength={16} {...form.getInputProps('manufacturer')} />
+                                <TextInput label="Gyártó" maxLength={16} {...form.getInputProps('manufacturer')} required={true} />
                             </Grid.Col>
                             <Grid.Col span={{ base: 12, sm: 6 }}>
-                                <TextInput label="Modell" maxLength={32} {...form.getInputProps('model')} />
+                                <TextInput label="Modell" maxLength={32} {...form.getInputProps('model')} required={true} />
                             </Grid.Col>
                             <Grid.Col span={threeColSpans}>
-                                <NumberInput label="Évjárat" min={1886} max={new Date().getFullYear()} {...form.getInputProps('year')} />
+                                <NumberInput label="Évjárat" min={1886} max={new Date().getFullYear()} {...form.getInputProps('year')} required={true} />
                             </Grid.Col>
                             <Grid.Col span={threeColSpans}>
-                                <TextInput label="Üzemanyag" maxLength={20} {...form.getInputProps('fuelType')} />
+                                <TextInput label="Üzemanyag" maxLength={20} {...form.getInputProps('fuelType')} required={true} />
                             </Grid.Col>
                             <Grid.Col span={threeColSpans}>
-                                <TextInput label="Váltó" maxLength={16} {...form.getInputProps('transmission')} />
+                                <TextInput label="Váltó" maxLength={16} {...form.getInputProps('transmission')} required={true} />
                             </Grid.Col>
                         </Grid>
                     </Box>
@@ -73,13 +73,13 @@ function VehicleForm({ initVal, onSubmit, loading }) {
                         <Text fz={15} fw='bold' c="var(--background)" mb={10}>Műszaki adatok</Text>
                         <Grid>
                             <Grid.Col span={threeColSpans}>
-                                <NumberInput label="Teljesítmény (LE)" min={1} {...form.getInputProps('horsepower')} />
+                                <NumberInput label="Teljesítmény (LE)" min={1} {...form.getInputProps('horsepower')} required={true} />
                             </Grid.Col>
                             <Grid.Col span={threeColSpans}>
-                                <NumberInput label="Kilométeróra (km)" min={0} {...form.getInputProps('odometerReading')} />
+                                <NumberInput label="Kilométeróra (km)" min={0} {...form.getInputProps('odometerReading')} required={true} />
                             </Grid.Col>
                             <Grid.Col span={threeColSpans}>
-                                <NumberInput label="Átlagfogyasztás (L/100km)" min={0.1} decimalScale={1} step={0.1} {...form.getInputProps('avgFuelConsumption')} />
+                                <NumberInput label="Átlagfogyasztás (L/100km)" min={0.1} decimalScale={1} step={0.1} {...form.getInputProps('avgFuelConsumption')} required={true} />
                             </Grid.Col>
                         </Grid>
                     </Box>
@@ -90,13 +90,13 @@ function VehicleForm({ initVal, onSubmit, loading }) {
                         <Text fz={15} fw='bold' c="var(--background)" mb={10}>Jogi adatok</Text>
                         <Grid>
                             <Grid.Col span={threeColSpans}>
-                                <TextInput label="Alvázszám (VIN)" maxLength={17} {...form.getInputProps('vin')} />
+                                <TextInput label="Alvázszám (VIN)" maxLength={17} {...form.getInputProps('vin')} required={true} />
                             </Grid.Col>
                             <Grid.Col span={threeColSpans}>
-                                <TextInput label="Rendszám" maxLength={7} {...form.getInputProps('licensePlate')} />
+                                <TextInput label="Rendszám" maxLength={7} {...form.getInputProps('licensePlate')} required={true} />
                             </Grid.Col>
                             <Grid.Col span={threeColSpans}>
-                                <TextInput label="Biztosítási szám" maxLength={64} {...form.getInputProps('insuranceNumber')} />
+                                <TextInput label="Biztosítási szám" maxLength={64} {...form.getInputProps('insuranceNumber')} required={true} />
                             </Grid.Col>
                         </Grid>
                     </Box>

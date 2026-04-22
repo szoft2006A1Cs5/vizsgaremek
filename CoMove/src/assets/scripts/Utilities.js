@@ -42,3 +42,11 @@ export async function fetchAPI(path, options = {}) {
         throw new Error("Nem sikerült lekérni az adatokat!");
     }
 }
+
+export function trimForm(form) {
+    return Object.fromEntries(
+        Object.entries(form).map(([key, val]) => {
+            return [key, typeof val === "string" ? val.trim() : val]
+        })
+    );
+}

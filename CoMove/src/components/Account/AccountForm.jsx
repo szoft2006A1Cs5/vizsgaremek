@@ -1,5 +1,5 @@
 import { useForm } from "@mantine/form";
-import { checkOver18, fetchAPI } from "../../assets/scripts/Utilities";
+import { checkOver18, fetchAPI, trimForm } from "../../assets/scripts/Utilities";
 import { Button, Checkbox, Divider, Group, PasswordInput, Stack, TextInput, Text } from "@mantine/core";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -66,13 +66,7 @@ function AccountForm({ user }) {
     })
 
     const handleSave = (values) => {
-        const trimmedForm = Object.fromEntries(
-            Object.entries(values).map(([key, val]) => {
-                return [key, typeof val === "string" ? val.trim() : val]
-            })
-        );
-
-        saveMutation.mutate(trimmedForm);
+        saveMutation.mutate(trimForm(values));
     }
 
     return (
@@ -110,7 +104,7 @@ function AccountForm({ user }) {
                 />
 
                 <TextInput
-                    label="Jogosítványszám"
+                    label="Jogosítványszám (opcionális)"
                     placeholder="pl. AB123456"
                     {...form.getInputProps("driversLicenseNumber")}
                 />

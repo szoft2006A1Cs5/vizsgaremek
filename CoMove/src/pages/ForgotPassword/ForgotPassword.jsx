@@ -3,11 +3,11 @@ import { useUser } from "../../assets/scripts/AuthUser";
 import { Link, useNavigate } from "react-router-dom";
 import { Flex, Paper, Text, Image, Stack, TextInput, NavLink, Button } from "@mantine/core";
 import logo from "../../assets/kepek/logo/comove_logo1.png";
-import style from './ForgotPassword.module.css'
 import { REGEX } from "../../assets/scripts/Regex";
 import { useMutation } from "@tanstack/react-query";
 import { fetchAPI } from "../../assets/scripts/Utilities";
 import { notifications } from "@mantine/notifications";
+import CenteredCard, { blueInput, styles } from "../../components/common/CenteredCard/CenteredCard";
 
 function ForgotPassword() {
     const navigate = useNavigate();
@@ -21,7 +21,7 @@ function ForgotPassword() {
 
     const forgotPasswordMutation = useMutation({
         mutationFn: async () => {
-            const resp = await fetchAPI(`/Auth/ForgotPassword?email=${emailData.email}`, {
+            const resp = await fetchAPI(`/Auth/ForgotPassword?email=${emailData.email.trim()}`, {
                 method: "POST",
             })
 
@@ -39,7 +39,7 @@ function ForgotPassword() {
     })
 
     const tryForgot = () => {
-        if (!REGEX.email.test(emailData.email)) {
+        if (!REGEX.email.test(emailData.email.trim())) {
             setEmailData({
                 ...emailData,
                 error: "Nem megfelelő az e-mail cím formátuma!"
@@ -56,47 +56,45 @@ function ForgotPassword() {
     }
 
     return (
-        <Flex mih='100vh' justify='center' align='center' bg='var(--lightbackground)'>
-            <Paper p={40} radius='xl' w='100%' maw={500} shadow='md' m='5%'>
-                <Image src={logo} w={45} h={45} onClick={() => navigate("/")} style={{ cursor: "pointer" }} mb={25} />
-                <Stack gap={15}>
-                    <Text c="var(--background)" fw='bold' fz={30}>Elfelejtetted a jelszavad?</Text>
-                    <Text c="var(--lightpurple)" fz={15}>
-                        Írd be a fiókodhoz tartozó e-mail címet, és küldünk egy visszaállító kódot!
-                    </Text>
-                    
-                    <TextInput 
-                        label="E-mail cím"
-                        placeholder="pl. teszt@comove.app"
-                        value={emailData.email}
-                        onInput={(e) => setEmailData({ ...emailData, email: e.target.value })}
-                        error={emailData.error}
-                        styles={{ input: { backgroundColor: "var(--lightbackground)" } }} />
-                    
-                    <Button 
-                        color="var(--button)" 
-                        fz={15} 
-                        radius='xl'
-                        w='100%'
-                        onClick={() => tryForgot()}
-                        loading={forgotPasswordMutation.isPending}
-                    >
-                        Visszaállító e-mail küldése
-                    </Button>
-                    
-                    <Text 
-                        component={Link} 
-                        to="/resetpassword" 
-                        className={style.hasCode} 
-                        c="var(--lightpurple)" 
-                        fz={12} 
-                        ta="center"
-                    >
-                        Már van kódom
-                    </Text>
-                </Stack>
-            </Paper>
-        </Flex>
+        <CenteredCard>
+            <Stack gap={15}>
+                <Text c="var(--background)" fw='bold' fz={30}>Elfelejtetted a jelszavad?</Text>
+                <Text c="var(--lightpurple)" fz={15}>
+                    Írd be a fiókodhoz tartozó e-mail címet, és küldünk egy visszaállító kódot!
+                </Text>
+                
+                <TextInput 
+                    label="E-mail cím"
+                    placeholder="pl. teszt@comove.app"
+                    value={emailData.email}
+                    onInput={(e) => setEmailData({ ...emailData, email: e.target.value })}
+                    error={emailData.error}
+                    styles={blueInput}
+                    required={true} />
+                
+                <Button 
+                    color="var(--button)" 
+                    fz={15} 
+                    radius='xl'
+                    w='100%'
+                    onClick={() => tryForgot()}
+                    loading={forgotPasswordMutation.isPending}
+                >
+                    Visszaállító e-mail küldése
+                </Button>
+                
+                <Text 
+                    component={Link} 
+                    to="/resetpassword" 
+                    className={styles.hoverUp} 
+                    c="var(--lightpurple)" 
+                    fz={12} 
+                    ta="center"
+                >
+                    Már van kódom
+                </Text>
+            </Stack>
+        </CenteredCard>
     )
 }
 

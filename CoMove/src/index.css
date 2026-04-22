@@ -8,6 +8,16 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  --accent: #192570;
+  --accent2: #060631;
+  --bg: #ebf0ff;
+  --text: rgba(15, 23, 42, 0.92);
+  --muted: rgba(100, 116, 139, 0.92);
+  --fieldBg: rgba(25, 37, 112, 0.07);
+  --fieldBorder: rgba(25, 37, 112, 0.2);
+  --radius: 34px;
+  --shadow: 0 26px 70px rgba(2, 6, 23, 0.18);
+
   --background: #060631;
   --lightbackground: #ebf0ff;
   --secondary: #eef4ff;

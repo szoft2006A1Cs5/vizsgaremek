@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Navbar from "./components/common/Navbar/Navbar";
 import Home from "./pages/Home/Home";
 import Searching from "./pages/Searching/Searching";
-import Log_Reg from "./pages/Log_Reg/Log_Reg";
 import MyVehicles from "./pages/MyVehicles/MyVehicles";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import EnsureAuth from "./components/EnsureAuth/EnsureAuth";
@@ -14,6 +13,7 @@ import Rental from "./pages/Rental/Rental";
 import Account from "./pages/Account/Account";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import LogReg from "./pages/LogReg/LogReg";
 
 const queryClient = new QueryClient();
 
@@ -48,8 +48,8 @@ export default function App() {
 
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
-          <Route path="/login" element={<Log_Reg />} />
-          <Route path="/register" element={<Log_Reg />} />
+          <Route path="/login" element={<LogReg />} />
+          <Route path="/register" element={<LogReg />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

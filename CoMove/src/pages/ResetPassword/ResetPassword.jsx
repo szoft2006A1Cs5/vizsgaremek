@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { fetchAPI } from "../../assets/scripts/Utilities";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
-import style from './ResetPassword.module.css'
+import CenteredCard, { blueInput, styles } from "../../components/common/CenteredCard/CenteredCard";
 
 function ResetPassword() {
     const [queryParams] = useSearchParams();
@@ -23,7 +23,7 @@ function ResetPassword() {
             passwordAgain: "",
         },
         validate: {
-            email: ((v) => REGEX.email.test(v) ? null : "Nem megfelelő az e-mail cím formátuma!"),
+            email: ((v) => REGEX.email.test(v.trim()) ? null : "Nem megfelelő az e-mail cím formátuma!"),
             token: ((v) => 
                 v.trim() &&
                 !isNaN(Number(v.trim())) && 
@@ -32,7 +32,7 @@ function ResetPassword() {
                     : "Nem megfelelő a kód formátuma!"
             ),
             password: ((v) =>
-                REGEX.password.test(v)
+                REGEX.password.test(v.trim())
                     ? null 
                     : "A jelszónak legalább 8 karakter hosszúnak kell lennie, tartalmaznia kell legalább 1 nagybetűt és 1 számot."
             ),
@@ -72,70 +72,71 @@ function ResetPassword() {
     })
 
     return (
-        <Flex mih='100vh' justify='center' align='center' bg='var(--lightbackground)'>
-            <Paper p={40} radius='xl' w='100%' maw={500} shadow='md' m='5%'>
-                <Image src={logo} w={45} h={45} onClick={() => navigate("/")} style={{ cursor: "pointer" }} mb={25} />
-                <form onSubmit={resetForm.onSubmit((formData) => resetPasswordMutation.mutate(formData))} >
-                    <Stack gap={15}>
-                        <Text c="var(--background)" fw='bold' fz={30}>Új jelszó beállítása</Text>
-                        <Text c="var(--lightpurple)" fz={15}>
-                            Az új jelszó beállításához adja meg az e-mail címét és az arra kapott visszaállító kódot!
-                        </Text>
+        <CenteredCard>
+            <form onSubmit={resetForm.onSubmit((formData) => resetPasswordMutation.mutate(formData))} >
+                <Stack gap={15}>
+                    <Text c="var(--background)" fw='bold' fz={30}>Új jelszó beállítása</Text>
+                    <Text c="var(--lightpurple)" fz={15}>
+                        Az új jelszó beállításához adja meg az e-mail címét és az arra kapott visszaállító kódot!
+                    </Text>
 
-                            <TextInput 
-                                label="E-mail cím"
-                                placeholder="pl. teszt@comove.app" 
-                                styles={{ input: { backgroundColor: "var(--lightbackground)" } }} 
-                                {...resetForm.getInputProps("email")}
-                            />
+                        <TextInput 
+                            label="E-mail cím"
+                            placeholder="pl. teszt@comove.app" 
+                            styles={blueInput} 
+                            required={true}
+                            {...resetForm.getInputProps("email")}
+                        />
 
-                            <TextInput 
-                                label="Visszaállító kód"
-                                placeholder="pl. 123456" 
-                                maxLength={6}
-                                styles={{ input: { backgroundColor: "var(--lightbackground)" } }} 
-                                {...resetForm.getInputProps("token")}
-                            />
+                        <TextInput 
+                            label="Visszaállító kód"
+                            placeholder="pl. 123456" 
+                            maxLength={6}
+                            styles={blueInput} 
+                            required={true}
+                            {...resetForm.getInputProps("token")}
+                        />
 
-                            <PasswordInput 
-                                label="Új jelszó"
-                                placeholder="********" 
-                                styles={{ input: { backgroundColor: "var(--lightbackground)" } }} 
-                                {...resetForm.getInputProps("password")}
-                            />
+                        <PasswordInput 
+                            label="Új jelszó"
+                            placeholder="········" 
+                            styles={blueInput} 
+                            required={true}
+                            {...resetForm.getInputProps("password")}
+                        />
 
-                            <PasswordInput 
-                                label="Új jelszó megerősítése"
-                                placeholder="********" 
-                                styles={{ input: { backgroundColor: "var(--lightbackground)" } }} 
-                                {...resetForm.getInputProps("passwordAgain")}
-                            />
+                        <PasswordInput 
+                            label="Új jelszó megerősítése"
+                            placeholder="········" 
+                            styles={blueInput} 
+                            required={true}
+                            {...resetForm.getInputProps("passwordAgain")}
+                        />
 
-                            <Button 
-                                color="var(--button)" 
-                                fz={15} 
-                                radius='xl'
-                                type="submit"
-                                w='100%'
-                                loading={resetPasswordMutation.isPending}
-                            >
-                                Új jelszó beállítása
-                            </Button>
-                        
-                        <Text 
-                            component={Link} 
-                            to="/forgotpassword" 
-                            c="var(--lightpurple)" 
-                            fz={12} 
-                            ta="center"
-                            className={style.noCode}
+                        <Button 
+                            color="var(--button)" 
+                            fz={15} 
+                            radius='xl'
+                            type="submit"
+                            w='100%'
+                            loading={resetPasswordMutation.isPending}
                         >
-                            Még nincs visszaállító kódom
-                        </Text>
-                    </Stack>
-                </form>
-            </Paper>
-        </Flex>
+                            Új jelszó beállítása
+                        </Button>
+                    
+                    <Text 
+                        component={Link} 
+                        to="/forgotpassword" 
+                        c="var(--lightpurple)" 
+                        fz={12} 
+                        ta="center"
+                        className={styles.hoverUp}
+                    >
+                        Még nincs visszaállító kódom
+                    </Text>
+                </Stack>
+            </form>
+        </CenteredCard>
     )
 }
 

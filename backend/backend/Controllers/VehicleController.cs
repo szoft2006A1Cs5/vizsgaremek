@@ -82,6 +82,7 @@ namespace backend.Controllers
                 .Include(x => x.Rentals)
                 .Include(x => x.Images.OrderBy(y => y.SortIndex))
                 .Where(x => 
+                    x.Availabilities.Any() &&
                     ((rentalStart != null && rentalEnd != null && rentalStart < rentalEnd) ?
                         !x.Rentals.Any(r => RentalStatus.OfferAccepted <= r.Status &&
                                             r.Status < RentalStatus.Finished &&
