@@ -152,10 +152,10 @@ function Navbar({ children }) {
                                         />
                                     </Popover.Target>
                                     <Popover.Dropdown className="nav_account_dropdown">
-                                        <div className="nav_account_card">
+                                        <div className="nav_glass">
                                             {authUser?.name && (
                                                 <>
-                                                    <Title size={20} c="black">Üdv {authUser.name}!</Title>
+                                                    <Title size={20} c="white">Üdv {authUser.name}!</Title>
                                                     <Divider my={5} />
                                                 </>
                                             )}
