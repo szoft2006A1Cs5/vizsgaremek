@@ -187,12 +187,12 @@ function Searching() {
                             <div className="searching_divider" />
                             <div className="searching_field">
                                 <div className="searching_label">Autó márka</div>
-                                <input className="searching_input" placeholder="pl. Volkswagen" value={brand} onInput={(e) => setBrand(e.target.value)} />
+                                <input className="searching_input" placeholder="pl. Toyota" value={brand} onInput={(e) => setBrand(e.target.value)} />
                             </div>
                             <div className="searching_divider" />
                             <div className="searching_field">
                                 <div className="searching_label">Autó típusa</div>
-                                <input className="searching_input" placeholder="pl. Golf" value={type} onInput={(e) => setType(e.target.value)} />
+                                <input className="searching_input" placeholder="pl. Corolla" value={type} onInput={(e) => setType(e.target.value)} />
                             </div>
                             <div className="searching_divider" />
                             <div className="searching_field searching_fieldSmall">

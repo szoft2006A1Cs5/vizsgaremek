@@ -268,7 +268,7 @@ function Home() {
                   </a>
                 </div>
                 <h3>Darunday Mariah Llianne</h3>
-                <p>Database Engineer</p>
+                <p>Frontend Engineer</p>
               </div>
               <div className="home_csapattag scroll-animate">
                 <img src={ferfi} alt="Arckép" />
