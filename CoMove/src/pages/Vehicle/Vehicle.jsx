@@ -158,10 +158,6 @@ function Vehicle() {
                                                 <Text fz={15} fw='bold' c="var(--background)">{vehicle.year}</Text>
                                             </Group>
                                             <Group justify="space-between">
-                                                <Text fz={15} c="var(--lightpurple)">Évjárat</Text>
-                                                <Text fz={15} fw='bold' c="var(--background)">{vehicle.year}</Text>
-                                            </Group>
-                                            <Group justify="space-between">
                                                 <Text fz={15} c="var(--lightpurple)">Teljesítmény</Text>
                                                 <Text fz={15} fw='bold' c="var(--background)">{vehicle.horsepower}</Text>
                                             </Group>
