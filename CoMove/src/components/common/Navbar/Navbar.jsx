@@ -132,13 +132,8 @@ function Navbar({ children }) {
                                     onChange={(o) => (o ? popover.open() : popover.close())}
                                     position="bottom"
                                     offset={5}
-                                    withArrow
-                                    arrowSize={16}
-                                    arrowRadius={4}
-                                    shadow="md"
                                     withinPortal
                                     zIndex={10000}
-                                    styles={{ arrow: { background: "#e6f1ff" } }}
                                 >
                                     <Popover.Target>
                                         <Avatar

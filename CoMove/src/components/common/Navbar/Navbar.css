@@ -115,23 +115,3 @@
     background: transparent !important;
     border: none !important;
 }
-
-.nav_account_card {
-    width: 250px;
-    padding: 15px;
-    border-radius: 15px;
-    background: #e6f1ff;
-}
-
-.nav_account_card .mantine-NavLink-root {
-    font-size: 15px;
-    font-weight: 700;
-    padding: 5px 10px;
-    border-radius: 10px;
-    transition: all 0.18s ease;
-}
-
-.nav_account_card .mantine-NavLink-root:hover {
-    background: rgba(33, 54, 189, 0.15);
-    transform: translateX(3px);
-}

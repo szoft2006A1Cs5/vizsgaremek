@@ -35,7 +35,7 @@ function Vehicle() {
     const [pickupError, setPickupError] = useState(null);
 
 
-    const { data: authUser, isSuccess: userSuccess } = useUser();
+    const { data: authUser, isSuccess: userSuccess, isLoading: userLoading } = useUser();
 
     const { data: vehicle, isLoading, isError } = useQuery({
         queryKey: ['vehicle', carId],
@@ -232,32 +232,25 @@ function Vehicle() {
                                                         <Center><Loader size="sm" color="var(--background)" /></Center>
                                                     ) : quote ? (
                                                         <>
-                                                            <TextInput
-                                                                label="Átvételi hely"
-                                                                placeholder="pl. Budapest, Kossuth tér 1."
-                                                                value={pickupLocation}
-                                                                onChange={e => setPickupLocation(e.target.value)}
-                                                                radius="md"
-                                                                size="sm"
-                                                                maxLength={512}
-                                                                error={!pickupLocation.trim() ? "Nem adtál meg átvételi helyet!" : null}
-                                                            />
+                                                            {userSuccess && authUser && (
+                                                                <TextInput
+                                                                    label="Átvételi hely"
+                                                                    placeholder="pl. Budapest, Kossuth tér 1."
+                                                                    value={pickupLocation}
+                                                                    onChange={e => setPickupLocation(e.target.value)}
+                                                                    radius="md"
+                                                                    size="sm"
+                                                                    maxLength={512}
+                                                                    error={!pickupLocation.trim() ? "Nem adtál meg átvételi helyet!" : null}
+                                                                />
+                                                            )}
                                                             <Group justify='space-between' wrap='nowrap'>
                                                                 <Text fz={15} c="var(--lightpurple)">Teljes ár</Text>
                                                                 <Text fw='bold' c='var(--background)'>
                                                                     {quote.fullPrice?.toLocaleString('hu-HU')} Ft
                                                                 </Text>
                                                             </Group>
-                                                            {userSuccess && !authUser ? (
-                                                                <Button
-                                                                    size="md"
-                                                                    radius="md"
-                                                                    style={{ background: 'var(--button)' }}
-                                                                    onClick={() => navigate('/login')}
-                                                                >
-                                                                    Bejelentkezés szükséges
-                                                                </Button>
-                                                            ) : (
+                                                            {userSuccess && authUser ? (
                                                                 <Button
                                                                     fullWidth size="md"
                                                                     radius="md"
@@ -266,6 +259,15 @@ function Vehicle() {
                                                                     onClick={() => createRentalMutation.mutate()}
                                                                 >
                                                                     Bérlés megkezdése
+                                                                </Button>
+                                                            ) : (
+                                                                <Button
+                                                                    size="md"
+                                                                    radius="md"
+                                                                    style={{ background: 'var(--button)' }}
+                                                                    onClick={() => navigate('/login')}
+                                                                >
+                                                                    Bejelentkezés szükséges
                                                                 </Button>
                                                             )}
                                                         </>
