@@ -197,12 +197,12 @@ function Searching() {
                             <div className="searching_divider" />
                             <div className="searching_field searching_fieldSmall">
                                 <div className="searching_label">Min. ár</div>
-                                <input className="searching_input" type="number" placeholder="Ft/óra" value={minPrice} onInput={(e) => setMinPrice(e.target.value)} />
+                                <input className="searching_input" type="number" placeholder="Ft" value={minPrice} onInput={(e) => setMinPrice(e.target.value)} />
                             </div>
                             <div className="searching_divider" />
                             <div className="searching_field searching_fieldSmall">
                                 <div className="searching_label">Max. ár</div>
-                                <input className="searching_input" type="number" placeholder="Ft/óra" value={maxPrice} onInput={(e) => setMaxPrice(e.target.value)} />
+                                <input className="searching_input" type="number" placeholder="Ft" value={maxPrice} onInput={(e) => setMaxPrice(e.target.value)} />
                             </div>
                             <div className="searching_divider" />
                             <div className="searching_field">
