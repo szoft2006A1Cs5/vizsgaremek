@@ -122,7 +122,7 @@ namespace backend.Controllers
             if (_context.Users.Any(x => x != user && (x.Email == dto.Email ||
                                                       x.Phone.EndsWith(phone) ||
                                                       x.IdCardNumber == dto.IdCardNumber ||
-                                                      (dto.DriversLicenseNumber != null ? 
+                                                      (!string.IsNullOrWhiteSpace(dto.DriversLicenseNumber) ? 
                                                           x.DriversLicenseNumber == dto.DriversLicenseNumber : 
                                                           false))))
                 return Conflict();

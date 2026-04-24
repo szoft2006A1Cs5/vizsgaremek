@@ -78,7 +78,7 @@ namespace backend.Controllers
             if (_context.Users.Any(x => x.Email == registration.Email ||
                                         x.Phone.EndsWith(phone) ||
                                         x.IdCardNumber == registration.IdCardNumber ||
-                                        (registration.DriversLicenseNumber != null ? 
+                                        (!string.IsNullOrWhiteSpace(registration.DriversLicenseNumber) ? 
                                             x.DriversLicenseNumber == registration.DriversLicenseNumber :
                                             false)))
                 return Conflict();
