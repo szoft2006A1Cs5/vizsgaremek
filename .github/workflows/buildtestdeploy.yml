@@ -96,7 +96,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          source: './CoMove/dist/*'
+          source: 'CoMove/dist/*'
           target: '/var/www/comove-frontend'
           strip_components: 1
 
