@@ -104,7 +104,7 @@ function AccountForm({ user }) {
                 />
 
                 <TextInput
-                    label="Jogosítványszám (opcionális)"
+                    label="Vezetői engedély száma (opcionális)"
                     placeholder="pl. AB123456"
                     {...form.getInputProps("driversLicenseNumber")}
                 />

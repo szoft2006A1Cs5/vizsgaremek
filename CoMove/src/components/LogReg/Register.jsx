@@ -147,7 +147,7 @@ function Register({ style }) {
                         />
 
                         <TextInput 
-                            label="Vezetői engedély száma"
+                            label="Vezetői engedély száma (opcionális)"
                             placeholder="pl. AA123456"
                             styles={blueInput}
                             {...registerForm.getInputProps("driversLicenseNumber")}
