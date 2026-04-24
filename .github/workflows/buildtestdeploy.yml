@@ -98,7 +98,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           source: 'CoMove/dist/*'
           target: '/var/www/comove-frontend'
-          strip_components: 1
+          strip_components: 2
 
       - name: Restart backend service
         uses: appleboy/ssh-action@v1
