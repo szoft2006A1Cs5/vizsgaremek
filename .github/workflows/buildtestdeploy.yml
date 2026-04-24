@@ -76,6 +76,7 @@ jobs:
 
       - name: Build Frontend
         run: npm run build
+        working-directory: CoMove
 
       - name: Copy backend to server
         uses: appleboy/scp-action@v1
