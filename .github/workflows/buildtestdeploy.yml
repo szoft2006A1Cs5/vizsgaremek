@@ -75,7 +75,7 @@ jobs:
         working-directory: CoMove
 
       - name: Build Frontend
-        run: npm run build
+        run: VITE_BACKEND_URL=https://comove.app npm run build
         working-directory: CoMove
 
       - name: Copy backend to server
