@@ -15,7 +15,6 @@ function EditVehicle() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     
-    
     const { data: authUser, isLoading: userLoading } = useUser();
 
     const { data: vehicle, isLoading } = useQuery({
@@ -42,7 +41,7 @@ function EditVehicle() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries(["vehicle", carId]);
-            navigate('/vehicles');
+            notifications.show({ title: 'Sikeres módosítás!', message: "A jármű adatai módosultak.", color: 'green' });
         },
         onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });

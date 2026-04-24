@@ -77,7 +77,10 @@ namespace backend.Services.RentalService
             switch (resStatus)
             {
                 case RentalStatus.OfferAccepted:
-                    {
+                {
+                        if (curr.Start < _timePrv.GetUtcNow().UtcDateTime)
+                            return RentalResult.BadRequest("Nem fogadhatsz el múltban kezdődő ajánlatot!");
+                        
                         if (curr.Renter.Balance < curr.FullPrice)
                             return RentalResult.BadRequest("A bérlő egyenlege nem elég a bérlés megfizetéséhez!");
                         

@@ -20,6 +20,9 @@ function OfferDash({ rental, me }) {
         end: rental.end,
         pickupLocation: rental.pickupLocation
     });
+    const changedFromRental = new Date(rentalForm.start).getTime() !== new Date(rental.start).getTime() ||
+                              new Date(rentalForm.end).getTime() !== new Date(rental.end).getTime() ||
+                              rentalForm.pickupLocation !== rental.pickupLocation;
 
     useEffect(() => {
         setRentalForm({
@@ -27,7 +30,7 @@ function OfferDash({ rental, me }) {
             end: rental.end,
             pickupLocation: rental.pickupLocation
         })
-    }, [rental])
+    }, [rental.start, rental.end, rental.pickupLocation])
 
     const counterOfferStatus = isRenter ? "renterOffer" : "ownerOffer";
 
@@ -125,6 +128,7 @@ function OfferDash({ rental, me }) {
                             leftSection={<IconCheck />}
                             loading={updateMutation.isPending}
                             onClick={() => updateMutation.mutate("offerAccepted")}
+                            disabled={changedFromRental}
                         >
                             Elfogadás
                         </Button>
@@ -136,6 +140,7 @@ function OfferDash({ rental, me }) {
                     color="var(--button)"
                     loading={updateMutation.isPending}
                     onClick={() => updateMutation.mutate(counterOfferStatus)}
+                    disabled={!changedFromRental}
                 >
                     {isMine ? `Módosítás küldése` : `Ellenajánlat küldése`}
                 </Button>
