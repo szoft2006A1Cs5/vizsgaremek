@@ -87,6 +87,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           source: './publish/*'
           target: '/opt/comove-backend'
+          strip_components: 1
 
       - name: Copy frontend to server
         uses: appleboy/scp-action@v1
@@ -95,8 +96,9 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          source: 'CoMove/dist/*'
+          source: './CoMove/dist/*'
           target: '/var/www/comove-frontend'
+          strip_components: 1
 
       - name: Restart backend service
         uses: appleboy/ssh-action@v1
