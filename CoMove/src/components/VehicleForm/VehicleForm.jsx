@@ -29,8 +29,8 @@ function VehicleForm({ initVal, onSubmit, loading }) {
             ...initVal,
         },
         validate: {
-            vin: ((v) => vinRegex.test(v) ? null : 'Érvénytelen VIN (17 nagybetű vagy szám)'),
-            licensePlate: ((v) => licenseRegex.test(v) ? null : 'Érvénytelen rendszám (pl. ABC123)'),
+            vin: ((v) => vinRegex.test(v.toUpperCase()) ? null : 'Érvénytelen VIN (17 nagybetű vagy szám)'),
+            licensePlate: ((v) => licenseRegex.test(v.toUpperCase()) ? null : 'Érvénytelen rendszám (pl. ABC123)'),
             insuranceNumber: ((v) => v.trim() ? null : 'Kötelező megadni'),
             manufacturer: ((v) => v.trim() ? null : 'Kötelező megadni'),
             model: ((v) => v.trim() ? null : 'Kötelező megadni'),
@@ -41,6 +41,11 @@ function VehicleForm({ initVal, onSubmit, loading }) {
             odometerReading: ((v) => v >= 0 ? null : 'Érvénytelen érték'),
             avgFuelConsumption: ((v) => v > 0 ? null : 'Érvénytelen érték'),
         },
+        transformValues: (values) => ({
+            ...values,
+            vin: values.vin.toUpperCase(),
+            licensePlate: values.licensePlate.toUpperCase()
+        })
     });
 
     return (
@@ -131,7 +136,6 @@ function VehicleForm({ initVal, onSubmit, loading }) {
                                     label="Alvázszám (VIN)" 
                                     maxLength={17} 
                                     {...form.getInputProps('vin')} 
-                                    onChange={(e) => form.getInputProps('vin').onChange(e.target.value.toUpperCase())} 
                                     styles={{ input: { textTransform: 'uppercase' } }}
                                     required={true} 
                                 />
@@ -141,7 +145,6 @@ function VehicleForm({ initVal, onSubmit, loading }) {
                                     label="Rendszám" 
                                     maxLength={7} 
                                     {...form.getInputProps('licensePlate')} 
-                                    onChange={(e) => form.setFieldValue('licensePlate', e.target.value.toUpperCase())} 
                                     styles={{ input: { textTransform: 'uppercase' } }}
                                     required={true} />
                             </Grid.Col>

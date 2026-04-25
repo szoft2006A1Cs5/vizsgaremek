@@ -38,12 +38,12 @@ function Register({ style }) {
             name: ((v) => REGEX.name.test(v.trim()) ? null : "Nem megfelelő a név formátuma!"),
             dateOfBirth: ((v) => checkOver18(v) ? null : "Nem múltál el 18 éves!"),
             idCardNumber: ((v) => 
-                REGEX.idCardNumber.test(v.trim()) 
+                REGEX.idCardNumber.test(v.trim().toUpperCase()) 
                     ? null 
                     : "Nem megfelelő a személyi igazolvány számának formátuma!"
             ),
             driversLicenseNumber: ((v) => 
-                !v.trim() || REGEX.driversLicenseNumber.test(v.trim()) 
+                !v.trim() || REGEX.driversLicenseNumber.test(v.trim().toUpperCase()) 
                     ? null 
                     : "Nem megfelelő a vezetői engedély számának formátuma!"
             ),
@@ -58,7 +58,12 @@ function Register({ style }) {
                     : "A 8 karakteres jelszónak tartalmaznia kell nagybetűt, kisbetűt és számot!"
             ),
             passwordAgain: ((v, values) => v.trim() === values.password.trim() ? null : "A két jelszó nem egyezik!")
-        }
+        },
+        transformValues: (values) => ({
+            ...values,
+            idCardNumber: values.idCardNumber.toUpperCase(),
+            driversLicenseNumber: values.driversLicenseNumber.toUpperCase()
+        })
     })
 
     const registerMutation = useMutation({
@@ -69,7 +74,10 @@ function Register({ style }) {
                 body: JSON.stringify(trimForm(registerData))
             });
 
-            if (resp.status === 409) throw new Error("A megadott adatok ütköznek más, a rendszerben lévő, adatokkal!");
+            if (resp.status === 409) 
+                throw new Error("A megadott adatok (pl. személyi szám, jogosítványszám, telefonszám, email) ütköznek más, " +
+                                "a rendszerben lévő, adatokkal!");
+            
             if (!resp.ok) {
                 const respJson = await resp.json().catch(() => {})
                 throw new Error(respJson?.error ?? "Váratlan hiba történt a regisztráció során!");
@@ -90,7 +98,7 @@ function Register({ style }) {
         if (fieldsPerStep[step]
             .map(x => registerForm.validateField(x))
             .every(x => !x.hasError)) {
-                step === 2 ? registerMutation.mutate(registerForm.getValues()) : setStep(step + 1);
+                step === 2 ? registerMutation.mutate(registerForm.getTransformedValues()) : setStep(step + 1);
             }
     }
 
@@ -127,6 +135,7 @@ function Register({ style }) {
                             placeholder="pl. Teszt Elek"
                             required={true}
                             styles={blueInput}
+                            maxLength={64}
                             {...registerForm.getInputProps("name")}
                         />
 
@@ -143,14 +152,26 @@ function Register({ style }) {
                             label="Személyi igazolvány száma"
                             placeholder="pl. 123456AA"
                             required={true}
-                            styles={blueInput}
+                            styles={{
+                                input: { 
+                                    ...blueInput.input,
+                                    textTransform: 'uppercase' 
+                                }
+                            }}
+                            maxLength={8}
                             {...registerForm.getInputProps("idCardNumber")}
                         />
 
                         <TextInput 
                             label="Vezetői engedély száma (opcionális)"
                             placeholder="pl. AA123456"
-                            styles={blueInput}
+                            styles={{
+                                input: { 
+                                    ...blueInput.input,
+                                    textTransform: 'uppercase' 
+                                }
+                            }}
+                            maxLength={8}
                             {...registerForm.getInputProps("driversLicenseNumber")}
                         />
                     </Stack>
@@ -174,6 +195,7 @@ function Register({ style }) {
                             placeholder="pl. Szombathely"
                             required={true}
                             styles={blueInput}
+                            maxLength={64}
                             {...registerForm.getInputProps("addressSettlement")}
                         />
 
@@ -182,6 +204,7 @@ function Register({ style }) {
                             placeholder="pl. Zrínyi Ilona utca 12."
                             required={true}
                             styles={blueInput}
+                            maxLength={64}
                             {...registerForm.getInputProps("addressStreetHouse")}
                         />
                     </Stack>
@@ -205,6 +228,7 @@ function Register({ style }) {
                             placeholder="pl. tesztelek@comove.app"
                             required={true}
                             styles={blueInput}
+                            maxLength={64}
                             {...registerForm.getInputProps("email")}
                         />
 

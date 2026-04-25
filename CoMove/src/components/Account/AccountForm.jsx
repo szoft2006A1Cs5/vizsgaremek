@@ -25,19 +25,24 @@ function AccountForm({ user }) {
             previousPassword: ""
         },
         validate: {
-            idCardNumber: ((v) => REGEX.idCardNumber.test(v) ? null : "Érvénytelen személyi szám!"),
+            idCardNumber: ((v) => REGEX.idCardNumber.test(v.toUpperCase()) ? null : "Érvénytelen személyi szám (6 szám + 2 nagybetű)!"),
             name: ((v) => REGEX.name.test(v) ? null : "Helytelen név!"),
             phone: ((v) => REGEX.phone.test(v) ? null : "Érvénytelen telefonszám!"),
             dateOfBirth: ((v) => checkOver18(v) ? null : "El kell múlnod 18 évesnek!"),
             email: ((v) => REGEX.email.test(v) ? null : "Érvénytelen e-mail formátum!"),
             password: ((v) => !newPassword || REGEX.password.test(v) ? null : "A 8 karakteres jelszónak tartalmaznia kell nagybetűt, kisbetűt és számot!"),
             passwordAgain: ((v, values) => !newPassword || v.trim() === values.password.trim() ? null : "A két új jelszó nem egyezik!"),
-            driversLicenseNumber: ((v) => !v.trim() || REGEX.driversLicenseNumber.test(v) ? null : "Érvénytelen jogosítványszám!"),
+            driversLicenseNumber: ((v) => !v.trim() || REGEX.driversLicenseNumber.test(v.toUpperCase()) ? null : "Érvénytelen jogosítványszám (2 nagybetű + 6 szám)!"),
             addressZipcode: ((v) => REGEX.addressZipcode.test(v) ? null : "Érvénytelen irányítószám!"),
-            addressSettlement: ((v) => !!v.trim() ? null : "Nem adtál meg települést!"),
-            addressStreetHouse: ((v) => !!v.trim() ? null : "Nem adtál meg utcát, házszámot!"),
-            previousPassword: ((v) => !!v.trim() ? null : "Kötelező megadni a jelszót a beállítások frissítéséhez!")
-        }
+            addressSettlement: ((v) => v.trim() ? null : "Nem adtál meg települést!"),
+            addressStreetHouse: ((v) => v.trim() ? null : "Nem adtál meg utcát, házszámot!"),
+            previousPassword: ((v) => v.trim() ? null : "Kötelező megadni a jelszót a beállítások frissítéséhez!")
+        },
+        transformValues: (values) => ({
+            ...values,
+            idCardNumber: values.idCardNumber.toUpperCase(),
+            driversLicenseNumber: values.driversLicenseNumber.toUpperCase()
+        })
     });
 
     const saveMutation = useMutation({
@@ -63,7 +68,10 @@ function AccountForm({ user }) {
                 throw new Error(respJson?.error ?? "Nem sikerült menteni az adatokat!");
             }
         },
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["user", String(user.id)] }),
+        onSuccess: () => {
+            notifications.show({ title: "Sikeres módosítás!", message: "A felhasználói adatok módosultak.", color: "green" });
+            queryClient.invalidateQueries({ queryKey: ["user", String(user.id)] });
+        },
         onError: (error) => notifications.show({ title: "Hiba!", message: error.message, color: "red" }),
     })
 
@@ -77,18 +85,21 @@ function AccountForm({ user }) {
                 <TextInput
                     label="Név"
                     placeholder="pl. Teszt Elek"
+                    maxLength={64}
                     {...form.getInputProps("name")}
                 />
 
                 <TextInput
                     label="E-mail cím"
                     placeholder="pl. teszt@comove.app"
+                    maxLength={64}
                     {...form.getInputProps("email")}
                 />
 
                 <TextInput
                     label="Telefonszám"
                     placeholder="pl. 36123456789"
+                    maxLength={11}
                     {...form.getInputProps("phone")}
                 />
 
@@ -101,13 +112,18 @@ function AccountForm({ user }) {
                 <TextInput
                     label="Személyi igazolvány szám"
                     placeholder="pl. 123456AB"
+                    maxLength={8}
                     {...form.getInputProps("idCardNumber")}
+                    styles={{ input: { textTransform: 'uppercase' } }}
+
                 />
 
                 <TextInput
                     label="Vezetői engedély száma (opcionális)"
                     placeholder="pl. AB123456"
+                    maxLength={8}
                     {...form.getInputProps("driversLicenseNumber")}
+                    styles={{ input: { textTransform: 'uppercase' } }}
                 />
 
                 <Group justify="space-between" wrap="nowrap">
@@ -115,12 +131,14 @@ function AccountForm({ user }) {
                         label="Irányítószám"
                         placeholder="pl. 9700"
                         w="30%"
+                        maxLength={4}
                         {...form.getInputProps("addressZipcode")}
                     />
 
                     <TextInput
                         label="Település"
                         placeholder="pl. Szombathely"
+                        maxLength={64}
                         {...form.getInputProps("addressSettlement")}
                         w="70%"
                     />
@@ -129,6 +147,7 @@ function AccountForm({ user }) {
                 <TextInput
                     label="Utca, házszám"
                     placeholder="pl. Zrínyi Ilona utca 12."
+                    maxLength={64}
                     {...form.getInputProps("addressStreetHouse")}
                 />
 

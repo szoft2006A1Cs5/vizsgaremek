@@ -24,7 +24,7 @@ public class UserDTO
                    : true
                ) &&
                Regex.IsMatch(this.Email, @"^[A-z0-9.-]+@([A-z0-9-]+\.)+([A-z]{2,3})$") &&
-               Regex.IsMatch(this.Phone, @"^(36|06)(94|70|30|20)\d{7}$") &&
+               Regex.IsMatch(this.Phone, @"^(36|06)\d{8,9}$") &&
                Regex.IsMatch(this.AddressZipcode, @"^\d{4}$") &&
                (string.IsNullOrWhiteSpace(this.Password) ||
                 Regex.IsMatch(this.Password, @"^(?=.*[a-z])(?=.*\d)(?=.*[A-Z]).{8,}$")) &&
