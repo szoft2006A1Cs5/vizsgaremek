@@ -82,7 +82,11 @@ function Searching() {
 
     const handleSearch = () => {
         if (filters.start && filters.end && new Date(filters.start) >= new Date(filters.end)) {
-            alert("A bérlés vége nem lehet korábban vagy ugyanakkor, mint a kezdete.");
+            notifications.show({ 
+                title: "Hiba!",
+                message: "A bérlés vége nem lehet korábban vagy ugyanakkor, mint a kezdete.",
+                color: "red"
+            });
             return;
         }
 
