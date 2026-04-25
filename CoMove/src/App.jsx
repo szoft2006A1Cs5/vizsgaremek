@@ -14,6 +14,7 @@ import Account from "./pages/Account/Account";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import LogReg from "./pages/LogReg/LogReg";
+import Page404 from "./pages/404/404";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,8 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="*" element={<Page404 />} />
+
           <Route element={<LayoutWithNavbar />}>
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<Searching />} />
