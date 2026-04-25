@@ -7,8 +7,9 @@ import { REGEX } from "../../assets/scripts/Regex";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { checkOver18, fetchAPI, trimForm } from "../../assets/scripts/Utilities";
+import { useDateInputProps } from "../../assets/scripts/hooks/Hooks";
 import { IconHome, IconMail, IconPhone, IconUser } from "@tabler/icons-react";
-import { DateInput } from "@mantine/dates";
+import { DatePickerInput } from "@mantine/dates";
 import 'dayjs/locale/hu'
 import dayjs from "dayjs";
 
@@ -16,6 +17,7 @@ function Register({ style }) {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const [step, setStep] = useState(0);
+    const datePickerProps = useDateInputProps('date');
     const iconVerticalMiddleStyle = { display: 'block', margin: 'auto' };
     const registerForm = useForm({
         mode: "controlled",
@@ -128,13 +130,12 @@ function Register({ style }) {
                             {...registerForm.getInputProps("name")}
                         />
 
-                        <DateInput 
+                        <DatePickerInput 
                             label="Születési dátum"
                             placeholder="pl. Teszt Elek"
                             required={true}
                             styles={blueInput}
-                            locale="hu"
-                            valueFormat="YYYY. MM. DD."
+                            {...datePickerProps}
                             {...registerForm.getInputProps("dateOfBirth")}
                         />
 

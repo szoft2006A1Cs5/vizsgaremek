@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useUser } from "../../assets/scripts/AuthUser";
+import { useUser } from "../../assets/scripts/hooks/AuthUser";
 import { Link, useNavigate } from "react-router-dom";
 import { Flex, Paper, Text, Image, Stack, TextInput, NavLink, Button } from "@mantine/core";
 import logo from "../../assets/kepek/logo/comove_logo1.png";

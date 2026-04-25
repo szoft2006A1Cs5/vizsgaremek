@@ -10,7 +10,7 @@ import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { DateTimePicker } from '@mantine/dates';
 import { Carousel } from '@mantine/carousel';
 import { IconChevronLeft, IconChevronRight, IconCalendar, IconAlertCircle } from '@tabler/icons-react';
-import { useUser } from '../../assets/scripts/AuthUser';
+import { useUser } from '../../assets/scripts/hooks/AuthUser';
 import { BACKEND_URL, API_URL } from '../../assets/scripts/Config';
 import defaultImage from '../../assets/kepek/egyeb/default.png';
 import '@mantine/carousel/styles.css';
@@ -20,6 +20,7 @@ import style from './Vehicle.module.css';
 import RentalRow from '../../components/common/RentalRow/RentalRow';
 import 'dayjs/locale/hu'
 import { fetchAPI, formatPic } from '../../assets/scripts/Utilities';
+import { useDateInputProps } from "../../assets/scripts/hooks/Hooks";
 
 function Vehicle() {
     const { carId } = useParams();
@@ -33,6 +34,7 @@ function Vehicle() {
     );
     const [pickupLocation, setPickupLocation] = useState('');
     const [pickupError, setPickupError] = useState(null);
+    const datePickerInputProps = useDateInputProps('dateTime')
 
 
     const { data: authUser, isSuccess: userSuccess, isLoading: userLoading } = useUser();
@@ -204,10 +206,7 @@ function Vehicle() {
                                                     onChange={setStart}
                                                     minDate={new Date()}
                                                     leftSection={<IconCalendar size={15} />}
-                                                    locale='hu'
-                                                    valueFormat='YYYY. MM. DD. HH:mm'
-                                                    radius="md"
-                                                    size="sm"
+                                                    {...datePickerInputProps}
                                                     clearable
                                                 />
                                                 <DateTimePicker
@@ -217,10 +216,7 @@ function Vehicle() {
                                                     onChange={setEnd}
                                                     minDate={start ?? new Date()}
                                                     leftSection={<IconCalendar size={15} />}
-                                                    locale='hu'
-                                                    valueFormat='YYYY. MM. DD. HH:mm'
-                                                    radius="md"
-                                                    size="sm"
+                                                    {...datePickerInputProps}
                                                     clearable
                                                 />
                                                 {start && end && (

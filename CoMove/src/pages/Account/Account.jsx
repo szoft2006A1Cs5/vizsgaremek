@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import PageLayout from "../../components/common/PageLayout/PageLayout";
-import { useUser } from "../../assets/scripts/AuthUser";
+import { useUser } from "../../assets/scripts/hooks/AuthUser";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "../../assets/scripts/Config";

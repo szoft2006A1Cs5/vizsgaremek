@@ -1,10 +1,11 @@
 import { useForm } from "@mantine/form";
 import { checkOver18, fetchAPI, trimForm } from "../../assets/scripts/Utilities";
+import { useDateInputProps } from "../../assets/scripts/hooks/Hooks";
 import { Button, Checkbox, Divider, Group, PasswordInput, Stack, TextInput, Text } from "@mantine/core";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "../../assets/scripts/Config";
-import { DateInput, DatePicker, DatePickerInput } from "@mantine/dates";
+import { DatePickerInput } from "@mantine/dates";
 import 'dayjs/locale/hu'
 import { notifications } from "@mantine/notifications";
 import { REGEX } from "../../assets/scripts/Regex";
@@ -12,6 +13,7 @@ import { REGEX } from "../../assets/scripts/Regex";
 function AccountForm({ user }) {
     const queryClient = useQueryClient();
     const [newPassword, setNewPassword] = useState(false);
+    const datePickerInputProps = useDateInputProps('date');
 
     const form = useForm({
         mode: "controlled",
@@ -90,10 +92,9 @@ function AccountForm({ user }) {
                     {...form.getInputProps("phone")}
                 />
 
-                <DateInput
+                <DatePickerInput
                     label="Születési dátum"
-                    locale="hu"
-                    valueFormat="YYYY. MM. DD."
+                    {...datePickerInputProps}
                     {...form.getInputProps("dateOfBirth")}
                 />
 

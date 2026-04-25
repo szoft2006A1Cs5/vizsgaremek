@@ -1,7 +1,7 @@
 import { Center, Grid, Loader, Paper, Stack, Text } from "@mantine/core";
 import PageLayout from "../../components/common/PageLayout/PageLayout";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUser } from "../../assets/scripts/AuthUser";
+import { useUser } from "../../assets/scripts/hooks/AuthUser";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_URL } from "../../assets/scripts/Config";
 import { useEffect } from "react";

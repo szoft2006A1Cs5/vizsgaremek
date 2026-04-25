@@ -8,6 +8,7 @@ import { notifications } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
 import 'dayjs/locale/hu'
 import { fetchAPI } from "../../../assets/scripts/Utilities";
+import { useDateInputProps } from "../../../assets/scripts/hooks/Hooks";
 
 function OfferDash({ rental, me }) {
     const queryClient = useQueryClient();
@@ -20,6 +21,8 @@ function OfferDash({ rental, me }) {
         end: rental.end,
         pickupLocation: rental.pickupLocation
     });
+    const dateTimeInputProps = useDateInputProps('dateTime');
+
     const changedFromRental = new Date(rentalForm.start).getTime() !== new Date(rental.start).getTime() ||
                               new Date(rentalForm.end).getTime() !== new Date(rental.end).getTime() ||
                               rentalForm.pickupLocation !== rental.pickupLocation;
@@ -82,11 +85,7 @@ function OfferDash({ rental, me }) {
                 value={new Date(rentalForm.start)}
                 onChange={(date) => setRentalForm({ ...rentalForm, start: new Date(date).toISOString() })}
                 minDate={new Date()}
-                locale='hu'
-                valueFormat='YYYY. MM. DD. HH:mm'
-                radius="md"
-                size="sm"
-                maxLength={512}
+                {...dateTimeInputProps}
                 required={true}
             />
 
@@ -97,11 +96,7 @@ function OfferDash({ rental, me }) {
                 value={new Date(rentalForm.end)}
                 onChange={(date) => setRentalForm({ ...rentalForm, end: new Date(date).toISOString() })}
                 minDate={rentalForm?.start ? new Date(rentalForm.start) : new Date()}
-                locale='hu'
-                valueFormat='YYYY. MM. DD. HH:mm'
-                radius="md"
-                size="sm"
-                maxLength={512}
+                {...dateTimeInputProps}
                 required={true}
             />
 

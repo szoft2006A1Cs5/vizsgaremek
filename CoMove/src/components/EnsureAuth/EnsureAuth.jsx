@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { LoadingOverlay } from '@mantine/core';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { useUser } from '../../assets/scripts/AuthUser';
+import { useUser } from '../../assets/scripts/hooks/AuthUser';
 
 function EnsureAuth() {
     const navigate = useNavigate();

@@ -32,6 +32,14 @@ export function checkOver18(dateStr) {
     return date <= today;
 }
 
+export function trimForm(form) {
+    return Object.fromEntries(
+        Object.entries(form).map(([key, val]) => {
+            return [key, typeof val === "string" ? val.trim() : val]
+        })
+    );
+}
+
 export async function fetchAPI(path, options = {}) {
     try {
         return await fetch(`${API_URL}${path}`, {
@@ -41,12 +49,4 @@ export async function fetchAPI(path, options = {}) {
     } catch {
         throw new Error("Nem sikerült lekérni az adatokat!");
     }
-}
-
-export function trimForm(form) {
-    return Object.fromEntries(
-        Object.entries(form).map(([key, val]) => {
-            return [key, typeof val === "string" ? val.trim() : val]
-        })
-    );
 }

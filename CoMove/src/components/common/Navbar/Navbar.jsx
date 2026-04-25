@@ -19,7 +19,7 @@ import logo from "../../../assets/kepek/logo/comove_logo4.png"
 import { useDisclosure } from "@mantine/hooks"
 import { Link, useLocation } from "react-router-dom"
 import NotificationMenu from "./Notifications/NotificationMenu/NotificationMenu";
-import { useLogout, useUser } from "../../../assets/scripts/AuthUser";
+import { useLogout, useUser } from "../../../assets/scripts/hooks/AuthUser";
 import { BACKEND_URL } from "../../../assets/scripts/Config";
 import { formatPic } from "../../../assets/scripts/Utilities";
 

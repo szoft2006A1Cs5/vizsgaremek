@@ -1,6 +1,6 @@
 import { Paper } from "@mantine/core";
 import { STATUS_DICT } from "../../../assets/scripts/Config";
-import { useUser } from "../../../assets/scripts/AuthUser";
+import { useUser } from "../../../assets/scripts/hooks/AuthUser";
 import OfferDash from "./OfferDash";
 import InfoDash from "./InfoDash";
 import StatusDash from "./StatusDash";

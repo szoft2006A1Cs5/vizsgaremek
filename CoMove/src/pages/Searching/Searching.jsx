@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import 'dayjs/locale/hu'
 import { fetchAPI } from "../../assets/scripts/Utilities";
+import { useDateInputProps } from "../../assets/scripts/hooks/Hooks";
 
 function normalize(s) {
     return (s || "").toString().trim().toLowerCase();
@@ -29,6 +30,7 @@ function Searching() {
     const [showFloatingTop, setShowFloatingTop] = useState(false);
     const [cars, setCars] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const dateTimeInputProps = useDateInputProps('dateTime');
 
     useLayoutEffect(() => window.scrollTo(0, 0), []);
 
@@ -141,8 +143,7 @@ function Searching() {
                                     value={start}
                                     onChange={setStart}
                                     minDate={new Date()}
-                                    valueFormat="YYYY. MM. DD. HH:mm"
-                                    locale="hu"
+                                    {...dateTimeInputProps}
                                     styles={{
                                         input: {
                                             fontSize: 13,
@@ -167,8 +168,7 @@ function Searching() {
                                     value={end}
                                     onChange={setEnd}
                                     minDate={start ?? new Date()}
-                                    valueFormat="YYYY. MM. DD. HH:mm"
-                                    locale="hu"
+                                    {...dateTimeInputProps}
                                     styles={{
                                         input: {
                                             fontSize: 13,

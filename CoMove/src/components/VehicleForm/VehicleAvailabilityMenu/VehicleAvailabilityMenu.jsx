@@ -9,6 +9,7 @@ import { DateTimePicker } from '@mantine/dates';
 import { IconTrash, IconEdit, IconPlus, IconCalendar } from '@tabler/icons-react';
 import { API_URL } from '../../../assets/scripts/Config';
 import { fetchAPI, formatDateTime } from '../../../assets/scripts/Utilities';
+import { useDateInputProps } from "../../../assets/scripts/hooks/Hooks";
 import '@mantine/dates/styles.css';
 import 'dayjs/locale/hu'
 
@@ -50,6 +51,7 @@ function VehicleAvailabilityMenu({ vehicleId }) {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [fields, setFields] = useState({});
     const [error, setError] = useState(null);
+    const dateTimeInputProps = useDateInputProps('dateTime');
 
     const { data: availabilities = [], isLoading } = useQuery({
         queryKey: ['vehicle-availabilities', vehicleId],
@@ -64,14 +66,14 @@ function VehicleAvailabilityMenu({ vehicleId }) {
 
     const sorted = [...availabilities].sort((a, b) => new Date(a.start) - new Date(b.start));
 
-    function openAdd() {
+    const openAdd = () => {
         setEditTarget(null);
         setFields({});
         setError(null);
         setAddEditOpen(true);
     }
 
-    function openEdit(avail) {
+    const openEdit = (avail) => {
         setEditTarget(avail.availabilityId);
         setFields({
             start: new Date(avail.start),
@@ -152,6 +154,7 @@ function VehicleAvailabilityMenu({ vehicleId }) {
                 opened={deleteTarget !== null}
                 onClose={() => setDeleteTarget(null)}
                 title="Elérhetőség törlése"
+                lockScroll={false}
                 centered
             >
                 <Text fz={15} fw='bold'>Biztosan törli ezt az elérhetőségi időszakot?</Text>
@@ -165,6 +168,7 @@ function VehicleAvailabilityMenu({ vehicleId }) {
                 opened={addEditOpen}
                 onClose={() => setAddEditOpen(false)}
                 title={editTarget !== null ? 'Elérhetőség szerkesztése' : 'Elérhetőség hozzáadása'}
+                lockScroll={false}
                 centered
             >
                 <Stack gap={15}>
@@ -175,11 +179,7 @@ function VehicleAvailabilityMenu({ vehicleId }) {
                         onChange={(val) => setFields((fields) => ({ ...fields, start: val }))}
                         minDate={new Date()}
                         leftSection={<IconCalendar size={15} />}
-                        dropdownType="modal"
-                        locale='hu'
-                        valueFormat='YYYY. MM. DD. HH:mm'
-                        modalProps={{ styles: { inner: { paddingTop: '100px' } } }}
-                        radius="md"
+                        {...dateTimeInputProps}
                         clearable
                     />
                     <DateTimePicker
@@ -189,11 +189,7 @@ function VehicleAvailabilityMenu({ vehicleId }) {
                         onChange={(val) => setFields((fields) => ({ ...fields, end: val }))}
                         minDate={fields.start ?? new Date()}
                         leftSection={<IconCalendar size={15} />}
-                        dropdownType="modal"
-                        locale='hu'
-                        valueFormat='YYYY. MM. DD. HH:mm'
-                        modalProps={{ styles: { inner: { paddingTop: '100px' } } }}
-                        radius="md"
+                        {...dateTimeInputProps}
                         clearable
                     />
                     <NumberInput

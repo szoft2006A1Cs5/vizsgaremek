@@ -6,7 +6,7 @@ import VehicleForm from '../../components/VehicleForm/VehicleForm';
 import VehicleImageMenu from '../../components/VehicleForm/VehicleImageMenu/VehicleImageMenu';
 import VehicleAvailabilityMenu from '../../components/VehicleForm/VehicleAvailabilityMenu/VehicleAvailabilityMenu';
 import { API_URL } from '../../assets/scripts/Config';
-import { useUser } from '../../assets/scripts/AuthUser';
+import { useUser } from '../../assets/scripts/hooks/AuthUser';
 import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { fetchAPI } from '../../assets/scripts/Utilities';
 

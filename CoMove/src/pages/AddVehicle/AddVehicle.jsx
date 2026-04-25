@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import VehicleForm from '../../components/VehicleForm/VehicleForm';
 import { API_URL } from '../../assets/scripts/Config';
-import { useUser } from '../../assets/scripts/AuthUser';
+import { useUser } from '../../assets/scripts/hooks/AuthUser';
 import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { fetchAPI } from '../../assets/scripts/Utilities';
 

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { API_URL } from "./Config";
-import { fetchAPI } from "./Utilities";
+import { API_URL } from "../Config";
+import { fetchAPI } from "../Utilities";
 import { useNavigate } from "react-router-dom";
 
 export function useUser() {

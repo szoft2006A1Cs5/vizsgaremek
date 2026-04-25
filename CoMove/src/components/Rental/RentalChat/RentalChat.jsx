@@ -4,7 +4,7 @@ import { IconCamera, IconSend } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_URL, BACKEND_URL } from "../../../assets/scripts/Config";
-import { useUser } from "../../../assets/scripts/AuthUser";
+import { useUser } from "../../../assets/scripts/hooks/AuthUser";
 import { fetchAPI, formatDateTime, formatPic } from "../../../assets/scripts/Utilities";
 import { notifications } from "@mantine/notifications";
 
