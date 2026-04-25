@@ -23,7 +23,7 @@ function AccountEdit({ user }) {
 
             if (!resp.ok) {
                 const respJson = await resp.json().catch(() => {});
-                throw new Error(respJson?.error ?? "Nem sikerült frissíteni a profilképet!");
+                throw new Error(respJson?.error ?? "Nem sikerült frissíteni a profilképet! Csak 5 MB-nál kisebb kép feltölthető.");
             }
         },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ["user", String(user.id)] }),

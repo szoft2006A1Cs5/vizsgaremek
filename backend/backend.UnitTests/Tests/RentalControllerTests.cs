@@ -4,10 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using backend.Controllers;
+using backend.DTOs.Message;
 using backend.DTOs.Rental;
 using backend.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace backend.UnitTests.Tests
 {
@@ -31,7 +35,240 @@ namespace backend.UnitTests.Tests
         }
 
         [TestMethod]
-        public async Task ChainTest()
+        public async Task GetMyRentals_Ok()
+        {
+            _controller.SetAuthUser(2, UserRole.User);
+
+            var result = (await _controller!.GetMyRentals()) as OkObjectResult;
+            Assert.IsNotNull(result);
+            var rentals = JsonConvert.DeserializeObject<List<Rental>>((string)result.Value);
+            Assert.IsNotNull(rentals);
+            
+            Assert.AreEqual(rentals.Count, 1);
+        }
+        
+        [TestMethod]
+        public async Task GetMyRentals_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+
+            var result = (await _controller!.GetMyRentals()) as UnauthorizedResult;
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetRentalById_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = (await _controller!.GetRentalById(1)) as OkObjectResult;
+            Assert.IsNotNull(result);
+            var rental = JsonConvert.DeserializeObject<Rental>((string)result.Value);
+            Assert.IsNotNull(rental);
+            
+            Assert.AreEqual(rental.PickupLocation, "9700 Szombathely, Zrínyi Ilona utca 12.");
+        }
+        
+        [TestMethod]
+        public async Task GetRentalById_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+
+            var result = (await _controller!.GetRentalById(1)) as UnauthorizedResult;
+            Assert.IsNotNull(result);
+        }
+        
+        [TestMethod]
+        public async Task GetRentalById_Forbidden()
+        {
+            _controller.SetAuthUser(3, UserRole.User);
+
+            var result = (await _controller!.GetRentalById(1)) as ForbidResult;
+            Assert.IsNotNull(result);
+        }
+        
+        [TestMethod]
+        public async Task GetRentalById_NotFound()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = (await _controller!.GetRentalById(5)) as NotFoundResult;
+            Assert.IsNotNull(result);
+        }
+        
+        [TestMethod]
+        public async Task GetOwnedRentals_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+
+            var result = (await _controller!.GetOwned()) as OkObjectResult;
+            Assert.IsNotNull(result);
+            var rentals = JsonConvert.DeserializeObject<List<Rental>>((string)result.Value);
+            Assert.IsNotNull(rentals);
+            
+            Assert.AreEqual(rentals.Count, 1);
+        }
+
+        [TestMethod]
+        public async Task GetOwnedRentals_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+
+            var result = (await _controller!.GetOwned()) as UnauthorizedResult;
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task GetMessages_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+            
+            var result = (await _controller!.GetMessages(1)) as OkObjectResult;
+            Assert.IsNotNull(result);
+            var messages = JsonConvert.DeserializeObject<List<Rental>>((string)result.Value);
+            Assert.IsNotNull(messages);
+            
+            Assert.AreEqual(messages.Count, 0);
+        }
+        
+        [TestMethod]
+        public async Task GetMessages_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+            
+            var result = (await _controller!.GetMessages(1)) as UnauthorizedResult;
+            Assert.IsNotNull(result);
+        }
+        
+        [TestMethod]
+        public async Task GetMessages_Forbidden()
+        {
+            _controller.SetAuthUser(3, UserRole.User);
+            
+            var result = (await _controller!.GetMessages(1)) as ForbidResult;
+            Assert.IsNotNull(result);
+        }
+        
+        [TestMethod]
+        public async Task GetMessages_NotFound()
+        {
+            _controller.SetAuthUser(3, UserRole.User);
+            
+            var result = (await _controller!.GetMessages(5)) as NotFoundResult;
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task SendMessageImage_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+            
+            var result = (await _controller!.SendMessageImage(1, new FormFile(
+                null, 0, 0, "test", "test.jpg"
+            ))) as CreatedResult;
+            
+            Assert.IsNotNull(result);
+            
+            Assert.AreEqual(_environment.Context.Messages.Count(x => x.RentalId == 1), 1);
+        }
+
+        [TestMethod]
+        public async Task SendMessageImage_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+            
+            var result = (await _controller!.SendMessageImage(1, new FormFile(
+                null, 0, 0, "test", "test.jpg"
+            ))) as UnauthorizedResult;
+            
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task SendMessageImage_Forbidden()
+        {
+            _controller.SetAuthUser(3, UserRole.User);
+            
+            var result = (await _controller!.SendMessageImage(1, new FormFile(
+                null, 0, 0, "test", "test.jpg"
+            ))) as ForbidResult;
+            
+            Assert.IsNotNull(result);
+        }
+        
+        [TestMethod]
+        public async Task SendMessageImage_NotFound()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+            
+            var result = (await _controller!.SendMessageImage(5, new FormFile(
+                null, 0, 0, "test", "test.jpg"
+            ))) as NotFoundResult;
+            
+            Assert.IsNotNull(result);
+        }
+        
+        [TestMethod]
+        public async Task SendMessage_Ok()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+            
+            var result = (await _controller!.SendMessage(1, new MessageSendDTO
+            {
+                Content = "Szia!",
+                IsComplaint = false,
+            })) as CreatedResult;
+            
+            Assert.IsNotNull(result);
+            
+            Assert.AreEqual(_environment.Context.Messages.Count(x => x.RentalId == 1), 1);
+        }
+
+        [TestMethod]
+        public async Task SendMessage_Unauthorized()
+        {
+            _controller.SetAuthUser(null, null);
+            
+            var result = (await _controller!.SendMessage(1, new MessageSendDTO
+            {
+                Content = "Szia!",
+                IsComplaint = false,
+            })) as UnauthorizedResult;
+            
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task SendMessage_Forbidden()
+        {
+            _controller.SetAuthUser(3, UserRole.User);
+            
+            var result = (await _controller!.SendMessage(1, new MessageSendDTO
+            {
+                Content = "Szia!",
+                IsComplaint = false,
+            })) as ForbidResult;
+            
+            Assert.IsNotNull(result);
+        }
+        
+        [TestMethod]
+        public async Task SendMessage_NotFound()
+        {
+            _controller.SetAuthUser(1, UserRole.User);
+            
+            var result = (await _controller!.SendMessage(4, new MessageSendDTO
+            {
+                Content = "Szia!",
+                IsComplaint = false,
+            })) as NotFoundResult;
+            
+            Assert.IsNotNull(result);
+        }
+        
+        
+        [TestMethod]
+        public async Task TestRentalProcess()
         {
             // Nem lehet utolag berelni
             _environment.FakeTimeProvider.SetUtcNow(new DateTime(2026, 03, 22));
@@ -47,7 +284,7 @@ namespace backend.UnitTests.Tests
             
             #region CreateOffer
             _controller.SetAuthUser(1, UserRole.User);
-            var postResult = await _controller!.Post(new RentalDTO
+            var postResult = await _controller!.CreateRental(new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
@@ -67,7 +304,7 @@ namespace backend.UnitTests.Tests
 
             #region OfferAccepted
             _controller.SetAuthUser(2, UserRole.User);
-            var acceptResult = await _controller.Put(rentalId, new RentalDTO
+            var acceptResult = await _controller.UpdateRentalById(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
@@ -88,7 +325,7 @@ namespace backend.UnitTests.Tests
 
             #region RenterPickupAccepted
             _controller.SetAuthUser(1, UserRole.User);
-            var renterPickupResult = await _controller.Put(rentalId, new RentalDTO
+            var renterPickupResult = await _controller.UpdateRentalById(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
@@ -103,7 +340,7 @@ namespace backend.UnitTests.Tests
 
             #region OwnerPickupAccepted
             _controller.SetAuthUser(2, UserRole.User);
-            var ownerPickupResult = await _controller.Put(rentalId, new RentalDTO
+            var ownerPickupResult = await _controller.UpdateRentalById(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
@@ -118,7 +355,7 @@ namespace backend.UnitTests.Tests
 
             #region RenterFinishAccepted
             _controller.SetAuthUser(1, UserRole.User);
-            var renterFinishResult = await _controller.Put(rentalId, new RentalDTO
+            var renterFinishResult = await _controller.UpdateRentalById(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
@@ -133,7 +370,7 @@ namespace backend.UnitTests.Tests
 
             #region OwnerFinishAccepted
             _controller.SetAuthUser(2, UserRole.User);
-            var ownerFinishResult = await _controller.Put(rentalId, new RentalDTO
+            var ownerFinishResult = await _controller.UpdateRentalById(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
@@ -148,7 +385,7 @@ namespace backend.UnitTests.Tests
 
             #region RenterRatingOwner 
             _controller.SetAuthUser(1, UserRole.User);
-            var renterRatingOwnerResult = await _controller.Put(rentalId, new RentalDTO
+            var renterRatingOwnerResult = await _controller.UpdateRentalById(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,
@@ -164,7 +401,7 @@ namespace backend.UnitTests.Tests
 
             #region OwnerRating 
             _controller.SetAuthUser(2, UserRole.User);
-            var ownerRatingRenterResult = await _controller.Put(rentalId, new RentalDTO
+            var ownerRatingRenterResult = await _controller.UpdateRentalById(rentalId, new RentalDTO
             {
                 VehicleId = 2,
                 Start = rentalStart,

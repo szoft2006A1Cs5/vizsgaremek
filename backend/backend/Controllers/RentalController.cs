@@ -47,7 +47,7 @@ namespace backend.Controllers
         /// 401-et be nem jelentkezett felhasznalo eseten
         /// </returns>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetMyRentals()
         {
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
@@ -78,7 +78,7 @@ namespace backend.Controllers
         /// 200-at maskeppen.
         /// </returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetRentalById(int id)
         {
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();
@@ -128,7 +128,7 @@ namespace backend.Controllers
         /// 201-et + a berlest, ha a berlesi ajanlat sikeresen letrejott.
         /// </returns>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] RentalDTO offer)
+        public async Task<IActionResult> CreateRental([FromBody] RentalDTO offer)
         {
             if (offer.End <= offer.Start || offer.Start <= _timePrv.GetUtcNow())
                 return BadRequest(new
@@ -212,7 +212,7 @@ namespace backend.Controllers
         /// 204-et a berles torlodese eseten.
         /// </returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] RentalDTO modifications)
+        public async Task<IActionResult> UpdateRentalById(int id, [FromBody] RentalDTO modifications)
         {
             if (string.IsNullOrEmpty(modifications.PickupLocation))
                 return BadRequest(new { Error = "Nem javasoltál átvételi helyet!" });
@@ -277,7 +277,7 @@ namespace backend.Controllers
         /// 204-et, ha a berlesi ajanlat meg nem lett elfogadva, es a berles torolve lett.
         /// </returns>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteCancelRentalById(int id)
         {
             var authUser = await _authSrv.GetUser(User);
             if (authUser == null) return Unauthorized();

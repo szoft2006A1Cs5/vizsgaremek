@@ -23,7 +23,7 @@ function MyVehicles() {
     return (
         <PageLayout
             title="Járműveim"
-            subtitle="Az Ön által bérbeadott járművek"
+            subtitle="Az általad bérbeadott járművek"
             rightContent={
                 <Button
                     onClick={() => navigate("/vehicle/add")}
@@ -39,7 +39,7 @@ function MyVehicles() {
             ) : isError ? (
                 <Center pt={100}><Text c="var(--lightpurple)" fz={15}>Hiba történt a járművek betöltésekor.</Text></Center>
             ) : vehicles?.length === 0 ? (
-                <Center pt={100}><Text c="var(--lightpurple)" fz={15}>Még nincs hozzáadott járműve.</Text></Center>
+                <Center pt={100}><Text c="var(--lightpurple)" fz={15}>Még nincs hozzáadott járműved.</Text></Center>
             ) : (
                 <SimpleGrid cols={{
                     base: 1,

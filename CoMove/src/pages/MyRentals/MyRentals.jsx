@@ -18,10 +18,10 @@ function MyRentals() {
     });
 
     const active  = (rentals ?? []).filter(r => r.status !== 'finished' && r.status !== 'cancelled');
-    const old = (rentals ?? []).filter(r => r.status === 'finished' || r.status === 'cancelled');
+    const archive = (rentals ?? []).filter(r => r.status === 'finished' || r.status === 'cancelled');
 
     return (
-        <PageLayout title="Bérléseim" subtitle="Az Ön által indított bérlések">
+        <PageLayout title="Bérléseim" subtitle="Az általad indított bérlések">
             {isLoading ? (
                 <Center pt={100}><Loader color="var(--button)" /></Center>
             ) : isError ? (
@@ -40,13 +40,13 @@ function MyRentals() {
                             </Stack>
                         </Stack>
                     )}
-                    {old.length > 0 && (
+                    {archive.length > 0 && (
                         <Stack gap={5}>
                             <Text fz={15} fw='bold' c="var(--lightpurple)">
-                                Archív ({old.length})
+                                Archív ({archive.length})
                             </Text>
                             <Stack gap={10}>
-                                {old.map(r => <RentalRow key={r.id} rental={r} />)}
+                                {archive.map(r => <RentalRow key={r.id} rental={r} />)}
                             </Stack>
                         </Stack>
                     )}

@@ -65,7 +65,7 @@ function VehicleImageMenu({ vehicleId }) {
                 body: formData,
             });
 
-            if (!resp.ok) throw new Error('Feltöltés sikertelen!');
+            if (!resp.ok) throw new Error('Sikertelen feltöltés! Csak 5 MB-nál kisebb kép feltölthető.');
         },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vehicle-images', vehicleId] }),
         onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),

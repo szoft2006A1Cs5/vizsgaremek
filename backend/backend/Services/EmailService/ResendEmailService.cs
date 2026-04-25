@@ -21,6 +21,8 @@ public class ResendEmailService : IEmailService
         message.Subject = "CoMove - Jelszó visszaállítása";
         message.HtmlBody = "<h2>Állítsd vissza a jelszavadat az alábbi kóddal:</h2>" +
                            $"<h1>{token}</h1>" +
+                           $"<h3>Az elfelejtett jelszó oldalon kattintson a 'Már van kódom' szövegre " +
+                           $"a kód felhasználásához!</h3>" +
                            $"<p>A kód csak a következő {Config.TokenValidMins} percben érvényes!</p>";
 
         await _resend.EmailSendAsync(message);
