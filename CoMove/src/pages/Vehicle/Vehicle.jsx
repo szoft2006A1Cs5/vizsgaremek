@@ -161,11 +161,11 @@ function Vehicle() {
                                             </Group>
                                             <Group justify="space-between">
                                                 <Text fz={15} c="var(--lightpurple)">Teljesítmény</Text>
-                                                <Text fz={15} fw='bold' c="var(--background)">{vehicle.horsepower}</Text>
+                                                <Text fz={15} fw='bold' c="var(--background)">{vehicle.horsepower} lóerő</Text>
                                             </Group>
                                             <Group justify="space-between">
                                                 <Text fz={15} c="var(--lightpurple)">Kilométeróra</Text>
-                                                <Text fz={15} fw='bold' c="var(--background)">{vehicle.odometerReading}</Text>
+                                                <Text fz={15} fw='bold' c="var(--background)">{vehicle.odometerReading} km</Text>
                                             </Group>
                                             <Group justify="space-between">
                                                 <Text fz={15} c="var(--lightpurple)">Üzemanyag</Text>
@@ -177,7 +177,7 @@ function Vehicle() {
                                             </Group>
                                             <Group justify="space-between">
                                                 <Text fz={15} c="var(--lightpurple)">Fogyasztás</Text>
-                                                <Text fz={15} fw='bold' c="var(--background)">{vehicle.avgFuelConsumption}</Text>
+                                                <Text fz={15} fw='bold' c="var(--background)">{vehicle.avgFuelConsumption} L/100 km</Text>
                                             </Group>
                                         </Stack>
 
