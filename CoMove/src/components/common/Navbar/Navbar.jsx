@@ -57,7 +57,7 @@ function Navbar({ children }) {
         aside.close();
     }, [location.pathname])
 
-    const { data: authUser, isLoading } = useUser();
+    const { data: authUser } = useUser();
     const logout = useLogout();
 
     const closeAll = () => {

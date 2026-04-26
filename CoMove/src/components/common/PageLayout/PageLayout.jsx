@@ -1,4 +1,3 @@
-import { useState, useEffect, useLayoutEffect } from 'react';
 import { Box, Container, Group, Text } from '@mantine/core';
 import style from './PageLayout.module.css';
 

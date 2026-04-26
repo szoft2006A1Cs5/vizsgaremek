@@ -15,7 +15,7 @@ export function formatPrice(n) {
     return Number(n).toLocaleString('hu-HU') + ' Ft';
 }
 
-export function formatPic(pic, isProfile = false) {
+export function formatPic(pic) {
     return pic ? `${RES_URL}/${pic}` : null;
 }
 

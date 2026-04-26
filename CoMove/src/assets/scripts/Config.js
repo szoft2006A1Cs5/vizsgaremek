@@ -16,7 +16,6 @@ export const STATUS_DICT = {
 }
 
 export function requiresActionFromMe(status, role) {
-    const other = role === "renter" ? "owner" : "renter";
     return !status.startsWith(role) && status !== "cancelled";
 }
 

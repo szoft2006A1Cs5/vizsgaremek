@@ -33,11 +33,10 @@ function Vehicle() {
         searchParams.get('rentalEnd') ? new Date(searchParams.get('rentalEnd')) : null
     );
     const [pickupLocation, setPickupLocation] = useState('');
-    const [pickupError, setPickupError] = useState(null);
     const datePickerInputProps = useDateInputProps('dateTime')
 
 
-    const { data: authUser, isSuccess: userSuccess, isLoading: userLoading } = useUser();
+    const { data: authUser, isSuccess: userSuccess } = useUser();
 
     const { data: vehicle, isLoading, isError } = useQuery({
         queryKey: ['vehicle', carId],

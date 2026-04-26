@@ -1,6 +1,6 @@
 import { Button, ActionIcon, Modal, Center, Text, ScrollArea } from "@mantine/core"
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Notification from '../Notification/Notification'
 import { useUser } from '../../../../../assets/scripts/hooks/AuthUser';
 import { API_URL } from '../../../../../assets/scripts/Config';
@@ -20,7 +20,7 @@ function NotificationMenu() {
         close();
     }, [location])
 
-    const { data: authUser, isLoading: isLoading, isSuccess: isSuccess} = useUser();
+    const { data: authUser, isLoading: isLoading } = useUser();
 
     const deleteMutation = useMutation({
         mutationFn: async (id) => {

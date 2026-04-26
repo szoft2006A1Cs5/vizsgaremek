@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { Badge, Flex, Rating } from "@mantine/core";
 import defaultImage from '../../../assets/kepek/egyeb/default.png'
 import './VehicleCard.css'

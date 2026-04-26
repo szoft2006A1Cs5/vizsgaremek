@@ -1,11 +1,8 @@
 import { Center, Grid, Loader, Paper, Stack, Text } from "@mantine/core";
 import PageLayout from "../../components/common/PageLayout/PageLayout";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUser } from "../../assets/scripts/hooks/AuthUser";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "../../assets/scripts/Config";
-import { useEffect } from "react";
-import { notifications } from "@mantine/notifications";
 import { fetchAPI, formatDateTime, formatPrice } from "../../assets/scripts/Utilities";
 import VehicleCard from "../../components/common/VehicleCard/VehicleCard";
 import RentalData from "../../components/Rental/RentalData/RentalData";
@@ -15,7 +12,6 @@ import RentalDash from "../../components/Rental/RentalDash/RentalDash";
 function Rental() {
     const navigate = useNavigate()
     const { rentalId } = useParams();
-    const { data: authUser } = useUser();
 
     const { data: rental, isLoading, error, isError } = useQuery({
         queryKey: ['rental', rentalId],

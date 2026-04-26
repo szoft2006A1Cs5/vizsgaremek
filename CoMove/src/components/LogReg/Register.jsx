@@ -1,6 +1,6 @@
 import { Stack, Text, TextInput, PasswordInput, Button, Group, Stepper } from "@mantine/core";
 import CenteredCard, { blueInput, styles } from "../../components/common/CenteredCard/CenteredCard";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useForm } from "@mantine/form";
 import { REGEX } from "../../assets/scripts/Regex";

@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useUser } from "../../assets/scripts/hooks/AuthUser";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Flex, Paper, Text, Image, Stack, TextInput, Button, PasswordInput } from "@mantine/core";
-import logo from "../../assets/kepek/logo/comove_logo1.png";
 import { REGEX } from "../../assets/scripts/Regex";
 import { useMutation } from "@tanstack/react-query";
 import { fetchAPI } from "../../assets/scripts/Utilities";
