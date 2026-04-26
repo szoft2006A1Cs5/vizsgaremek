@@ -6,12 +6,16 @@ import { API_URL } from '../../assets/scripts/Config';
 import { useUser } from '../../assets/scripts/hooks/AuthUser';
 import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { fetchAPI } from '../../assets/scripts/Utilities';
+import { useEffect } from 'react';
 
 function AddVehicle() {
     const navigate = useNavigate();
-    const { data: authUser, isLoading: userLoading } = useUser();
+    const { data: authUser, isSuccess: userSuccess } = useUser();
 
-    if (!userLoading && !authUser) navigate("/login")
+    useEffect(() => {
+        if (userSuccess && authUser?.role === "administrator")
+            navigate("/");
+    }, [authUser, userSuccess]);
 
     const vehicleAddMutation = useMutation({
         mutationFn: async (vehicleData) => {

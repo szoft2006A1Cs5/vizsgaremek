@@ -45,7 +45,7 @@ function Navbar({ children }) {
     })
 
     useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 16)
+        const onScroll = () => setScrolled(window.scrollY > 20)
         onScroll()
         window.addEventListener("scroll", onScroll, { passive: true })
         return () => window.removeEventListener("scroll", onScroll)
@@ -75,9 +75,16 @@ function Navbar({ children }) {
             ) : (
                 <>
                     <NavLink component={Link} to="/account" label="Beállítások" onClick={closeAll} />
-                    <Divider />
-                    <NavLink component={Link} to="/rentals" label="Bérléseim" onClick={closeAll} />
-                    <NavLink component={Link} to="/vehicles" label="Járműveim" onClick={closeAll} />
+                    { authUser?.role !== "administrator" 
+                        ? (
+                            <>
+                                <Divider />
+                                <NavLink component={Link} to="/rentals" label="Bérléseim" onClick={closeAll} />
+                                <NavLink component={Link} to="/vehicles" label="Járműveim" onClick={closeAll} />
+                            </>
+                        )
+                        : (<></>)
+                    }
                     <Divider />
                     <NavLink label="Kijelentkezés" onClick={() => logout.mutate()} />
                 </>

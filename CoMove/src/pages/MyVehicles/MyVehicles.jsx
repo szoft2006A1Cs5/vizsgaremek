@@ -1,20 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../../assets/scripts/Config";
-import { Loader, Center, Stack, Text, Button, SimpleGrid } from "@mantine/core";
+import { Loader, Center, Text, Button, SimpleGrid } from "@mantine/core";
 import PageLayout from "../../components/common/PageLayout/PageLayout";
 import VehicleCard from "../../components/common/VehicleCard/VehicleCard";
 import { fetchAPI } from "../../assets/scripts/Utilities";
+import { useUser } from "../../assets/scripts/hooks/AuthUser";
+import { useEffect } from "react";
 
 function MyVehicles() {
     const navigate = useNavigate();
+    const { data: authUser, isSuccess: userSuccess } = useUser();
 
-    const { data: vehicles, isLoading, isError } = useQuery({
+    useEffect(() => {
+        if (userSuccess && authUser?.role === "administrator")
+            navigate("/");
+    }, [authUser, userSuccess])
+
+    const { data: vehicles, isLoading, isError, error } = useQuery({
         queryKey: ["ownedVehicles"],
         queryFn: async () => {
             const resp = await fetchAPI('/Vehicle/Owned');
 
-            if (resp.status !== 200) return null;
+            if (!resp.ok) throw new Error("Nem sikerült betölteni a járműveket!");
             
             return resp.json();
         },
@@ -37,7 +44,7 @@ function MyVehicles() {
             {isLoading ? (
                 <Center pt={100}><Loader color="var(--background)" /></Center>
             ) : isError ? (
-                <Center pt={100}><Text c="var(--lightpurple)" fz={15}>Hiba történt a járművek betöltésekor.</Text></Center>
+                <Center pt={100}><Text c="var(--lightpurple)" fz={15}>{error.message ?? 'Hiba történt a járművek betöltésekor.'}</Text></Center>
             ) : vehicles?.length === 0 ? (
                 <Center pt={100}><Text c="var(--lightpurple)" fz={15}>Még nincs hozzáadott járműved.</Text></Center>
             ) : (

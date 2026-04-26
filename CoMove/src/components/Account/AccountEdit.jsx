@@ -72,7 +72,7 @@ function AccountEdit({ user }) {
                 </Grid.Col>
 
                 <Grid.Col span={{ base: 12, md: 6 }}>
-                    <AccountForm user={user} />
+                    <AccountForm key={user?.id} user={user} />
                 </Grid.Col>
             </Grid>
         </Paper>

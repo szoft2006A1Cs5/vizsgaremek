@@ -9,13 +9,14 @@ import { API_URL } from '../../assets/scripts/Config';
 import { useUser } from '../../assets/scripts/hooks/AuthUser';
 import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { fetchAPI } from '../../assets/scripts/Utilities';
+import { useEffect } from 'react';
 
 function EditVehicle() {
     const { carId } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     
-    const { data: authUser, isLoading: userLoading } = useUser();
+    const { data: authUser, isSuccess: userSuccess } = useUser();
 
     const { data: vehicle, isLoading } = useQuery({
         queryKey: ['vehicle', carId],
@@ -46,10 +47,12 @@ function EditVehicle() {
         onError: (err) => notifications.show({ title: 'Hiba', message: err.message, color: 'red' }),
     });
     
-    if (!isLoading && !userLoading && 
-        authUser.id !== vehicle?.ownerId && 
-        authUser.role !== "administrator") 
-        navigate("/vehicles");
+    useEffect(() => {
+        if (!isLoading && userSuccess && 
+            authUser?.id !== vehicle?.ownerId && 
+            authUser?.role !== "administrator") 
+            navigate("/vehicles");
+    }, [isLoading, userSuccess, authUser, vehicle])
 
     return (
         <>

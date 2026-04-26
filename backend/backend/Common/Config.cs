@@ -3,7 +3,7 @@ namespace backend.Common;
 public static class Config
 {
     public const int TokenValidMins = 30;
-    public const int CookieExpirationHours = 7 * 24;
+    public const int CookieExpirationHours = 3 * 24;
     public static bool CookieSecure { get; private set; } = true;
     public static SameSiteMode CookieSameSite { get; private set; } = SameSiteMode.None; // Sajnos localhoston ez kell,
                                                                                          // hogy minden bongeszoben

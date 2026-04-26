@@ -100,7 +100,7 @@ function Vehicle() {
         },
     });
 
-    const canEdit = authUser && vehicle && (authUser.id === vehicle.ownerId || authUser.role === "Administrator");
+    const canEdit = authUser && vehicle && (authUser.id === vehicle.ownerId || authUser?.role === "administrator");
 
     return (
         <PageLayout
@@ -263,7 +263,7 @@ function Vehicle() {
                                                             )}
                                                         </>
                                                     ) : (
-                                                        <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light" radius="md">
+                                                        <Alert icon={<IconAlertCircle size={15} />} color="red" variant="light" radius="md">
                                                             Erre az időszakra nem érhető el ajánlat.
                                                         </Alert>
                                                     )
