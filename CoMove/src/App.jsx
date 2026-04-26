@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, useLocation } from "react-router-dom";
 import Navbar from "./components/common/Navbar/Navbar";
 import Home from "./pages/Home/Home";
 import Searching from "./pages/Searching/Searching";
@@ -15,14 +15,28 @@ import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import LogReg from "./pages/LogReg/LogReg";
 import Page404 from "./pages/404/404";
+import Footer from "./components/common/Footer/Footer";
+import { useEffect } from "react";
+import { Stack } from "@mantine/core";
 
 const queryClient = new QueryClient();
 
-function LayoutWithNavbar() {
+function LayoutWithNavbarFooter() {
+  const location = useLocation();
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0)
+    })
+  }, [location])
+
   return (
-    <Navbar>
-      <Outlet />
-    </Navbar>
+    <>
+      <Navbar>
+        <Outlet />
+      </Navbar>
+      <Footer />
+    </>
   );
 }
 
@@ -33,7 +47,7 @@ export default function App() {
         <Routes>
           <Route path="*" element={<Page404 />} />
 
-          <Route element={<LayoutWithNavbar />}>
+          <Route element={<LayoutWithNavbarFooter />}>
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<Searching />} />
             <Route path="/vehicle/:carId" element={<Vehicle />} />

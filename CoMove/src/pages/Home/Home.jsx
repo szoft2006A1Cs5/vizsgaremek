@@ -4,19 +4,12 @@ import icon_1 from "../../assets/kepek/egyeb/icon1.png";
 import icon_2 from "../../assets/kepek/egyeb/icon2.png";
 import icon_3 from "../../assets/kepek/egyeb/icon3.png";
 import vazkep2 from "../../assets/kepek/egyeb/vazkep2.png";
-import cucu from "../../assets/kepek/egyeb/cucu_profil.png";
-import no from "../../assets/kepek/egyeb/arckep_noi.jpg";
-import ferfi from "../../assets/kepek/egyeb/arckep_ferfi.jpg";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaSnapchatGhost,
-  FaTiktok,
-} from "react-icons/fa";
+import cucu from "../../assets/kepek/egyeb/mb.jpg";
+import lien from '../../assets/kepek/egyeb/dml.jpg'
+import aron from '../../assets/kepek/egyeb/gaa.jpg'
+import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useLayoutEffect, useEffect, useState } from "react";
-//tesztelek@teszt.hu
-//NagyTesztElek32
 
 function Home() {
   const navigate = useNavigate();
@@ -62,7 +55,6 @@ function Home() {
 
   return (
     <>
-      {/*Collaborative Mobility*/}
       <div className="home_root">
         {/*Fejlec*/}
         <section
@@ -139,7 +131,7 @@ function Home() {
                 A CoMove-nál egyszerre lehetsz bérlő és bérbeadó is: ha épp
                 autóra van szükséged, bérelsz, ha pedig van szabad kapacitásod,
                 kiadhatod a sajátodat. Olcsó, gyors és átlátható — értékelési
-                rendszerrel és vitakezeléssel tesszük megbízhatóvá a közösségi
+                rendszerrel tesszük megbízhatóvá a közösségi
                 autóhasználatot.
               </p>
               <div className="home_rolunk_ev">
@@ -202,8 +194,7 @@ function Home() {
                     <p>
                       A közösségi autóbérlés alapja a bizalom, ezért a CoMove
                       kiemelten kezeli a biztonságot. Az értékelési rendszer
-                      segít a megbízható felhasználók kiválasztásában, a
-                      vitakezelés pedig megoldást ad, ha probléma adódna.
+                      segít a megbízható felhasználók kiválasztásában.
                     </p>
                   </div>
                 </div>
@@ -230,7 +221,6 @@ function Home() {
                   <a
                     href="https://www.facebook.com/profile.php?id=100058838472197"
                     target="_blank"
-                    rel="noreferrer"
                     aria-label="Facebook"
                   >
                     <FaFacebookF />
@@ -238,7 +228,6 @@ function Home() {
                   <a
                     href="https://www.instagram.com/bence_megyeri/"
                     target="_blank"
-                    rel="noreferrer"
                     aria-label="Instagram"
                   >
                     <FaInstagram />
@@ -248,12 +237,11 @@ function Home() {
                 <p>Frontend Developer</p>
               </div>
               <div className="home_csapattag scroll-animate">
-                <img src={no} alt="Arckép" />
+                <img src={lien} alt="Arckép" />
                 <div className="home_social-linkek">
                   <a
                     href="https://www.facebook.com/mariah.llianne"
                     target="_blank"
-                    rel="noreferrer"
                     aria-label="Facebook"
                   >
                     <FaFacebookF />
@@ -261,22 +249,20 @@ function Home() {
                   <a
                     href="https://www.instagram.com/yantoyyyy/"
                     target="_blank"
-                    rel="noreferrer"
                     aria-label="Instagram"
                   >
                     <FaInstagram />
                   </a>
                 </div>
                 <h3>Darunday Mariah Llianne</h3>
-                <p>Frontend Engineer</p>
+                <p>Frontend Developer</p>
               </div>
               <div className="home_csapattag scroll-animate">
-                <img src={ferfi} alt="Arckép" />
+                <img src={aron} alt="Arckép" />
                 <div className="home_social-linkek">
                   <a
                     href="https://www.facebook.com/aron.geosits"
                     target="_blank"
-                    rel="noreferrer"
                     aria-label="Facebook"
                   >
                     <FaFacebookF />
@@ -284,87 +270,24 @@ function Home() {
                   <a
                     href="https://www.instagram.com/"
                     target="_blank"
-                    rel="noreferrer"
                     aria-label="Instagram"
                   >
                     <FaInstagram />
                   </a>
                 </div>
                 <h3>Geosits Áron András</h3>
-                <p>Backend Developer</p>
+                <p>Backend & Database Engineer</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/*Footer*/}
-        <footer className="footer">
-          <div className="footerInner">
-            <div className="footerContainer">
-              <div className="footerCol">
-                <h4>Kapcsolat</h4>
-                <div className="footerContact">
-                  <p className="footerItem footerItem--loc">
-                    9700 Szombathely, Magyarország
-                  </p>
-                  <p className="footerItem footerItem--phone">
-                    +36 20 123 4567
-                  </p>
-                  <p className="footerItem footerItem--mail">
-                    comove@projekt.hu
-                  </p>
-                </div>
-                <div className="footerSocials">
-                  <a
-                    href="https://www.facebook.com/profile.php?id=61586242866516"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Facebook"
-                  >
-                    <FaFacebookF />
-                  </a>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Instagram"
-                  >
-                    <FaInstagram />
-                  </a>
-                  <a
-                    href="https://tiktok.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="TikTok"
-                  >
-                    <FaTiktok />
-                  </a>
-                </div>
-              </div>
-              <div className="footerCol">
-                <h4>Oldalak</h4>
-                <a href="/">Főoldal</a>
-                <a href="/searching">Autóbérlés</a>
-                <a href="/login">Fiókom</a>
-              </div>
-            </div>
-          </div>
-          <div className="footerBottom">
-            <div className="footerBottomInner">
-              <div className="footerCopy">
-                ©&nbsp;&nbsp;<span className="footerBrandName">CoMove</span>
-                &nbsp;&nbsp;– Minden jog fenntartva.
-              </div>
-
-              <button
-                className={`footerToTop ${showFloatingTop ? "floating" : ""}`}
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              >
-                ↑
-              </button>
-            </div>
-          </div>
-        </footer>
+        <button
+          className={`footerToTop ${showFloatingTop ? "floating" : ""}`}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          ↑
+        </button>
       </div>
     </>
   );

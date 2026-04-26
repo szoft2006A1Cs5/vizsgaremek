@@ -7,11 +7,18 @@ import { API_URL } from '../../../../../assets/scripts/Config';
 import { FaBell } from 'react-icons/fa';
 import { notifications } from "@mantine/notifications";
 import { fetchAPI } from "../../../../../assets/scripts/Utilities";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function NotificationMenu() {
     const [opened, { open, close }] = useDisclosure(false);
     const isMobile = useMediaQuery('(max-width: 50em)');
     const qc = useQueryClient();
+    const location = useLocation();
+
+    useEffect(() => {
+        close();
+    }, [location])
 
     const { data: authUser, isLoading: isLoading, isSuccess: isSuccess} = useUser();
 
