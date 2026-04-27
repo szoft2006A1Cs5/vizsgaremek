@@ -230,7 +230,7 @@ function VehicleAvailabilityMenu({ vehicleId }) {
                     {isLoading ? (
                         <Center py={40}><Loader color="var(--button)" /></Center>
                     ) : sorted.length === 0 ? (
-                        <Center py={40}><Text c="dimmed" fz={14}>Még nincs megadott elérhetőség.</Text></Center>
+                        <Center py={40}><Text c="dimmed" fz={14}>Még nincs megadott elérhetőség. A járműve így nem jelenik meg a keresésekben.</Text></Center>
                     ) : (
                         <Stack gap={15}>
                             {sorted.map((avail, i) => {

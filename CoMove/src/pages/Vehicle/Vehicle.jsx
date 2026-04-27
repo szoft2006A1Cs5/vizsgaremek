@@ -192,7 +192,7 @@ function Vehicle() {
                                                 size="md" 
                                                 radius="md" 
                                                 style={{ background: 'var(--button)' }}
-                                                onClick={() => navigate(`/Vehicle/${vehicle.id}/edit`)}
+                                                onClick={() => navigate(`/vehicle/${vehicle.id}/edit`)}
                                             >
                                                 Jármű szerkesztése
                                             </Button>
