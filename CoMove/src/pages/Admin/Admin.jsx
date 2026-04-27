@@ -98,7 +98,7 @@ function Admin() {
                     >
                         <Stack gap={15}>
                             {vehicles && vehicles.map((vehicle, i) =>
-                                <AdminListRow key={i} onClick={() => navigate(`/vehicle/${vehicle?.id}/edit`)}>
+                                <AdminListRow key={i} onClick={() => navigate(`/vehicle/${vehicle?.id}`)}>
                                     <Stack gap={5}>
                                         <Group>
                                             <Text fw='bold' fz={14}>{vehicle?.id}</Text>
