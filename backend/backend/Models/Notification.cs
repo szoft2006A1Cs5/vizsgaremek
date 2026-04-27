@@ -26,7 +26,7 @@ namespace backend.Models
                     .Where(x => x.UserId == userId)
                     .MaxOrZero(x => x.NotificationId) + 1,
                 Content = content,
-                TimeSent = DateTime.Now,
+                TimeSent = DateTime.UtcNow,
             };
 
             await context.Notifications.AddAsync(notif);
