@@ -6,6 +6,14 @@ import RentalRow from '../../components/common/RentalRow/RentalRow';
 import { fetchAPI } from '../../assets/scripts/Utilities';
 
 function MyRentals() {
+    const navigate = useNavigate();
+    const { data: authUser, isSuccess: userSuccess } = useUser();
+
+    useEffect(() => {
+        if (userSuccess && authUser?.role === "administrator")
+            navigate("/");
+    }, [authUser, userSuccess])
+
     const { data: rentals, isLoading, isError } = useQuery({
         queryKey: ['myrentals'],
         queryFn: async () => {

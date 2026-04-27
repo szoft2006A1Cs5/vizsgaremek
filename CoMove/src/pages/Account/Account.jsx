@@ -47,7 +47,7 @@ function Account() {
                     ? <Center pt={100}><Text c='var(--lightpurple'>{error.message}</Text></Center>
                     : (
                         <Stack gap={15}>
-                            { authUser?.role !== "administrator" && (<AccountBalance user={user} />) }
+                            { authUser && authUser.role !== "administrator" && (<AccountBalance user={user} />) }
                             <AccountEdit user={user} />
                         </Stack>
                     )
