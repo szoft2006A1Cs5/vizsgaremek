@@ -12,7 +12,7 @@ import { fetchAPI } from "../../assets/scripts/Utilities";
 function Account() {
     const navigate = useNavigate();
     const params = useParams();
-    const { data: authUser, isSuccess: authUserSuccess } = useUser();
+    const { data: authUser, isSuccess: authUserSuccess, isLoading: authUserLoading } = useUser();
     const userId = params.userId ? params.userId : authUser?.id;
 
     const { data: user, error, isError, isLoading } = useQuery({
@@ -39,7 +39,7 @@ function Account() {
             title="Fiókbeállítások"
             subtitle="Változtasson adatain!"
         >
-            { isLoading ?
+            { (isLoading || authUserLoading) ?
                 <Center pt={100}><Loader color="var(--background)" /></Center>
              :
                 (
@@ -47,7 +47,7 @@ function Account() {
                     ? <Center pt={100}><Text c='var(--lightpurple'>{error.message}</Text></Center>
                     : (
                         <Stack gap={15}>
-                            <AccountBalance user={user} />
+                            { authUser?.role !== "administrator" && (<AccountBalance user={user} />) }
                             <AccountEdit user={user} />
                         </Stack>
                     )

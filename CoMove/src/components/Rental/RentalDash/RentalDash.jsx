@@ -10,6 +10,9 @@ function Dash({ rental }) {
     const { data: authUser } = useUser();
     const status = STATUS_DICT[rental?.status];
 
+    if (authUser?.role === "administrator")
+        return <InfoDash rental={rental} />
+
     if (status.num < 2) {
         return <OfferDash rental={rental} me={authUser} />
     } else if (status.num === 8) {

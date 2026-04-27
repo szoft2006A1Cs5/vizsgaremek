@@ -83,7 +83,12 @@ function Navbar({ children }) {
                                 <NavLink component={Link} to="/vehicles" label="Járműveim" onClick={closeAll} />
                             </>
                         )
-                        : (<></>)
+                        : (
+                            <>
+                                <Divider />
+                                <NavLink component={Link} to="/admin" label="Admin felület" onClick={closeAll} />
+                            </>
+                        )
                     }
                     <Divider />
                     <NavLink label="Kijelentkezés" onClick={() => logout.mutate()} />

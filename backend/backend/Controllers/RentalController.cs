@@ -7,6 +7,7 @@ using backend.Services;
 using backend.Services.RentalService;
 using backend.Services.ResourceService;
 using backend.VisibilityFiltering;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -127,6 +128,7 @@ namespace backend.Controllers
         ///
         /// 201-et + a berlest, ha a berlesi ajanlat sikeresen letrejott.
         /// </returns>
+        [Authorize(Roles = "User")]
         [HttpPost]
         public async Task<IActionResult> CreateRental([FromBody] RentalDTO offer)
         {
@@ -153,13 +155,17 @@ namespace backend.Controllers
                 .FirstOrDefaultAsync(x => x.Id == offer.VehicleId);
 
             if (vehicle == null) return NotFound();
-            if (vehicle.OwnerId == authUser.Id) return Forbid();
+            
+            if (vehicle.OwnerId == authUser.Id ||
+                authUser.Role == UserRole.Administrator) 
+                return Forbid();
 
             var priceOffer = vehicle.GetQuote(offer.Start, offer.End);
             if (priceOffer == null) return Conflict();
 
             if (authUser.Balance < priceOffer.Value.FullPrice)
-                return BadRequest(new { Error = "Nincs elegendő egyenleged ehhez a bérléshez!" });
+                return BadRequest(new { Error = "Nincs elegendő egyenleged a bérlés megkezdéséhez! " +
+                                                "A fiókbeállításokban tölthetsz fel pénzt." });
 
             var rental = new Rental
             {
