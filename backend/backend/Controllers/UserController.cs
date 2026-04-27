@@ -130,6 +130,8 @@ namespace backend.Controllers
             var userProps = typeof(User).GetProperties().Where(x => !(new[] {
                 nameof(Models.User.Password),
                 nameof(Models.User.Salt),
+                nameof(Models.User.Role),
+                nameof(Models.User.Balance)
             }.Contains(x.Name))).ToList();
             
             foreach (var dtoProp in typeof(UserModificationDTO).GetProperties())
@@ -147,6 +149,12 @@ namespace backend.Controllers
                 var (pass, salt) = _authSrv.GeneratePasswordHashSalt(dto.Password);
                 user.Password = pass;
                 user.Salt = salt;
+            }
+
+            if (authUser.Role == UserRole.Administrator)
+            {
+                user.Role = dto.Role ?? user.Role;
+                user.Balance = dto.Balance ?? user.Balance;
             }
 
             await _context.SaveChangesAsync();

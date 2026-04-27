@@ -133,7 +133,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `idCardNumber`, `name`, `phone`, `dateOfBirth`, `profilePicPath`, `email`, `password`, `salt`, `role`, `driversLicenseNumber`, `addressZipcode`, `addressSettlement`, `addressStreetHouse`, `balance`) VALUES
 (1, '123456AA', 'Teszt Elek', '36201234567', '2004-04-18', NULL, 'tesztelek@teszt.hu', 0x50a660f1a621afd4f176d317d4c773c3faa999457800896cfb569922eca979a9ff56e1520d06931917410cd2785084bddb0f7547aa9969857f832fec8f73c3b2, 0xe82c03cf87e46fa6f3418800ef361716, 'User', 'AA123456', '9700', 'Szombathely', 'Zrínyi Ilona utca 12.', 62045),
 (2, '123456BB', 'Gipsz Jakab', '36701234567', '1995-07-21', NULL, 'gipszjakab@teszt.hu', 0xe4bef92d9367862aeda1cc5e6ec281794c0dc2efb3abdfeb10b09f021f97effcc0b7a60b9ff8673034d57ee59b8b1c614819213c5583fe498b7b3731d2c3c096, 0xcc819104175115d6f3a6c4fd2a02ca0a, 'User', 'BB123456', '1117', 'Budapest', 'Budafoki út 12.', 437455),
-(3, '123456CC', 'Vincs Eszter', '36301234567', '2000-11-02', NULL, 'vincseszter@teszt.hu', 0xe7290419cd7a36ebc1af108550c260af3db4b55ee742c1839eafaca073127b43a652be5ad9632fd43035cc7f657c8b7afcc42cd2392f70e8f7b615704e2db118, 0x6439c25d98305dcf33f75ae705304611, 'User', 'CC123456', '9700', 'Szombathely', 'Kéthly Anna utca 7.', 0);
+(3, '123456CC', 'Vincs Eszter', '36301234567', '2000-11-02', NULL, 'vincseszter@teszt.hu', 0xe7290419cd7a36ebc1af108550c260af3db4b55ee742c1839eafaca073127b43a652be5ad9632fd43035cc7f657c8b7afcc42cd2392f70e8f7b615704e2db118, 0x6439c25d98305dcf33f75ae705304611, 'User', 'CC123456', '9700', 'Szombathely', 'Kéthly Anna utca 7.', 0),
+(4, '123456AT', 'Admin Tamás', '36702121212', '2002-07-12', NULL, 'admin@comove.app', 0x1AA29E37A9AAC8D26F98976650065F291F33AA65E6E4A1FB2D166167D6AD78A74882FE652481FCA73908DFCE06CDBBA4944F81C480DD5DCE04F59A3B2CCB2564, 0x422893FCBEA640F926DA1319F6BF4EE7, 'Administrator', NULL, '9700', 'Szombathely', 'Zrínyi Ilona utca 12.', 0);
 
 -- --------------------------------------------------------
 
