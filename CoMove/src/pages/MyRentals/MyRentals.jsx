@@ -4,6 +4,9 @@ import PageLayout from '../../components/common/PageLayout/PageLayout';
 import { API_URL } from '../../assets/scripts/Config';
 import RentalRow from '../../components/common/RentalRow/RentalRow';
 import { fetchAPI } from '../../assets/scripts/Utilities';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../assets/scripts/hooks/AuthUser';
+import { useEffect } from 'react';
 
 function MyRentals() {
     const navigate = useNavigate();
