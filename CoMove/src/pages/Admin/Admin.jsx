@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useUser } from "../../assets/scripts/hooks/AuthUser";
 import PageLayout from "../../components/common/PageLayout/PageLayout";
 import { useNavigate } from "react-router-dom";
-import { Grid, Group, Paper, Stack, Text } from "@mantine/core";
+import { Badge, Grid, Group, Paper, Stack, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAPI } from "../../assets/scripts/Utilities";
 import AdminList, { AdminListRow } from "../../components/Admin/AdminList";
@@ -75,9 +75,12 @@ function Admin() {
                             {users && users.map((user, i) => (
                                 <AdminListRow key={i} onClick={() => navigate(`/account/${user?.id}`)}>
                                     <Stack gap={5}>
-                                        <Group>
-                                            <Text fw='bold' fz={14}>{user?.id}</Text>
-                                            <Text fw='bold' fz={14}>{user?.name}</Text>
+                                        <Group justify="space-between">
+                                            <Group>
+                                                <Text fw='bold' fz={14}>{user?.id}</Text>
+                                                <Text fw='bold' fz={14}>{user?.name}</Text>
+                                            </Group>
+                                            { user?.role === "administrator" && (<Badge variant="light" color="red">Admin</Badge>) }
                                         </Group>
                                         <Group justify="flex-start" gap={10}>
                                             <Text c='dimmed' fz={11}>{user?.email}</Text>
