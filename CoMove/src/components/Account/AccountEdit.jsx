@@ -1,13 +1,15 @@
-import { ActionIcon, Avatar, FileButton, Grid, Group, Paper, Stack } from "@mantine/core";
+import { ActionIcon, Avatar, FileButton, Grid, Group, Loader, Paper, Stack, Center } from "@mantine/core";
 import { API_URL, BACKEND_URL } from "../../assets/scripts/Config";
 import { IconUpload, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import AccountForm from "./AccountForm";
 import { fetchAPI, formatPic } from "../../assets/scripts/Utilities";
+import { useUser } from "../../assets/scripts/hooks/AuthUser";
 
 function AccountEdit({ user }) {
     const queryClient = useQueryClient();
+    const { data: authUser, isLoading: userLoading } = useUser();
 
     const updateProfilePicMutation = useMutation({
         mutationFn: async (file) => {
@@ -72,7 +74,10 @@ function AccountEdit({ user }) {
                 </Grid.Col>
 
                 <Grid.Col span={{ base: 12, md: 6 }}>
-                    <AccountForm key={user?.id} user={user} />
+                    { userLoading
+                        ? <Center pt={100}><Loader color="var(--background)" /></Center>
+                        : <AccountForm key={user?.id + '-' + authUser?.id} user={user} authUser={authUser} />
+                    }
                 </Grid.Col>
             </Grid>
         </Paper>

@@ -1,7 +1,7 @@
 import { useForm } from "@mantine/form";
 import { checkOver18, fetchAPI, trimForm } from "../../assets/scripts/Utilities";
 import { useDateInputProps } from "../../assets/scripts/hooks/Hooks";
-import { Button, Checkbox, Divider, Group, PasswordInput, Stack, TextInput, Text } from "@mantine/core";
+import { Button, Checkbox, Divider, Group, PasswordInput, Stack, TextInput, Text, NumberInput, NativeSelect } from "@mantine/core";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "../../assets/scripts/Config";
@@ -10,7 +10,7 @@ import 'dayjs/locale/hu'
 import { notifications } from "@mantine/notifications";
 import { REGEX } from "../../assets/scripts/Regex";
 
-function AccountForm({ user }) {
+function AccountForm({ user, authUser }) {
     const queryClient = useQueryClient();
     const [newPassword, setNewPassword] = useState(false);
     const datePickerInputProps = useDateInputProps('date');
@@ -36,7 +36,7 @@ function AccountForm({ user }) {
             addressZipcode: ((v) => REGEX.addressZipcode.test(v) ? null : "Érvénytelen irányítószám!"),
             addressSettlement: ((v) => v.trim() ? null : "Nem adtál meg települést!"),
             addressStreetHouse: ((v) => v.trim() ? null : "Nem adtál meg utcát, házszámot!"),
-            previousPassword: ((v) => v.trim() ? null : "Kötelező megadni a jelszót a beállítások frissítéséhez!")
+            previousPassword: authUser?.role === "administrator" ? () => null : ((v) => v.trim() ? null : "Kötelező megadni a jelszót a beállítások frissítéséhez!")
         },
         transformValues: (values) => ({
             ...values,
@@ -179,10 +179,35 @@ function AccountForm({ user }) {
 
                 <Divider />
 
-                <PasswordInput
-                    label="Régi jelszó"
-                    {...form.getInputProps("previousPassword")}
-                />
+                { authUser?.role !== "administrator" ? (
+                    <>
+
+                        <PasswordInput
+                            label="Régi jelszó"
+                            {...form.getInputProps("previousPassword")}
+                        />
+                    </>
+                ) : (
+                    <>
+                        <NumberInput
+                            label="Egyenleg"
+                            placeholder="pl. 15000"
+                            min={0}
+                            rightSection={<Text c="dimmed" fz={12}>Ft</Text>}
+                            {...form.getInputProps("balance")}
+                        />
+
+                        <NativeSelect 
+                            label="Szerepkör"
+                            placeholder="pl. user"
+                            data={[
+                                { value: 'user', label: "Felhasználó" }, 
+                                { value: 'administrator', label: "Adminisztrátor" }
+                            ]}
+                            {...form.getInputProps("role")}
+                        />
+                    </>
+                )}
 
                 <Group justify="flex-end">
                     <Button 

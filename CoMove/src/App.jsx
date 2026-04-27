@@ -18,6 +18,7 @@ import Page404 from "./pages/404/404";
 import Footer from "./components/common/Footer/Footer";
 import { useEffect } from "react";
 import { Stack } from "@mantine/core";
+import Admin from "./pages/Admin/Admin";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,8 @@ export default function App() {
               <Route path="/rental/:rentalId" element={<Rental />} />
               <Route path="/account/:userId" element={<Account />} />
               <Route path="/account" element={<Account />} />
+
+              <Route path="/admin" element={<Admin />} />
             </Route>
           </Route>
 
