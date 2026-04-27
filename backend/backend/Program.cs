@@ -43,7 +43,8 @@ namespace backend
 
             // Az email kuldozgetes nyilvan csak akkor mukodjon, ha van API, amivel
             // lehet emailt kuldozgetni
-            if (builder.Configuration["Auth:Mail:Resend:Token"] is string resendToken)
+            var resendToken = builder.Configuration["Auth:Mail:Resend:Token"];
+            if (!string.IsNullOrWhiteSpace(resendToken))
             {
                 builder.Services.AddOptions();
                 builder.Services.AddHttpClient<ResendClient>();
